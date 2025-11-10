@@ -1,0 +1,10 @@
+/home/alberto/Documentos/chatboot-cocoluventas/dashoffice-rust/frontend/target/release/deps/proc_macro_utils-e81001a98d9cf71f.d: /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/home/alberto/Documentos/chatboot-cocoluventas/dashoffice-rust/frontend/target/release/deps/libproc_macro_utils-e81001a98d9cf71f.rlib: /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/home/alberto/Documentos/chatboot-cocoluventas/dashoffice-rust/frontend/target/release/deps/libproc_macro_utils-e81001a98d9cf71f.rmeta: /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs /home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs
+
+/home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/lib.rs:
+/home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/parser.rs:
+/home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/assert.rs:
+/home/alberto/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro-utils-0.8.0/src/__private.rs:

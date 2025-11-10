@@ -1,0 +1,100 @@
+/* PageHeader Premium Component */
+
+.page-header-premium {
+    background: var(--color-surface);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px var(--color-shadow);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.5s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-header-premium:hover {
+    box-shadow: 0 8px 16px var(--color-shadow);
+    transform: translateY(-2px);
+}
+
+.page-header-premium.gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+}
+
+.page-header-premium.gradient .page-header-title,
+.page-header-premium.gradient .page-header-subtitle {
+    color: white;
+}
+
+.page-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.page-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.page-header-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    box-shadow: 0 4px 16px var(--color-shadow);
+    flex-shrink: 0;
+}
+
+.page-header-text {
+    flex: 1;
+}
+
+.page-header-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+.page-header-subtitle {
+    font-size: 1.125rem;
+    color: var(--color-textSecondary);
+    margin: 0;
+    font-weight: 500;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .page-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .page-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .page-header-title {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,22 @@
+[package]
+name = "analytics-engine"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+# Workspace deps
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+mongodb.workspace = true
+redis.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+dotenvy.workspace = true
+chrono.workspace = true
+
+# Local deps
+shared = { path = "../shared" }
+
+# Specific deps
+tokio-cron-scheduler = "0.10"

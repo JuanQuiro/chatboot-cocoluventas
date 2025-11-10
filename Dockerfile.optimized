@@ -1,0 +1,93 @@
+# ================================
+# DOCKERFILE ULTRA OPTIMIZADO
+# Reduce de 800MB a ~250MB
+# ================================
+
+# ================================
+# Stage 1: Dependencies
+# ================================
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Instalar solo producción
+COPY package*.json ./
+RUN npm ci --only=production --ignore-scripts && \
+    npm cache clean --force
+
+# ================================
+# Stage 2: Builder (Frontend)
+# ================================
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copiar package files del dashboard
+COPY dashboard/package*.json ./dashboard/
+RUN cd dashboard && npm ci
+
+# Copiar código fuente del dashboard
+COPY dashboard ./dashboard
+
+# Build optimizado
+RUN cd dashboard && \
+    GENERATE_SOURCEMAP=false \
+    INLINE_RUNTIME_CHUNK=false \
+    IMAGE_INLINE_SIZE_LIMIT=10000 \
+    npm run build && \
+    rm -rf node_modules
+
+# ================================
+# Stage 3: Runtime (Final)
+# ================================
+FROM node:20-alpine
+
+# Metadata
+LABEL maintainer="Ember Drago"
+LABEL description="Cocolu Ventas - DashOffice Optimizado"
+
+# Instalar solo herramientas necesarias
+RUN apk add --no-cache \
+    tini \
+    dumb-init \
+    curl
+
+WORKDIR /app
+
+# Copiar node_modules de producción
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copiar build del frontend
+COPY --from=builder /app/dashboard/build ./dashboard/build
+
+# Copiar backend
+COPY package*.json ./
+COPY src ./src
+COPY app-integrated.js ./
+
+# Usuario no-root por seguridad
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
+
+USER nodejs
+
+# Exponer puerto
+EXPOSE 3009
+
+# Health check
+HEALTHCHECK --interval=30s \
+            --timeout=3s \
+            --start-period=40s \
+            --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3009/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV PORT=3009
+
+# Usar dumb-init para manejo correcto de señales
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+# Start application
+CMD ["node", "app-integrated.js"]

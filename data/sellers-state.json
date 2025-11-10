@@ -1,0 +1,83 @@
+{
+  "sellers": [
+    {
+      "id": "SELLER001",
+      "name": "Ana García",
+      "phone": "+573001234567",
+      "email": "ana@emberdrago.com",
+      "active": true,
+      "specialty": "premium",
+      "maxClients": 10,
+      "currentClients": 0,
+      "totalSales": 0,
+      "rating": 4.8,
+      "status": "available",
+      "assignedAt": null
+    },
+    {
+      "id": "SELLER002",
+      "name": "Carlos Méndez",
+      "phone": "+573009876543",
+      "email": "carlos@emberdrago.com",
+      "active": true,
+      "specialty": "general",
+      "maxClients": 10,
+      "currentClients": 0,
+      "totalSales": 0,
+      "rating": 4.9,
+      "status": "available",
+      "assignedAt": null
+    },
+    {
+      "id": "SELLER003",
+      "name": "María López",
+      "phone": "+573005555555",
+      "email": "maria@emberdrago.com",
+      "active": true,
+      "specialty": "technical",
+      "maxClients": 8,
+      "currentClients": 0,
+      "totalSales": 0,
+      "rating": 4.7,
+      "status": "available",
+      "assignedAt": null
+    },
+    {
+      "id": "SELLER004",
+      "name": "Juan Rodríguez",
+      "phone": "+573007777777",
+      "email": "juan@emberdrago.com",
+      "active": true,
+      "specialty": "general",
+      "maxClients": 10,
+      "currentClients": 0,
+      "totalSales": 0,
+      "rating": 4.6,
+      "status": "available",
+      "assignedAt": null
+    },
+    {
+      "id": "SELLER005",
+      "name": "Laura Martínez",
+      "phone": "+573008888888",
+      "email": "laura@emberdrago.com",
+      "active": true,
+      "specialty": "vip",
+      "maxClients": 5,
+      "currentClients": 0,
+      "totalSales": 0,
+      "rating": 5,
+      "status": "available",
+      "assignedAt": null
+    }
+  ],
+  "currentIndex": 0,
+  "assignments": [],
+  "stats": {
+    "totalAssignments": 0,
+    "activeConversations": 0,
+    "completedConversations": 0,
+    "averageResponseTime": 0
+  },
+  "timestamp": "2025-11-04T09:23:16.498Z"
+}

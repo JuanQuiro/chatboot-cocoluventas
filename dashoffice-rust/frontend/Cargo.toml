@@ -1,0 +1,45 @@
+[workspace]
+# Frontend es independiente del workspace principal
+
+[package]
+name = "dashoffice-frontend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Yew - Framework ligero y maduro
+yew = { version = "0.21", features = ["csr"] }
+
+# Serialización
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# HTTP Client
+gloo-net = { version = "0.5", features = ["http"] }
+
+# Utilidades Web esenciales
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlElement",
+] }
+gloo-utils = "0.2"
+js-sys = "0.3"
+
+# Console logging
+console_error_panic_hook = "0.1"
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+opt-level = 's'  # Optimizar tamaño (más rápido que 'z')
+lto = "thin"     # LTO ligero (más rápido que full)
+codegen-units = 16  # Más paralelo = compila más rápido
+panic = 'abort'
+strip = true

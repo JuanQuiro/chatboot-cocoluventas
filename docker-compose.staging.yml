@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # MongoDB Staging
+  mongodb-staging:
+    image: mongo:7.0
+    container_name: cocolu-mongodb-staging
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: cocolu-ventas-staging
+    volumes:
+      - mongodb-staging-data:/data/db
+      - mongodb-staging-backup:/backup
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Staging
+  redis-staging:
+    image: redis:7-alpine
+    container_name: cocolu-redis-staging
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-staging-data:/data
+    networks:
+      - cocolu-network
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # API Staging
+  api-staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: cocolu-api-staging
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=staging
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb-staging:27017/cocolu-ventas-staging?authSource=admin
+      - REDIS_URL=redis://redis-staging:6379
+      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - .env.staging
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      mongodb-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Dashboard Staging
+  dashboard-staging:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: cocolu-dashboard-staging
+    restart: always
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=https://api-staging.cocolu-ventas.com
+      - REACT_APP_ENV=staging
+    networks:
+      - cocolu-network
+
+  # Nginx Reverse Proxy
+  nginx-staging:
+    image: nginx:alpine
+    container_name: cocolu-nginx-staging
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/staging.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api-staging
+      - dashboard-staging
+    networks:
+      - cocolu-network
+
+volumes:
+  mongodb-staging-data:
+  mongodb-staging-backup:
+  redis-staging-data:
+
+networks:
+  cocolu-network:
+    driver: bridge

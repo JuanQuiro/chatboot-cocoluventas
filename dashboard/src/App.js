@@ -1,0 +1,218 @@
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import './App.css';
+
+// Contextos
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { TypographyProvider } from './contexts/TypographyContext';
+
+// Componentes
+import PrivateRoute from './components/PrivateRoute';
+import { Can, RoleBadge } from './components/auth';
+import ThemeSelector from './components/ThemeSelector';
+import FontSelector from './components/FontSelector';
+import ErrorBoundary from './components/ErrorBoundary';
+import RouteLogger from './components/RouteLogger';
+import LogViewer from './components/LogViewer';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Sellers from './pages/Sellers';
+import Analytics from './pages/Analytics';
+import Orders from './pages/Orders';
+import Products from './pages/Products';
+import Users from './pages/Users';
+import Roles from './pages/Roles';
+import BotsWrapper from './pages/BotsWrapper';
+
+// Componente de layout autenticado
+function AuthenticatedLayout({ activeTab, setActiveTab }) {
+  const { user, logout } = useAuth();
+  
+  const handleLogout = () => {
+    if (window.confirm('¿Estás seguro que deseas cerrar sesión?')) {
+      logout();
+    }
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-content">
+          <div className="logo-section">
+            <h1>🤖 Cocolu Ventas</h1>
+            <span className="powered-by">Powered by <strong>Ember Drago</strong></span>
+          </div>
+          <div className="header-stats">
+            <FontSelector className="mr-2" />
+            <ThemeSelector className="mr-4" />
+            <div className="stat-badge">
+              <span className="stat-label">Estado</span>
+              <span className="stat-value online">● Online</span>
+            </div>
+            <div className="stat-badge">
+              <span className="stat-label">Usuario</span>
+              <span className="stat-value">{user?.name || user?.email}</span>
+            </div>
+            <div className="stat-badge">
+              <RoleBadge role={user?.role} size="sm" />
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="logout-btn"
+              style={{
+                marginLeft: '1rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#dc2626'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#ef4444'}
+            >
+              🚪 Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="app-nav">
+        <Link 
+          to="/" 
+          className={activeTab === 'dashboard' ? 'active' : ''}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          📊 Dashboard
+        </Link>
+        <Link 
+          to="/sellers" 
+          className={activeTab === 'sellers' ? 'active' : ''}
+          onClick={() => setActiveTab('sellers')}
+        >
+          👥 Vendedores
+        </Link>
+        <Link 
+          to="/analytics" 
+          className={activeTab === 'analytics' ? 'active' : ''}
+          onClick={() => setActiveTab('analytics')}
+        >
+          📈 Analytics
+        </Link>
+        <Link 
+          to="/orders" 
+          className={activeTab === 'orders' ? 'active' : ''}
+          onClick={() => setActiveTab('orders')}
+        >
+          🛒 Pedidos
+        </Link>
+        <Link 
+          to="/products" 
+          className={activeTab === 'products' ? 'active' : ''}
+          onClick={() => setActiveTab('products')}
+        >
+          📦 Productos
+        </Link>
+        <Can permission="users.view">
+          <Link 
+            to="/users" 
+            className={activeTab === 'users' ? 'active' : ''}
+            onClick={() => setActiveTab('users')}
+          >
+            👥 Usuarios
+          </Link>
+        </Can>
+        <Can permission="users.roles">
+          <Link 
+            to="/roles" 
+            className={activeTab === 'roles' ? 'active' : ''}
+            onClick={() => setActiveTab('roles')}
+          >
+            🎭 Roles
+          </Link>
+        </Can>
+        <Can permission="bots.view">
+          <Link 
+            to="/bots" 
+            className={activeTab === 'bots' ? 'active' : ''}
+            onClick={() => setActiveTab('bots')}
+          >
+            🤖 Bots
+          </Link>
+        </Can>
+      </nav>
+
+      {/* Main Content */}
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/sellers" element={<Sellers />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/roles" element={<Roles />} />
+          <Route path="/bots" element={<BotsWrapper />} />
+        </Routes>
+      </main>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <p>© 2025 Ember Drago - Agencia de Tecnología | Chatbot Cocolu Ventas v1.0.0</p>
+      </footer>
+    </>
+  );
+}
+
+function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  console.log('🚀 [APP] Inicializando aplicación...');
+
+  return (
+    <ErrorBoundary>
+      <TypographyProvider>
+        <ThemeProvider>
+          <AuthProvider>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            {/* Logging de rutas */}
+            <RouteLogger />
+            
+            <Routes>
+              {/* Ruta pública - Login */}
+              <Route path="/login" element={<Login />} />
+            
+            {/* Rutas protegidas */}
+            <Route 
+              path="/*" 
+              element={
+                <ErrorBoundary>
+                  <PrivateRoute>
+                    <div className="app">
+                      <ErrorBoundary>
+                        <AuthenticatedLayout activeTab={activeTab} setActiveTab={setActiveTab} />
+                      </ErrorBoundary>
+                    </div>
+                  </PrivateRoute>
+                </ErrorBoundary>
+              } 
+            />
+          </Routes>
+          
+          {/* Log Viewer Global - Disponible en todas las páginas */}
+          <LogViewer />
+          </Router>
+          </AuthProvider>
+        </ThemeProvider>
+      </TypographyProvider>
+    </ErrorBoundary>
+  );
+}
+
+export default App;

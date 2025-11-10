@@ -1,0 +1,17 @@
+==============================================
+🧹 LIMPIAR LOGS AHORA - COPIAR Y PEGAR
+==============================================
+
+PASO 1: Abre http://localhost:3000
+
+PASO 2: Presiona F12 (DevTools)
+
+PASO 3: Ve a la pestaña "Console"
+
+PASO 4: Pega esto y presiona ENTER:
+
+localStorage.clear(); location.reload();
+
+==============================================
+✅ LISTO! Los errores viejos se han borrado
+==============================================
