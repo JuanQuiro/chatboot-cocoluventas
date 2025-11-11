@@ -3,6 +3,7 @@ import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
 import botControlService from '../services/bot-control.service.js';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 
 /**
  * Flujo: Catálogo
@@ -92,7 +93,13 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
     .addAnswer(
         null,
         { capture: true },
-        async (ctx, { state, flowDynamic, endFlow, provider }) => {
+        async (ctx, { state, flowDynamic, endFlow, provider, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) {
+                return; // Intención global procesada
+            }
+            
             const currentState = state.getMyState();
             
             // Solo procesar si estamos esperando respuesta de catálogo

@@ -1,8 +1,6 @@
 import { addKeyword } from '@builderbot/bot';
-import sellersManager from '../services/sellers.service.js';
 import botControlService from '../services/bot-control.service.js';
-import timerService from '../services/timer.service.js';
-import alertsService from '../services/alerts.service.js';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 
 /**
  * Flujo: Horarios
@@ -18,6 +16,11 @@ export const horariosFlow = addKeyword(['horario', 'horarios', 'hora'])
         `💝 ¿List@ para hacer un pedido?`,
         { delay: 200, capture: true },
         async (ctx, { state, flowDynamic, gotoFlow, endFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) {
+                return; // Intención global procesada
+            }
             // Verificar si bot está pausado
             if (botControlService.isPaused(ctx.from)) {
                 console.log(`⏸️ Bot pausado - flujo horarios bloqueado para ${ctx.from}`);
