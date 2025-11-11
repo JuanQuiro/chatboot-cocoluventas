@@ -79,6 +79,16 @@ export const hablarAsesorFlow = addKeyword(['asesor', 'hablar', 'atención'])
             );
 
             console.log(`✅ Usuario ${ctx.from} conectado con asesor ${seller.name}`);
+            
+            // Ofrecer volver al menú
+            await flowDynamic(
+                '\n\n📋 *¿Necesitas algo más?*\n\n' +
+                '👉 Escribe *MENU* para ver todas las opciones\n' +
+                '👉 O escribe directamente:\n' +
+                '   • *CATALOGO* para ver productos\n' +
+                '   • *PEDIDO* para info de pedidos\n' +
+                '   • *HORARIOS* para ver horarios'
+            );
         }
     )
     .addAnswer(
@@ -121,7 +131,12 @@ export const hablarAsesorFlow = addKeyword(['asesor', 'hablar', 'atención'])
                 });
 
                 console.log(`✅ Proceso completado exitosamente para ${ctx.from}`);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Algo más en lo que pueda ayudarte?*\n\n' +
+                    '👉 Escribe *MENU* o un número (1-5)'
+                );
                 
             } else if (userResponse.includes('no')) {
                 // ESCENARIO 2: Cliente NO fue atendido
@@ -170,7 +185,12 @@ export const hablarAsesorFlow = addKeyword(['asesor', 'hablar', 'atención'])
                 });
 
                 console.log(`⚠️ Alerta de no atendido enviada para ${ctx.from}`);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Necesitas algo más mientras esperas?*\n\n' +
+                    '👉 Escribe *MENU* para ver opciones'
+                );
             } else {
                 // Respuesta no clara
                 await flowDynamic(

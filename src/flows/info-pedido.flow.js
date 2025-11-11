@@ -73,7 +73,14 @@ export const infoPedidoFlow = addKeyword(['pedido', 'información pedido', 'info
                 'followup_20_info_pedido'
             );
 
-            console.log('Cliente conectado con asesor para info de pedido');
+            console.log('Usuario ' + ctx.from + ' solicitando info de pedido');
+            
+            // Ofrecer volver al menú
+            await flowDynamic(
+                '\n\n📋 *¿Necesitas algo más?*\n\n' +
+                '👉 Escribe *MENU* para ver todas las opciones\n' +
+                '👉 O escribe un número (1-5)'
+            );
         }
     )
     .addAnswer(
@@ -115,7 +122,12 @@ export const infoPedidoFlow = addKeyword(['pedido', 'información pedido', 'info
                 });
 
                 console.log('Info pedido completado exitosamente para ' + ctx.from);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Algo más en lo que pueda ayudarte?*\n\n' +
+                    '👉 Escribe *MENU* o un número (1-5)'
+                );
                 
             } else if (userResponse.includes('no')) {
                 // ESCENARIO 6: NO fue atendida
@@ -165,7 +177,12 @@ export const infoPedidoFlow = addKeyword(['pedido', 'información pedido', 'info
                 });
 
                 console.log('Alerta info pedido enviada para ' + ctx.from);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Necesitas algo más mientras te contactan?*\n\n' +
+                    '👉 Escribe *MENU* para ver opciones'
+                );
             } else {
                 await flowDynamic([
                     'Por favor responde *SI* o *NO*:',

@@ -88,7 +88,14 @@ export const problemaFlow = addKeyword(['problema', 'queja', 'reclamo'])
                 'followup_15_problema'
             );
 
-            console.log(`✅ Alerta de problema enviada para ${ctx.from}`);
+            console.log(`✅ Usuario ${ctx.from} reportando problema - Alerta HIGH enviada`);
+            
+            // Ofrecer volver al menú
+            await flowDynamic(
+                '\n\n📋 *¿Necesitas algo más?*\n\n' +
+                '👉 Escribe *MENU* para ver todas las opciones\n' +
+                '👉 O escribe un número (1-5)'
+            );
         }
     )
     .addAnswer(
@@ -132,7 +139,12 @@ export const problemaFlow = addKeyword(['problema', 'queja', 'reclamo'])
                 });
 
                 console.log(`✅ Problema resuelto para ${ctx.from}`);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Algo más en lo que pueda ayudarte?*\n\n' +
+                    '👉 Escribe *MENU* o un número (1-5)'
+                );
                 
             } else if (userResponse.includes('no')) {
                 // Problema NO resuelto - escalar
@@ -188,7 +200,12 @@ export const problemaFlow = addKeyword(['problema', 'queja', 'reclamo'])
                 });
 
                 console.log(`🚨 Problema escalado para ${ctx.from}`);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Necesitas algo más mientras te contactan?*\n\n' +
+                    '👉 Escribe *MENU* para ver opciones'
+                );
             } else {
                 await flowDynamic([
                     'Por favor responde *SI* o *NO*:',

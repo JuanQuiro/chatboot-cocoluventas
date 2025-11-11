@@ -77,6 +77,16 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             );
 
             console.log(`✅ Catálogo enviado a ${ctx.from}`);
+            
+            // Ofrecer volver al menú
+            await flowDynamic(
+                '\n\n📋 *¿Necesitas algo más?*\n\n' +
+                '👉 Escribe *MENU* para ver todas las opciones\n' +
+                '👉 O escribe:\n' +
+                '   • *ASESOR* para hablar con alguien\n' +
+                '   • *PEDIDO* para info de pedidos\n' +
+                '   • *HORARIOS* para ver horarios'
+            );
         }
     )
     .addAnswer(
@@ -156,7 +166,12 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
                 });
 
                 console.log(`✅ Cliente no interesado - Alerta enviada para ${ctx.from}`);
-                return endFlow();
+                
+                // Ofrecer menu
+                await flowDynamic(
+                    '\n\n📋 *¿Algo más mientras te contactan?*\n\n' +
+                    '👉 Escribe *MENU* para ver opciones'
+                );
 
             } else if (userResponse.includes('si') || userResponse.includes('sí') || userResponse.includes('me gust')) {
                 // ESCENARIO 4: Sí le gustó algo
@@ -296,7 +311,12 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             });
 
             console.log(`✅ Proceso de catálogo completado para ${ctx.from}`);
-            return endFlow();
+            
+            // Ofrecer menu
+            await flowDynamic(
+                '\n\n📋 *¿Necesitas algo más?*\n\n' +
+                '👉 Escribe *MENU* o un número (1-5)'
+            );
         }
     );
 
