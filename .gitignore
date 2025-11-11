@@ -44,3 +44,18 @@ bot_principal_sessions/
 primera-prueba-flujo-chatboot/
 segunda-prueba-flujo/
 *.log
+
+# Rust builds
+dashoffice-rust/frontend/target/
+dashoffice-rust/crates/*/target/
+*.rlib
+*.rmeta
+*.d
+
+# WhatsApp sessions
+bot_principal_sessions/
+*_sessions/
+
+# Pruebas
+primera-prueba-flujo-chatboot/
+segunda-prueba-flujo/
