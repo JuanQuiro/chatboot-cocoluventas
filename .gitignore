@@ -13,6 +13,11 @@ pnpm-lock.yaml
 database/
 *.json.tmp
 
+# Catálogos y archivos pesados
+catalogo-noviembre/
+public/*.pdf
+public/catalogo*
+
 # Logs
 logs/
 *.log
