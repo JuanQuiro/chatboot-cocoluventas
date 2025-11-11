@@ -154,31 +154,43 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             const esBusquedaConFiltros = patronesFiltros.some(patron => patron.test(userInput));
             
             if (esBusquedaConFiltros) {
-                await flowDynamic('🔍 Buscando con filtros avanzados...');
+                await flowDynamic('🔍 *Búsqueda inteligente activada...*\n\n✨ Analizando catálogo real con tus filtros');
                 
                 const busqueda = filtrosCatalogoService.buscarConFiltros(userInput);
                 const mensaje = filtrosCatalogoService.formatearResultados(busqueda, 5);
                 
                 await flowDynamic(mensaje);
                 
-                // Enviar imágenes de los primeros 3 resultados
+                // Enviar imágenes de los primeros 3 resultados con info completa
                 if (busqueda.resultados.length > 0) {
-                    await flowDynamic('📸 Enviando imágenes...');
+                    await flowDynamic('📸 *Mostrando productos encontrados:*');
                     
                     for (const prod of busqueda.resultados.slice(0, 3)) {
                         const imagePath = catalogoCompletoService.obtenerImagenPath(prod);
                         if (catalogoCompletoService.imagenExiste(prod)) {
                             const fs = await import('fs');
+                            const mensajeProducto = catalogoCompletoService.formatearProducto(prod);
+                            
                             await provider.sendMessage(
                                 ctx.from,
                                 {
                                     image: fs.readFileSync(imagePath),
-                                    caption: `📄 Página ${prod.page}\n${prod.name}\n${prod.price_text}`
+                                    caption: mensajeProducto
                                 },
                                 {}
                             );
+                            
+                            // Pausa entre productos
+                            await new Promise(resolve => setTimeout(resolve, 500));
                         }
                     }
+                    
+                    await flowDynamic(
+                        `\n💡 *Más opciones:*\n` +
+                        `   • Escribe "pag[número]" para ver detalle\n` +
+                        `   • Ajusta tu búsqueda con otros filtros\n` +
+                        `   • Escribe *ASESOR* para ayuda personalizada`
+                    );
                 }
                 
                 return;
@@ -193,18 +205,22 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
                 if (producto) {
                     await flowDynamic(`🔍 Buscando página ${pageNum}...`);
                     
-                    // Enviar imagen del producto
+                    // Enviar imagen del producto con información profesional
                     const imagePath = catalogoCompletoService.obtenerImagenPath(producto);
                     if (catalogoCompletoService.imagenExiste(producto)) {
                         const fs = await import('fs');
+                        const mensajeProducto = catalogoCompletoService.formatearProducto(producto);
+                        
                         await provider.sendMessage(
                             ctx.from,
                             {
                                 image: fs.readFileSync(imagePath),
-                                caption: catalogoCompletoService.formatearProducto(producto)
+                                caption: mensajeProducto
                             },
                             {}
                         );
+                        
+                        await flowDynamic('✨ _Datos extraídos del catálogo real_');
                     } else {
                         await flowDynamic(catalogoCompletoService.formatearProducto(producto));
                     }
@@ -231,25 +247,40 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             // 🔍 BÚSQUEDA POR KEYWORD (relicario, anillo, oro, etc.)
             const productos = catalogoCompletoService.buscarPorKeyword(userInput);
             if (productos.length > 0) {
-                await flowDynamic(`🔍 Encontré ${productos.length} producto(s) relacionado(s):\n`);
+                await flowDynamic(
+                    `🔍 *Encontré ${productos.length} producto(s) en el catálogo real:*\n\n` +
+                    `✨ Mostrando ${Math.min(productos.length, 3)} resultado(s)...`
+                );
                 
                 for (const prod of productos.slice(0, 3)) {
                     const imagePath = catalogoCompletoService.obtenerImagenPath(prod);
                     if (catalogoCompletoService.imagenExiste(prod)) {
                         const fs = await import('fs');
+                        const mensajeProducto = catalogoCompletoService.formatearProducto(prod);
+                        
                         await provider.sendMessage(
                             ctx.from,
                             {
                                 image: fs.readFileSync(imagePath),
-                                caption: catalogoCompletoService.formatearProducto(prod)
+                                caption: mensajeProducto
                             },
                             {}
                         );
+                        
+                        // Pequeña pausa entre productos
+                        await new Promise(resolve => setTimeout(resolve, 500));
                     }
                 }
                 
                 if (productos.length > 3) {
-                    await flowDynamic(`\n📚 Hay ${productos.length - 3} producto(s) más. Envía el PDF completo para verlos todos.`);
+                    await flowDynamic(
+                        `\n📚 *Hay ${productos.length - 3} producto(s) más disponibles*\n\n` +
+                        `💡 Puedes buscar por:\n` +
+                        `   • Página: "pag[número]"\n` +
+                        `   • Material: "oro", "plata", "acero"\n` +
+                        `   • Precio: "menor de 30", "entre 10 y 50"\n\n` +
+                        `O escribe *CATALOGO* para ver el PDF completo 📄`
+                    );
                 }
                 
                 return;
