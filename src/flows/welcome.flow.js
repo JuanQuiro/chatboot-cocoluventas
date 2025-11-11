@@ -11,7 +11,11 @@ import { sleep, DELAYS } from '../utils/delays.js';
  * KEYWORDS ESPECÍFICAS para prevenir loop infinito
  * Menú principal con 5 opciones
  */
-export const welcomeFlow = addKeyword(['hola', 'hi', 'hello', 'inicio', 'empezar', 'comenzar', 'menu', 'menú', 'start'])
+export const welcomeFlow = addKeyword([
+    'hola', 'hi', 'hello', 'inicio', 'empezar', 'comenzar', 'menu', 'menú', 'start',
+    '1', '2', '3', '4', '5',  // Números como keywords globales
+    '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'  // Emojis como keywords globales
+])
     .addAnswer(
         '✨ *¡Hola!* Bienvenid@ a *Cocolu Ventas* 💖\n\n¡Qué alegría tenerte aquí! 🌟\n\nSoy tu asistente personal.\n\n💝 *¿En qué puedo ayudarte?*\n\n*1.* Hablar con Asesor 👥\n*2.* Ver Catálogo 📖\n*3.* Info de mi Pedido 📦\n*4.* Horarios ⏰\n*5.* Tengo un Problema ⚠️\n\n👉 Escribe el *número*\n\n_Estamos aquí para ti_ 💗',
         { delay: 100, capture: true },
