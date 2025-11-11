@@ -3,6 +3,7 @@ import { isBusinessHours } from '../utils/schedule.js';
 import sellersManager from '../services/sellers.service.js';
 import analyticsService from '../services/analytics.service.js';
 import botControlService from '../services/bot-control.service.js';
+import testingCommandsService from '../services/testing-commands.service.js';
 import { isFrustrated, isTesting, getFrustrationResponse, getTestingResponse } from '../utils/frustration-detector.js';
 import { sleep, DELAYS } from '../utils/delays.js';
 
@@ -42,7 +43,19 @@ export const welcomeFlow = addKeyword([
         null,
         { capture: false },
         async (ctx, { gotoFlow, flowDynamic, state, endFlow }) => {
-            // 1. Verificar comandos de control del bot
+            // 1. VERIFICAR COMANDOS DE TESTING Y DEBUG (PRIORITARIO)
+            const testingCommand = testingCommandsService.checkTestingCommand(ctx.body);
+            
+            if (testingCommand) {
+                console.log(`🧪 Comando de testing detectado: ${testingCommand}`);
+                const response = await testingCommandsService.executeCommand(testingCommand, ctx, { flowDynamic, state });
+                if (response) {
+                    await flowDynamic(response);
+                    return endFlow();
+                }
+            }
+            
+            // 2. Verificar comandos de control del bot
             const controlCommand = botControlService.checkControlCommand(ctx.body);
             
             if (controlCommand === 'pause') {
@@ -63,23 +76,28 @@ export const welcomeFlow = addKeyword([
                 return endFlow();
             }
             
-            // 3. DETECCIÓN DE FRUSTRACIÓN
+            // 4. DETECCIÓN DE FRUSTRACIÓN
             if (isFrustrated(ctx.body)) {
                 await flowDynamic(getFrustrationResponse());
                 return endFlow();
             }
             
-            // 4. DETECCIÓN DE TESTING
+            // 5. DETECCIÓN DE TESTING
             if (isTesting(ctx.body)) {
                 await flowDynamic(getTestingResponse());
                 return endFlow();
             }
             
-            // 5. Registrar mensaje
+            // 6. Registrar mensaje
             analyticsService.trackMessage(ctx.from, 'incoming');
             analyticsService.trackConversation(ctx.from);
             
-            // 6. Procesar input ATÓMICAMENTE - NORMALIZACIÓN ULTRA ROBUSTA
+            // 7. LOG DE DEBUG (si está activado)
+            if (testingCommandsService.isDebugMode()) {
+                console.log(`🐛 [DEBUG] Usuario: ${ctx.from} | Mensaje: "${ctx.body}"`);
+            }
+            
+            // 8. Procesar input ATÓMICAMENTE - NORMALIZACIÓN ULTRA ROBUSTA
             const rawInput = ctx.body.trim(); // Input original para emojis
             
             // Normalización completa en múltiples pasos:

@@ -1,7 +1,10 @@
 /**
- * Servicio de Timers para seguimiento de conversaciones
- * Maneja delays y follow-ups automáticos
+ * Servicio de Timers
+ * Gestiona los timers de seguimiento para cada flujo
+ * Soporta overrides para testing
  */
+
+import testingCommandsService from './testing-commands.service.js';
 
 class TimerService {
     constructor() {
@@ -30,6 +33,11 @@ class TimerService {
         const timeoutId = setTimeout(async () => {
             try {
                 console.log(`⏰ Ejecutando timer ${timerType} para usuario ${userId}`);
+                
+                if (testingCommandsService.isDebugMode()) {
+                    console.log(`🐛 [DEBUG] Timer callback ejecutándose para ${userId}`);
+                }
+                
                 await callback();
                 
                 // Registrar en historial
