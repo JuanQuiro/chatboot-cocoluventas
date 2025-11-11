@@ -9,17 +9,14 @@ class BotControlService {
         // Key: número de teléfono, Value: { pausedAt, pausedBy }
         this.pausedChats = new Map();
         
-        // Comandos de control (EXACTOS y en MAYÚSCULAS)
-        this.PAUSE_COMMAND = 'PAUSAR BOT COCOLU AHORA';
-        this.RESUME_COMMAND = 'ACTIVAR BOT COCOLU AHORA';
-        
-        // Comando alternativo más simple pero aún seguro
-        this.PAUSE_COMMAND_ALT = 'BOT PAUSA YA';
-        this.RESUME_COMMAND_ALT = 'BOT ACTIVA YA';
         
         console.log('✅ BotControlService inicializado');
-        console.log(`📋 Comando pausar: "${this.PAUSE_COMMAND}" o "${this.PAUSE_COMMAND_ALT}"`);
-        console.log(`📋 Comando activar: "${this.RESUME_COMMAND}" o "${this.RESUME_COMMAND_ALT}"`);
+        console.log('📋 Comandos disponibles:');
+        console.log('   🔴 PAUSAR: "PAUSAR BOT COCOLU AHORA" o "BOT PAUSA YA"');
+        console.log('   🟢 ACTIVAR: "ACTIVAR BOT COCOLU AHORA" o "BOT ACTIVA YA"');
+        console.log('   🧪 TESTING: "MODO TEST ACTIVAR" o "TEST MODE ON"');
+        console.log('   🐛 DEBUG: "DEBUG MODE ON" o "ACTIVAR DEBUG"');
+        console.log('   ⏱️  TIMER: "TIMER 1MIN" o "TIMER 5MIN" o "TIMER NORMAL"');
     }
 
     /**
@@ -28,16 +25,72 @@ class BotControlService {
      * @returns {string|null} - 'pause', 'resume' o null
      */
     checkControlCommand(message) {
-        const cleanMessage = message.trim();
+        const msg = message.toUpperCase().trim();
         
-        // Verificar comandos de pausa
-        if (cleanMessage === this.PAUSE_COMMAND || cleanMessage === this.PAUSE_COMMAND_ALT) {
+        // Comandos para pausar
+        if (msg.includes('PAUSAR BOT COCOLU AHORA') || msg.includes('BOT PAUSA YA')) {
             return 'pause';
         }
         
-        // Verificar comandos de reanudación
-        if (cleanMessage === this.RESUME_COMMAND || cleanMessage === this.RESUME_COMMAND_ALT) {
-            return 'resume';
+        // Comandos para activar
+        if (msg.includes('ACTIVAR BOT COCOLU AHORA') || msg.includes('BOT ACTIVA YA')) {
+            return 'activate';
+        }
+        
+        // Comandos de testing
+        if (msg.includes('MODO TEST ACTIVAR') || msg.includes('TEST MODE ON')) {
+            return 'test_on';
+        }
+        
+        if (msg.includes('MODO TEST DESACTIVAR') || msg.includes('TEST MODE OFF')) {
+            return 'test_off';
+        }
+        
+        // Comandos de debug
+        if (msg.includes('DEBUG MODE ON') || msg.includes('ACTIVAR DEBUG')) {
+            return 'debug_on';
+        }
+        
+        if (msg.includes('DEBUG MODE OFF') || msg.includes('DESACTIVAR DEBUG')) {
+            return 'debug_off';
+        }
+        
+        // Comandos de timer override
+        if (msg.includes('TIMER 1MIN') || msg.includes('TIMER 1MINUTO')) {
+            return 'timer_1min';
+        }
+        
+        if (msg.includes('TIMER 5MIN') || msg.includes('TIMER 5MINUTOS')) {
+            return 'timer_5min';
+        }
+        
+        if (msg.includes('TIMER 30SEG') || msg.includes('TIMER 30SEGUNDOS')) {
+            return 'timer_30sec';
+        }
+        
+        if (msg.includes('TIMER NORMAL') || msg.includes('TIMER RESET')) {
+            return 'timer_normal';
+        }
+        
+        // Comandos de estado
+        if (msg.includes('ESTADO BOT') || msg.includes('BOT STATUS')) {
+            return 'status';
+        }
+        
+        if (msg.includes('VER TIMERS') || msg.includes('SHOW TIMERS')) {
+            return 'show_timers';
+        }
+        
+        if (msg.includes('LIMPIAR ESTADO') || msg.includes('CLEAR STATE')) {
+            return 'clear_state';
+        }
+        
+        if (msg.includes('VER VENDEDORAS') || msg.includes('SHOW SELLERS')) {
+            return 'show_sellers';
+        }
+        
+        if (msg.includes('FORZAR TIMER') || msg.includes('FORCE TIMER')) {
+            return 'force_timer';
         }
         
         return null;
@@ -45,67 +98,68 @@ class BotControlService {
 
     /**
      * Pausa el bot en un chat específico
-     * @param {string} phoneNumber - Número de teléfono del chat
+     * @param {string} userId - ID del usuario
      * @param {string} pausedBy - Quien pausó (opcional)
      * @returns {boolean} - true si se pausó correctamente
      */
-    pauseBot(phoneNumber, pausedBy = 'Usuario') {
-        if (this.pausedChats.has(phoneNumber)) {
-            console.log(`⚠️ Bot ya estaba pausado en ${phoneNumber}`);
+    pauseBot(userId, pausedBy = 'Usuario') {
+        if (this.pausedUsers.has(userId)) {
+            console.log(`⚠️ Bot ya estaba pausado en ${userId}`);
             return false;
         }
 
-        this.pausedChats.set(phoneNumber, {
+        this.pausedUsers.set(userId, {
             pausedAt: new Date().toISOString(),
             pausedBy: pausedBy
         });
 
-        console.log(`⏸️ Bot PAUSADO en chat: ${phoneNumber}`);
+        console.log(`⏸️ Bot PAUSADO en chat: ${userId}`);
         console.log(`   Pausado por: ${pausedBy}`);
-        console.log(`   Total chats pausados: ${this.pausedChats.size}`);
+        console.log(`   Total chats pausados: ${this.pausedUsers.size}`);
         
         return true;
     }
 
     /**
      * Reanuda el bot en un chat específico
-     * @param {string} phoneNumber - Número de teléfono del chat
+     * @param {string} userId - ID del usuario
      * @returns {boolean} - true si se reanudó correctamente
      */
-    resumeBot(phoneNumber) {
-        if (!this.pausedChats.has(phoneNumber)) {
-            console.log(`⚠️ Bot no estaba pausado en ${phoneNumber}`);
+    resumeBot(userId) {
+        if (!this.pausedUsers.has(userId)) {
+            console.log(`⚠️ Bot no estaba pausado en ${userId}`);
             return false;
         }
 
-        const pauseInfo = this.pausedChats.get(phoneNumber);
-        this.pausedChats.delete(phoneNumber);
+        const pauseInfo = this.pausedUsers.get(userId);
+        this.pausedUsers.delete(userId);
 
         const pauseDuration = new Date() - new Date(pauseInfo.pausedAt);
         const minutes = Math.floor(pauseDuration / 60000);
 
-        console.log(`▶️ Bot REACTIVADO en chat: ${phoneNumber}`);
+        console.log(`▶️ Bot REACTIVADO en chat: ${userId}`);
         console.log(`   Estuvo pausado: ${minutes} minutos`);
-        console.log(`   Total chats pausados: ${this.pausedChats.size}`);
+        console.log(`   Total chats pausados: ${this.pausedUsers.size}`);
         
         return true;
     }
 
     /**
      * Verifica si el bot está pausado en un chat
-     * @param {string} phoneNumber - Número de teléfono del chat
+     * @param {string} userId - ID del usuario
      * @returns {boolean} - true si está pausado
      */
-    isPaused(phoneNumber) {
-        return this.pausedChats.has(phoneNumber);
+    isPaused(userId) {
+        return this.pausedUsers.has(userId);
     }
 
     /**
      * Obtiene información de pausa de un chat
-     * @param {string} phoneNumber - Número de teléfono
+     * @param {string} userId - ID del usuario
      * @returns {object|null} - Info de pausa o null
      */
-    getPauseInfo(phoneNumber) {
+    getPauseInfo(userId) {
+        return this.pausedUsers.get(userId) || null;
         return this.pausedChats.get(phoneNumber) || null;
     }
 
