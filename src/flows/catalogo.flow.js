@@ -4,6 +4,7 @@ import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
 import botControlService from '../services/bot-control.service.js';
 import catalogoCompletoService from '../services/catalogo-completo.service.js';
+import filtrosCatalogoService from '../services/filtros-catalogo.service.js';
 import { processGlobalIntent } from '../utils/intent-interceptor.js';
 
 /**
@@ -140,6 +141,48 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             
             const currentState = state.getMyState();
             const userInput = ctx.body.toLowerCase().trim();
+            
+            // 🔍 BÚSQUEDA CON FILTROS AVANZADOS
+            // Detectar si es una consulta con filtros (precio, material, etc.)
+            const patronesFiltros = [
+                /\d+\s*(mil|k|dolar|usd|\$)/i,  // Menciona números con unidades
+                /(mayor|menor|mas|menos|entre|arriba|debajo)/i, // Comparaciones
+                /(barato|caro|economico|premium|medio)/i, // Términos relativos
+                /(oro|plata|acero)/i, // Materiales
+            ];
+            
+            const esBusquedaConFiltros = patronesFiltros.some(patron => patron.test(userInput));
+            
+            if (esBusquedaConFiltros) {
+                await flowDynamic('🔍 Buscando con filtros avanzados...');
+                
+                const busqueda = filtrosCatalogoService.buscarConFiltros(userInput);
+                const mensaje = filtrosCatalogoService.formatearResultados(busqueda, 5);
+                
+                await flowDynamic(mensaje);
+                
+                // Enviar imágenes de los primeros 3 resultados
+                if (busqueda.resultados.length > 0) {
+                    await flowDynamic('📸 Enviando imágenes...');
+                    
+                    for (const prod of busqueda.resultados.slice(0, 3)) {
+                        const imagePath = catalogoCompletoService.obtenerImagenPath(prod);
+                        if (catalogoCompletoService.imagenExiste(prod)) {
+                            const fs = await import('fs');
+                            await provider.sendMessage(
+                                ctx.from,
+                                {
+                                    image: fs.readFileSync(imagePath),
+                                    caption: `📄 Página ${prod.page}\n${prod.name}\n${prod.price_text}`
+                                },
+                                {}
+                            );
+                        }
+                    }
+                }
+                
+                return;
+            }
             
             // 🔍 BÚSQUEDA POR PÁGINA (pag1, pag20, pagina5, etc.)
             const pageMatch = userInput.match(/(?:pag|pagina)\s*(\d+)/);
