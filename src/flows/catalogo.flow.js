@@ -31,20 +31,57 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
                 flowStartedAt: new Date().toISOString()
             });
 
-            // URL del catálogo (configurable desde .env)
-            const catalogoUrl = process.env.CATALOG_URL || 'https://cocoluventas.com/catalogo';
-
-            // Mensaje consolidado
-            await flowDynamic(
-                `🌟 *CATÁLOGO COMPLETO*\n\n` +
-                `🔗 *Haz clic aquí:*\n` +
-                `${catalogoUrl}\n\n` +
-                `💎 Piezas únicas\n` +
-                `✨ Diseños exclusivos\n` +
-                `💝 Calidad premium\n\n` +
-                `📱 Tómate tu tiempo\n\n` +
-                `_Te escribiré en un momento_ 💗`
-            );
+            // Enviar catálogo PDF (local)
+            const catalogPath = './public/catalogo-cocolu-noviembre-2025-optimizado.pdf';
+            const fs = await import('fs');
+            
+            try {
+                // Verificar si existe el PDF
+                if (fs.existsSync(catalogPath)) {
+                    // Mensaje previo
+                    await flowDynamic(
+                        `🌟 *¡CATÁLOGO NOVIEMBRE 2025!*\n\n` +
+                        `💎 Piezas únicas\n` +
+                        `✨ Diseños exclusivos\n` +
+                        `💝 Calidad premium\n\n` +
+                        `📤 Enviando catálogo completo...`
+                    );
+                    
+                    // Enviar PDF
+                    await provider.sendMessage(
+                        ctx.from,
+                        {
+                            document: fs.readFileSync(catalogPath),
+                            fileName: 'Catálogo Cocolu Ventas - Noviembre 2025.pdf',
+                            mimetype: 'application/pdf'
+                        },
+                        {}
+                    );
+                    
+                    await flowDynamic(
+                        `✅ *¡Catálogo enviado!*\n\n` +
+                        `📱 Tómate tu tiempo para ver nuestras bellezas\n\n` +
+                        `_Te escribiré en un momento_ 💗`
+                    );
+                } else {
+                    // Fallback a URL si no existe el PDF
+                    const catalogoUrl = process.env.CATALOG_URL || 'https://cocoluventas.com/catalogo';
+                    await flowDynamic(
+                        `🌟 *CATÁLOGO COMPLETO*\n\n` +
+                        `🔗 *Haz clic aquí:*\n` +
+                        `${catalogoUrl}\n\n` +
+                        `💎 Piezas únicas\n` +
+                        `✨ Diseños exclusivos\n` +
+                        `💝 Calidad premium\n\n` +
+                        `📱 Tómate tu tiempo\n\n` +
+                        `_Te escribiré en un momento_ 💗`
+                    );
+                }
+            } catch (error) {
+                console.error('❌ Error enviando catálogo:', error);
+                // Fallback a mensaje simple
+                await flowDynamic('💗 Un momento, te envío el catálogo...');
+            }
 
             // Configurar provider en alerts service
             if (!alertsService.provider && provider) {
