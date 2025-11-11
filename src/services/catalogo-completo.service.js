@@ -1,0 +1,180 @@
+/**
+ * Servicio de Catálogo Completo
+ * Gestiona los 136 productos del catálogo con imágenes
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+class CatalogoCompletoService {
+    constructor() {
+        this.productos = [];
+        this.searchIndex = {};
+        this.loaded = false;
+        this.loadCatalog();
+    }
+
+    /**
+     * Cargar catálogo desde JSON
+     */
+    loadCatalog() {
+        try {
+            const catalogPath = path.join(__dirname, '../../public/catalogo-data/productos.json');
+            const indexPath = path.join(__dirname, '../../public/catalogo-data/search_index.json');
+            
+            if (fs.existsSync(catalogPath)) {
+                const data = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
+                this.productos = data.products || [];
+                this.loaded = true;
+                console.log(`✅ Catálogo cargado: ${this.productos.length} productos`);
+            }
+            
+            if (fs.existsSync(indexPath)) {
+                this.searchIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+                console.log(`✅ Índice de búsqueda cargado`);
+            }
+        } catch (error) {
+            console.error('❌ Error cargando catálogo:', error);
+        }
+    }
+
+    /**
+     * Buscar producto por página
+     */
+    buscarPorPagina(pagina) {
+        const num = parseInt(pagina);
+        return this.productos.find(p => p.page === num);
+    }
+
+    /**
+     * Buscar productos por keyword
+     */
+    buscarPorKeyword(keyword) {
+        const term = keyword.toLowerCase().trim();
+        
+        // Buscar en índice primero
+        if (this.searchIndex[term]) {
+            const productIds = Array.isArray(this.searchIndex[term]) 
+                ? this.searchIndex[term] 
+                : [this.searchIndex[term]];
+            return productIds.map(id => this.productos.find(p => p.id === id)).filter(Boolean);
+        }
+        
+        // Búsqueda manual
+        return this.productos.filter(p => 
+            p.keywords.some(k => k.toLowerCase().includes(term)) ||
+            (p.name && p.name.toLowerCase().includes(term)) ||
+            (p.detected_keywords && p.detected_keywords.some(k => k.toLowerCase().includes(term)))
+        );
+    }
+
+    /**
+     * Obtener rango de productos (para paginación)
+     */
+    obtenerRango(inicio, cantidad = 10) {
+        return this.productos.slice(inicio - 1, inicio - 1 + cantidad);
+    }
+
+    /**
+     * Obtener imagen de producto
+     */
+    obtenerImagenPath(producto) {
+        if (!producto) return null;
+        return path.join(__dirname, '../../public', producto.image_path);
+    }
+
+    /**
+     * Verificar si imagen existe
+     */
+    imagenExiste(producto) {
+        const imgPath = this.obtenerImagenPath(producto);
+        return imgPath && fs.existsSync(imgPath);
+    }
+
+    /**
+     * Obtener total de productos
+     */
+    getTotalProductos() {
+        return this.productos.length;
+    }
+
+    /**
+     * Obtener estadísticas del catálogo
+     */
+    getEstadisticas() {
+        const conPrecio = this.productos.filter(p => p.price).length;
+        const conKeywords = this.productos.filter(p => p.detected_keywords?.length > 0).length;
+        const materiales = {};
+        
+        this.productos.forEach(p => {
+            if (p.material) {
+                materiales[p.material] = (materiales[p.material] || 0) + 1;
+            }
+        });
+
+        return {
+            total: this.productos.length,
+            conPrecio,
+            conKeywords,
+            materiales,
+            porcentajeConInfo: Math.round((conKeywords / this.productos.length) * 100)
+        };
+    }
+
+    /**
+     * Formatear producto para mensaje WhatsApp
+     */
+    formatearProducto(producto) {
+        if (!producto) return null;
+
+        let mensaje = `📄 *Página ${producto.page}*\n\n`;
+        
+        if (producto.name && producto.name !== `Producto Página ${producto.page}`) {
+            mensaje += `💎 *${producto.name}*\n\n`;
+        }
+        
+        if (producto.detected_keywords && producto.detected_keywords.length > 0) {
+            mensaje += `🏷️ ${producto.detected_keywords.map(k => `#${k}`).join(' ')}\n\n`;
+        }
+        
+        if (producto.price) {
+            mensaje += `💰 *Precio: ${producto.price_text}*\n\n`;
+        }
+        
+        if (producto.material) {
+            mensaje += `✨ Material: ${producto.material.toUpperCase()}\n\n`;
+        }
+        
+        mensaje += `📖 Ver en catálogo completo: Página ${producto.page}\n`;
+        mensaje += `💬 Escribe "pag${producto.page}" para ver esta página`;
+
+        return mensaje;
+    }
+
+    /**
+     * Buscar productos similares
+     */
+    buscarSimilares(producto, limite = 3) {
+        if (!producto || !producto.detected_keywords) return [];
+        
+        const similares = [];
+        
+        for (const keyword of producto.detected_keywords) {
+            const encontrados = this.buscarPorKeyword(keyword)
+                .filter(p => p.id !== producto.id)
+                .slice(0, limite);
+            similares.push(...encontrados);
+        }
+        
+        // Eliminar duplicados
+        return [...new Map(similares.map(p => [p.id, p])).values()].slice(0, limite);
+    }
+}
+
+// Singleton
+const catalogoCompletoService = new CatalogoCompletoService();
+export default catalogoCompletoService;

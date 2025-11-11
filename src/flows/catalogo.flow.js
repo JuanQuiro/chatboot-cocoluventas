@@ -3,6 +3,7 @@ import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
 import botControlService from '../services/bot-control.service.js';
+import catalogoCompletoService from '../services/catalogo-completo.service.js';
 import { processGlobalIntent } from '../utils/intent-interceptor.js';
 
 /**
@@ -130,7 +131,7 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
     .addAnswer(
         null,
         { capture: true },
-        async (ctx, { state, flowDynamic, endFlow, provider, gotoFlow }) => {
+        async (ctx, { state, flowDynamic, provider, gotoFlow }) => {
             // INTERCEPTOR: Detectar intenciones globales PRIMERO
             const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
             if (globalIntentProcessed) {
@@ -138,6 +139,78 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             }
             
             const currentState = state.getMyState();
+            const userInput = ctx.body.toLowerCase().trim();
+            
+            // 🔍 BÚSQUEDA POR PÁGINA (pag1, pag20, pagina5, etc.)
+            const pageMatch = userInput.match(/(?:pag|pagina)\s*(\d+)/);
+            if (pageMatch) {
+                const pageNum = parseInt(pageMatch[1]);
+                const producto = catalogoCompletoService.buscarPorPagina(pageNum);
+                
+                if (producto) {
+                    await flowDynamic(`🔍 Buscando página ${pageNum}...`);
+                    
+                    // Enviar imagen del producto
+                    const imagePath = catalogoCompletoService.obtenerImagenPath(producto);
+                    if (catalogoCompletoService.imagenExiste(producto)) {
+                        const fs = await import('fs');
+                        await provider.sendMessage(
+                            ctx.from,
+                            {
+                                image: fs.readFileSync(imagePath),
+                                caption: catalogoCompletoService.formatearProducto(producto)
+                            },
+                            {}
+                        );
+                    } else {
+                        await flowDynamic(catalogoCompletoService.formatearProducto(producto));
+                    }
+                    
+                    // Productos similares
+                    const similares = catalogoCompletoService.buscarSimilares(producto, 2);
+                    if (similares.length > 0) {
+                        await flowDynamic(
+                            `\n💡 *También te puede interesar:*\n` +
+                            similares.map(p => `📄 Página ${p.page}${p.name ? `: ${p.name}` : ''}`).join('\n')
+                        );
+                    }
+                    
+                    await flowDynamic(
+                        `\n💬 ¿Quieres ver otra página?\n` +
+                        `Escribe: *pag[número]*\n` +
+                        `Ejemplo: pag25`
+                    );
+                    
+                    return;
+                }
+            }
+            
+            // 🔍 BÚSQUEDA POR KEYWORD (relicario, anillo, oro, etc.)
+            const productos = catalogoCompletoService.buscarPorKeyword(userInput);
+            if (productos.length > 0) {
+                await flowDynamic(`🔍 Encontré ${productos.length} producto(s) relacionado(s):\n`);
+                
+                for (const prod of productos.slice(0, 3)) {
+                    const imagePath = catalogoCompletoService.obtenerImagenPath(prod);
+                    if (catalogoCompletoService.imagenExiste(prod)) {
+                        const fs = await import('fs');
+                        await provider.sendMessage(
+                            ctx.from,
+                            {
+                                image: fs.readFileSync(imagePath),
+                                caption: catalogoCompletoService.formatearProducto(prod)
+                            },
+                            {}
+                        );
+                    }
+                }
+                
+                if (productos.length > 3) {
+                    await flowDynamic(`\n📚 Hay ${productos.length - 3} producto(s) más. Envía el PDF completo para verlos todos.`);
+                }
+                
+                return;
+            }
             
             // Solo procesar si estamos esperando respuesta de catálogo
             if (!currentState.waitingCatalogResponse) {
