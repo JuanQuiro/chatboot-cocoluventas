@@ -1,6 +1,7 @@
 /**
- * Servicio de Catálogo Completo
- * Gestiona los 136 productos del catálogo con imágenes
+ * Servicio de Catálogo Completo - DATOS REALES
+ * Usa información extraída por OCR del catálogo real
+ * 136 productos con datos verificados
  */
 
 import fs from 'fs';
@@ -127,6 +128,7 @@ class CatalogoCompletoService {
 
     /**
      * Formatear producto para mensaje WhatsApp (Venezuela - USD)
+     * Incluye descripción profesional generada
      */
     formatearProducto(producto) {
         if (!producto) return null;
@@ -137,8 +139,13 @@ class CatalogoCompletoService {
             mensaje += `💎 *${producto.name}*\n\n`;
         }
         
-        if (producto.detected_keywords && producto.detected_keywords.length > 0) {
-            mensaje += `🏷️ ${producto.detected_keywords.map(k => `#${k}`).join(' ')}\n\n`;
+        // Descripción/Copy profesional
+        if (producto.copy || producto.description) {
+            const desc = producto.copy || producto.description;
+            // Limpiar descripción si es muy técnica del OCR
+            if (!desc.startsWith('Producto del catálogo') && desc.length > 20) {
+                mensaje += `📝 ${desc}\n\n`;
+            }
         }
         
         // PRECIO EN USD o Consultar
@@ -149,11 +156,17 @@ class CatalogoCompletoService {
         }
         
         if (producto.material) {
-            mensaje += `✨ Material: ${producto.material.replace('_', ' ').toUpperCase()}\n\n`;
+            const materialText = producto.material.replace('_', ' ').toUpperCase();
+            mensaje += `✨ Material: ${materialText}\n\n`;
         }
         
-        mensaje += `📖 Ver en catálogo: Página ${producto.page}\n`;
-        mensaje += `💬 Escribe "pag${producto.page}" para más info`;
+        if (producto.detected_keywords && producto.detected_keywords.length > 0) {
+            const keywords = producto.detected_keywords.slice(0, 5).map(k => `#${k}`).join(' ');
+            mensaje += `🏷️ ${keywords}\n\n`;
+        }
+        
+        mensaje += `📖 Catálogo página ${producto.page}\n`;
+        mensaje += `💬 Escribe "pag${producto.page}" para ver la imagen`;
 
         return mensaje;
     }

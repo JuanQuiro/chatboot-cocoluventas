@@ -8,8 +8,9 @@ import os
 import json
 import re
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 import subprocess
+import unicodedata
 
 class CatalogoExtractor:
     def __init__(self):
@@ -52,6 +53,24 @@ class CatalogoExtractor:
         print(f"✅ Extracción completada!")
         print(f"📊 Productos encontrados: {len(self.products)}")
         
+    def preprocess_image_for_ocr(self, img):
+        """Preprocesar imagen para mejorar OCR"""
+        # Convertir a escala de grises
+        img = img.convert('L')
+        
+        # Aumentar contraste
+        enhancer = ImageEnhance.Contrast(img)
+        img = enhancer.enhance(2.0)
+        
+        # Aumentar nitidez
+        img = img.filter(ImageFilter.SHARPEN)
+        
+        # Aumentar brillo ligeramente
+        enhancer = ImageEnhance.Brightness(img)
+        img = enhancer.enhance(1.2)
+        
+        return img
+    
     def analyze_image(self, img_path, page_num):
         """Analiza una imagen y extrae información del producto"""
         
@@ -73,29 +92,73 @@ class CatalogoExtractor:
                 }
             }
             
-            # Intentar extraer texto con tesseract si está disponible
+            # Intentar extraer texto con tesseract - VERSIÓN MEJORADA
+            all_text = ""
+            
             try:
-                result = subprocess.run(
-                    ['tesseract', str(img_path), 'stdout', '-l', 'spa'],
-                    capture_output=True,
+                # MÉTODO 1: OCR sobre imagen original
+                result1 = subprocess.run(
+                    ['tesseract', str(img_path), 'stdout', '-l', 'spa+eng',
+                     '--psm', '3', '--oem', '3'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
                     text=True,
-                    timeout=5
+                    timeout=15
                 )
                 
-                if result.returncode == 0 and result.stdout.strip():
-                    text = result.stdout.strip()
+                if result1.returncode == 0:
+                    all_text = result1.stdout.strip()
+                
+                # MÉTODO 2: OCR con imagen preprocesada (mejor para texto pequeño)
+                try:
+                    img_processed = self.preprocess_image_for_ocr(img)
+                    temp_path = f'/tmp/temp_ocr_{page_num}.png'
+                    img_processed.save(temp_path)
                     
-                    # Extraer información del texto
-                    extracted = self.extract_info_from_text(text)
+                    result2 = subprocess.run(
+                        ['tesseract', temp_path, 'stdout', '-l', 'spa+eng',
+                         '--psm', '6', '--oem', '3'],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.DEVNULL,
+                        text=True,
+                        timeout=15
+                    )
+                    
+                    if result2.returncode == 0:
+                        text2 = result2.stdout.strip()
+                        # Combinar ambos resultados
+                        if len(text2) > len(all_text):
+                            all_text = text2
+                    
+                    # Limpiar archivo temporal
+                    os.remove(temp_path)
+                except:
+                    pass
+                
+                # Guardar texto extraído
+                product['ocr_text'] = all_text if all_text else ""
+                
+                # Extraer información del texto
+                if all_text and len(all_text) > 5:
+                    extracted = self.extract_info_from_text(all_text)
                     if extracted:
                         product.update(extracted)
+                        
+                        # Mostrar qué se extrajo
+                        info_parts = []
+                        if extracted.get('name'):
+                            info_parts.append(f"Nombre: {extracted['name']}")
+                        if extracted.get('price'):
+                            info_parts.append(f"${extracted['price']} USD")
+                        if extracted.get('detected_keywords'):
+                            info_parts.append(f"{len(extracted['detected_keywords'])} keywords")
+                        
+                        if info_parts:
+                            print(f"   ✅ {' | '.join(info_parts)}")
                     
-                    # Guardar texto extraído
-                    product['extracted_text'] = text[:500]  # Primeros 500 chars
-                    
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                # Tesseract no disponible o timeout
-                pass
+            except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+                product['ocr_text'] = ""
+                print(f"   ⚠️ OCR error: {e}")
             
             return product
             
@@ -103,47 +166,189 @@ class CatalogoExtractor:
             print(f"   ⚠️ Error: {e}")
             return None
     
+    def normalize_text(self, text):
+        """Normalizar texto para mejor procesamiento"""
+        # Remover acentos y normalizar
+        text = unicodedata.normalize('NFKD', text)
+        text = text.encode('ASCII', 'ignore').decode('ASCII')
+        return text.lower()
+    
     def extract_info_from_text(self, text):
-        """Extrae información estructurada del texto OCR"""
+        """Extrae información estructurada del texto OCR - VERSIÓN MEJORADA"""
         info = {}
+        text_normalized = self.normalize_text(text)
         
-        # Buscar precios ($XX.XXX o $XXX.XXX)
-        price_pattern = r'\$\s*(\d{1,3}(?:[.,]\d{3})*)'
-        prices = re.findall(price_pattern, text)
-        if prices:
-            # Limpiar y convertir el primer precio encontrado
-            price_str = prices[0].replace('.', '').replace(',', '')
-            try:
-                info['price'] = int(price_str)
-                info['price_text'] = f'${prices[0]}'
-            except:
-                pass
-        
-        # Buscar palabras clave de productos comunes
-        keywords = []
-        product_words = [
-            'relicario', 'dije', 'cadena', 'pulsera', 'anillo', 'collar',
-            'aretes', 'brazalete', 'gargantilla', 'pendiente', 'sortija',
-            'oro', 'plata', 'acero', 'cristal', 'perla', 'diamante'
+        # ========== EXTRACCIÓN DE PRECIOS ==========
+        # Múltiples patrones para capturar precios en diferentes formatos
+        price_patterns = [
+            # Precio directo: $30, $100, $ 50
+            (r'\$\s*(\d{1,3})(?!\d)', 1),
+            # Con USD: 30 USD, $30 USD, 50 dolares
+            (r'(\d{1,3})\s*(?:usd|dolares?)', 1),
+            # Precio con "desde": desde $30, a partir de $50
+            (r'(?:desde|a partir de|por)\s*\$?\s*(\d{1,3})', 1),
+            # Precio individual: precio: $30, costo: $50
+            (r'(?:precio|costo|valor)s?:?\s*\$?\s*(\d{1,3})', 1),
         ]
         
-        text_lower = text.lower()
-        for word in product_words:
-            if word in text_lower:
-                keywords.append(word)
+        found_prices = []
+        for pattern, group in price_patterns:
+            matches = re.findall(pattern, text_normalized, re.IGNORECASE)
+            for match in matches:
+                try:
+                    price_val = int(match)
+                    # Filtrar precios razonables (5-500 USD)
+                    if 5 <= price_val <= 500:
+                        found_prices.append(price_val)
+                except:
+                    pass
+        
+        # Usar el precio más frecuente o el primero encontrado
+        if found_prices:
+            # Si hay múltiples precios, usar el más común
+            from collections import Counter
+            price = Counter(found_prices).most_common(1)[0][0]
+            info['price'] = price
+            info['price_text'] = f'${price} USD'
+            info['price_status'] = 'disponible'
+        
+        # ========== EXTRACCIÓN DE PALABRAS CLAVE ==========
+        keywords = []
+        categories_map = {
+            # Tipos de productos
+            'anillo': ['anillo', 'anillos', 'sortija', 'sortijas'],
+            'dije': ['dije', 'dijes', 'medalla', 'medallas'],
+            'relicario': ['relicario', 'relicarios'],
+            'pulsera': ['pulsera', 'pulseras', 'brazalete', 'brazaletes', 'manilla'],
+            'collar': ['collar', 'collares', 'gargantilla'],
+            'aretes': ['arete', 'aretes', 'pendiente', 'pendientes', 'zarcillo'],
+            'cadena': ['cadena', 'cadenas'],
+            'set': ['set', 'juego', 'combo'],
+            
+            # Materiales
+            'oro': ['oro', 'dorado', 'gold', '18k', '14k', 'bano de oro'],
+            'plata': ['plata', 'plateado', 'silver', '925'],
+            'acero': ['acero', 'steel', 'quirurgico'],
+            
+            # Características
+            'graduacion': ['graduacion', 'bachiller', 'universitario', 'grado'],
+            'grabado': ['grabado', 'grabados', 'personalizado', 'personalizacion'],
+            'cristal': ['cristal', 'cristales', 'piedra', 'zirconia'],
+            'perla': ['perla', 'perlas'],
+            'diamante': ['diamante', 'diamantes'],
+            
+            # Diseños
+            'corazon': ['corazon', 'heart'],
+            'cruz': ['cruz', 'cross'],
+            'estrella': ['estrella', 'star'],
+            'luna': ['luna', 'moon'],
+            'flor': ['flor', 'flores', 'flower'],
+            'infinito': ['infinito', 'infinity'],
+            'mariposa': ['mariposa', 'butterfly'],
+        }
+        
+        detected_categories = set()
+        for category, variants in categories_map.items():
+            for variant in variants:
+                if variant in text_normalized:
+                    keywords.append(category)
+                    detected_categories.add(category)
+                    break
+        
+        # Eliminar duplicados manteniendo orden
+        keywords = list(dict.fromkeys(keywords))
         
         if keywords:
             info['detected_keywords'] = keywords
-            # Usar la primera keyword como nombre tentativo
-            info['name'] = keywords[0].title()
+            
+            # ========== CREAR NOMBRE INTELIGENTE ==========
+            # Prioridad: Tipo > Material > Característica
+            tipos = ['anillo', 'dije', 'relicario', 'pulsera', 'collar', 'aretes', 'cadena', 'set']
+            materiales = ['oro', 'plata', 'acero']
+            caracteristicas = ['graduacion', 'grabado', 'personalizado', 'corazon', 'cruz']
+            
+            tipo = next((k for k in keywords if k in tipos), None)
+            material = next((k for k in keywords if k in materiales), None)
+            caracteristica = next((k for k in keywords if k in caracteristicas), None)
+            
+            # Construir nombre
+            nombre_parts = []
+            
+            if tipo:
+                nombre_parts.append(tipo.title())
+                
+                if caracteristica == 'graduacion':
+                    nombre_parts[0] = f"{tipo.title()} de Graduación"
+                elif caracteristica:
+                    nombre_parts.append(caracteristica.title())
+                    
+                if material:
+                    nombre_parts.append(f"de {material.title()}")
+            elif caracteristica:
+                nombre_parts.append(caracteristica.title())
+                if material:
+                    nombre_parts.append(f"de {material.title()}")
+            elif material:
+                nombre_parts.append(f"Joya de {material.title()}")
+            else:
+                nombre_parts.append(keywords[0].title())
+            
+            info['name'] = ' '.join(nombre_parts)
+            
+            # Determinar categoría principal
+            if tipo:
+                if tipo in ['anillo', 'sortija']:
+                    info['category'] = 'anillos'
+                elif tipo in ['collar', 'gargantilla']:
+                    info['category'] = 'collares'
+                elif tipo in ['pulsera', 'brazalete']:
+                    info['category'] = 'pulseras'
+                elif tipo in ['aretes', 'pendiente']:
+                    info['category'] = 'aretes'
+                elif tipo == 'dije':
+                    info['category'] = 'dijes'
+                elif tipo == 'set':
+                    info['category'] = 'sets'
         
-        # Detectar si menciona "oro" o "plata"
-        if 'oro' in text_lower:
-            info['material'] = 'oro'
-        elif 'plata' in text_lower:
-            info['material'] = 'plata'
-        elif 'acero' in text_lower:
-            info['material'] = 'acero'
+        # ========== DETECTAR MATERIAL ==========
+        if 'oro' in detected_categories:
+            if '18k' in text_normalized or '18 k' in text_normalized:
+                info['material'] = 'oro_18k'
+            elif '14k' in text_normalized:
+                info['material'] = 'oro_14k'
+            elif 'rosa' in text_normalized:
+                info['material'] = 'oro_rosa'
+            elif 'blanco' in text_normalized:
+                info['material'] = 'oro_blanco'
+            else:
+                info['material'] = 'oro'
+        elif 'plata' in detected_categories:
+            if '925' in text:
+                info['material'] = 'plata_925'
+            else:
+                info['material'] = 'plata'
+        elif 'acero' in detected_categories:
+            if 'quirurgico' in text_normalized:
+                info['material'] = 'acero_quirurgico'
+            else:
+                info['material'] = 'acero'
+        
+        # ========== EXTRAER DESCRIPCIÓN ADICIONAL ==========
+        # Buscar líneas cortas que puedan ser descripciones
+        lines = [l.strip() for l in text.split('\n') if 10 < len(l.strip()) < 100]
+        if lines:
+            # Filtrar líneas que no sean solo mayúsculas o números
+            desc_lines = [l for l in lines if not l.isupper() and any(c.isalpha() for c in l)]
+            if desc_lines:
+                info['description'] = desc_lines[0][:200]  # Primera línea descriptiva
+        
+        # ========== DETECTAR DISPONIBILIDAD ==========
+        # Buscar palabras que indiquen necesidad de consulta
+        consultar_palabras = ['consultar', 'consulta', 'cotizar', 'cotizacion', 
+                             'preguntar', 'disponibilidad', 'bajo pedido']
+        
+        if any(word in text_normalized for word in consultar_palabras) and 'price' not in info:
+            info['price_status'] = 'consultar'
         
         return info if info else None
     

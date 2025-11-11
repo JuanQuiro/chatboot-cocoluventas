@@ -1,0 +1,294 @@
+🔍 EXTRACCIÓN INTELIGENTE DEL CATÁLOGO
+==================================================
+
+📄 Total de páginas: 136
+
+[1/136] Analizando: 1.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[2/136] Analizando: 2.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[3/136] Analizando: 3.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[4/136] Analizando: 4.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[5/136] Analizando: 5.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[6/136] Analizando: 6.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[7/136] Analizando: 7.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[8/136] Analizando: 8.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[9/136] Analizando: 9.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[10/136] Analizando: 10.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[11/136] Analizando: 11.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[12/136] Analizando: 12.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[13/136] Analizando: 13.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[14/136] Analizando: 14.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[15/136] Analizando: 15.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[16/136] Analizando: 16.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[17/136] Analizando: 17.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[18/136] Analizando: 18.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[19/136] Analizando: 19.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[20/136] Analizando: 20.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[21/136] Analizando: 21.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[22/136] Analizando: 22.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[23/136] Analizando: 23.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[24/136] Analizando: 24.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[25/136] Analizando: 25.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[26/136] Analizando: 26.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[27/136] Analizando: 27.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[28/136] Analizando: 28.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[29/136] Analizando: 29.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[30/136] Analizando: 30.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[31/136] Analizando: 31.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[32/136] Analizando: 32.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[33/136] Analizando: 33.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[34/136] Analizando: 34.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[35/136] Analizando: 35.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[36/136] Analizando: 36.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[37/136] Analizando: 37.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[38/136] Analizando: 38.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[39/136] Analizando: 39.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[40/136] Analizando: 40.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[41/136] Analizando: 41.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[42/136] Analizando: 42.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[43/136] Analizando: 43.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[44/136] Analizando: 44.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[45/136] Analizando: 45.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[46/136] Analizando: 46.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[47/136] Analizando: 47.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[48/136] Analizando: 48.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[49/136] Analizando: 49.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[50/136] Analizando: 50.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[51/136] Analizando: 51.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[52/136] Analizando: 52.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[53/136] Analizando: 53.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[54/136] Analizando: 54.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[55/136] Analizando: 55.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[56/136] Analizando: 56.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[57/136] Analizando: 57.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[58/136] Analizando: 58.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[59/136] Analizando: 59.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[60/136] Analizando: 60.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[61/136] Analizando: 61.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[62/136] Analizando: 62.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[63/136] Analizando: 63.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[64/136] Analizando: 64.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[65/136] Analizando: 65.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[66/136] Analizando: 66.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[67/136] Analizando: 67.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[68/136] Analizando: 68.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[69/136] Analizando: 69.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[70/136] Analizando: 70.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[71/136] Analizando: 71.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[72/136] Analizando: 72.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[73/136] Analizando: 73.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[74/136] Analizando: 74.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[75/136] Analizando: 75.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[76/136] Analizando: 76.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[77/136] Analizando: 77.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[78/136] Analizando: 78.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[79/136] Analizando: 79.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[80/136] Analizando: 80.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[81/136] Analizando: 81.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[82/136] Analizando: 82.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[83/136] Analizando: 83.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[84/136] Analizando: 84.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[85/136] Analizando: 85.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[86/136] Analizando: 86.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[87/136] Analizando: 87.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[88/136] Analizando: 88.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[89/136] Analizando: 89.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[90/136] Analizando: 90.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[91/136] Analizando: 91.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[92/136] Analizando: 92.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[93/136] Analizando: 93.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[94/136] Analizando: 94.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[95/136] Analizando: 95.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[96/136] Analizando: 96.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[97/136] Analizando: 97.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[98/136] Analizando: 98.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[99/136] Analizando: 99.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[100/136] Analizando: 100.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[101/136] Analizando: 101.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[102/136] Analizando: 102.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[103/136] Analizando: 103.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[104/136] Analizando: 104.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[105/136] Analizando: 105.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[106/136] Analizando: 106.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[107/136] Analizando: 107.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[108/136] Analizando: 108.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[109/136] Analizando: 109.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[110/136] Analizando: 110.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[111/136] Analizando: 111.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[112/136] Analizando: 112.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[113/136] Analizando: 113.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[114/136] Analizando: 114.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[115/136] Analizando: 115.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[116/136] Analizando: 116.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[117/136] Analizando: 117.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[118/136] Analizando: 118.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[119/136] Analizando: 119.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[120/136] Analizando: 120.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[121/136] Analizando: 121.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[122/136] Analizando: 122.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[123/136] Analizando: 123.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[124/136] Analizando: 124.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[125/136] Analizando: 125.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[126/136] Analizando: 126.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[127/136] Analizando: 127.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[128/136] Analizando: 128.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[129/136] Analizando: 129.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[130/136] Analizando: 130.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[131/136] Analizando: 131.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[132/136] Analizando: 132.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[133/136] Analizando: 133.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[134/136] Analizando: 134.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[135/136] Analizando: 135.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+[136/136] Analizando: 136.png
+   ⚠️ Error: stdout and stderr arguments may not be used with capture_output.
+
+💾 Base de datos guardada: public/catalogo-data/productos.json
+🔍 Índice de búsqueda: public/catalogo-data/search_index.json
+📦 Base de datos JavaScript: public/catalogo-data/catalogo-productos.js
+   → Importar en el bot: import catalogoProductos from './catalogo-productos.js'
+
+==================================================
+✅ Extracción completada!
+📊 Productos encontrados: 0
+
+🎯 PRÓXIMOS PASOS:
+1. Revisar: public/catalogo-data/productos.json
+2. Importar en bot: public/catalogo-data/catalogo-productos.js
+3. Actualizar flujos para usar la base de datos
+
+💡 TIP: Si tesseract está instalado, el script extraerá texto automáticamente
+   Instalar: sudo apt-get install tesseract-ocr tesseract-ocr-spa
