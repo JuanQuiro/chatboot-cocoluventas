@@ -88,14 +88,14 @@ class FiltrosCatalogoService {
             filtros.keywords.push('relicario');
         }
 
-        // DETECTAR TÉRMINOS DE PRECIO RELATIVOS
+        // DETECTAR TÉRMINOS DE PRECIO RELATIVOS (Precios en PESOS COLOMBIANOS)
         if (textoNorm.includes('barato') || textoNorm.includes('economico') || textoNorm.includes('accesible')) {
-            filtros.precioMax = 50000; // Máximo 50mil
+            filtros.precioMax = 50000; // Máximo $50.000 COP
         } else if (textoNorm.includes('caro') || textoNorm.includes('premium') || textoNorm.includes('exclusivo')) {
-            filtros.precioMin = 150000; // Mínimo 150mil
+            filtros.precioMin = 200000; // Mínimo $200.000 COP
         } else if (textoNorm.includes('medio') || textoNorm.includes('moderado')) {
             filtros.precioMin = 50000;
-            filtros.precioMax = 150000;
+            filtros.precioMax = 200000; // $50K-$200K COP
         }
 
         // DETECTAR ORDENAMIENTO
@@ -109,7 +109,12 @@ class FiltrosCatalogoService {
     }
 
     /**
-     * Convertir número a precio en pesos
+     * Convertir número a precio en PESOS COLOMBIANOS
+     * Ejemplos:
+     * - "30" → 30 (si no hay contexto)
+     * - "30 mil" → 30.000
+     * - "30 dolares" → 120.000 (30 USD × 4000)
+     * - "30k" → 30.000
      */
     convertirPrecio(numero, contexto) {
         let valor = parseInt(numero);
@@ -119,9 +124,14 @@ class FiltrosCatalogoService {
             valor = valor * 1000;
         }
 
-        // Detectar si menciona "dólares" o "usd"
-        if (contexto.includes('dolar') || contexto.includes('usd') || contexto.includes('$')) {
-            valor = valor * 4000; // Aproximado
+        // Detectar si menciona "dólares" o "usd" (convertir a COP)
+        if (contexto.includes('dolar') || contexto.includes('usd')) {
+            valor = valor * 4200; // 1 USD ≈ 4200 COP (tasa actualizada)
+        }
+
+        // Si el número es pequeño sin contexto, asumir miles
+        if (valor < 1000 && !contexto.includes('dolar') && !contexto.includes('usd')) {
+            valor = valor * 1000; // "30" → 30.000
         }
 
         return valor;
@@ -134,8 +144,8 @@ class FiltrosCatalogoService {
         let productos = catalogoCompletoService.productos;
 
         console.log(`🔍 Filtrando con:`, {
-            precioMin: filtros.precioMin ? `$${filtros.precioMin:,}` : 'N/A',
-            precioMax: filtros.precioMax ? `$${filtros.precioMax:,}` : 'N/A',
+            precioMin: filtros.precioMin ? `$${filtros.precioMin.toLocaleString()}` : 'N/A',
+            precioMax: filtros.precioMax ? `$${filtros.precioMax.toLocaleString()}` : 'N/A',
             material: filtros.material || 'Todos',
             categoria: filtros.categoria || 'Todas',
             keywords: filtros.keywords.join(', ') || 'Ninguna'
