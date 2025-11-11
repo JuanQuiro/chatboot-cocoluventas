@@ -126,7 +126,7 @@ class CatalogoCompletoService {
     }
 
     /**
-     * Formatear producto para mensaje WhatsApp
+     * Formatear producto para mensaje WhatsApp (Venezuela - USD)
      */
     formatearProducto(producto) {
         if (!producto) return null;
@@ -141,16 +141,19 @@ class CatalogoCompletoService {
             mensaje += `🏷️ ${producto.detected_keywords.map(k => `#${k}`).join(' ')}\n\n`;
         }
         
+        // PRECIO EN USD o Consultar
         if (producto.price) {
-            mensaje += `💰 *Precio: ${producto.price_text}*\n\n`;
+            mensaje += `💵 *Precio: ${producto.price_text}*\n\n`;
+        } else {
+            mensaje += `💬 *Precio: Consultar disponibilidad*\n\n`;
         }
         
         if (producto.material) {
-            mensaje += `✨ Material: ${producto.material.toUpperCase()}\n\n`;
+            mensaje += `✨ Material: ${producto.material.replace('_', ' ').toUpperCase()}\n\n`;
         }
         
-        mensaje += `📖 Ver en catálogo completo: Página ${producto.page}\n`;
-        mensaje += `💬 Escribe "pag${producto.page}" para ver esta página`;
+        mensaje += `📖 Ver en catálogo: Página ${producto.page}\n`;
+        mensaje += `💬 Escribe "pag${producto.page}" para más info`;
 
         return mensaje;
     }

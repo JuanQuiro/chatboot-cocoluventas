@@ -88,14 +88,14 @@ class FiltrosCatalogoService {
             filtros.keywords.push('relicario');
         }
 
-        // DETECTAR TÉRMINOS DE PRECIO RELATIVOS (Precios en PESOS COLOMBIANOS)
+        // DETECTAR TÉRMINOS DE PRECIO RELATIVOS (Precios en USD - Venezuela)
         if (textoNorm.includes('barato') || textoNorm.includes('economico') || textoNorm.includes('accesible')) {
-            filtros.precioMax = 50000; // Máximo $50.000 COP
+            filtros.precioMax = 20; // Máximo $20 USD
         } else if (textoNorm.includes('caro') || textoNorm.includes('premium') || textoNorm.includes('exclusivo')) {
-            filtros.precioMin = 200000; // Mínimo $200.000 COP
+            filtros.precioMin = 120; // Mínimo $120 USD
         } else if (textoNorm.includes('medio') || textoNorm.includes('moderado')) {
-            filtros.precioMin = 50000;
-            filtros.precioMax = 200000; // $50K-$200K COP
+            filtros.precioMin = 20;
+            filtros.precioMax = 120; // $20-$120 USD
         }
 
         // DETECTAR ORDENAMIENTO
@@ -109,31 +109,19 @@ class FiltrosCatalogoService {
     }
 
     /**
-     * Convertir número a precio en PESOS COLOMBIANOS
+     * Convertir número a precio en DÓLARES AMERICANOS (USD)
+     * Para Venezuela - Precios directos en USD
      * Ejemplos:
-     * - "30" → 30 (si no hay contexto)
-     * - "30 mil" → 30.000
-     * - "30 dolares" → 120.000 (30 USD × 4000)
-     * - "30k" → 30.000
+     * - "30" → 30 USD
+     * - "30 dolares" → 30 USD
+     * - "5" → 5 USD
      */
     convertirPrecio(numero, contexto) {
         let valor = parseInt(numero);
 
-        // Detectar si menciona "mil" o "k"
-        if (contexto.includes('mil') || contexto.includes('k')) {
-            valor = valor * 1000;
-        }
-
-        // Detectar si menciona "dólares" o "usd" (convertir a COP)
-        if (contexto.includes('dolar') || contexto.includes('usd')) {
-            valor = valor * 4200; // 1 USD ≈ 4200 COP (tasa actualizada)
-        }
-
-        // Si el número es pequeño sin contexto, asumir miles
-        if (valor < 1000 && !contexto.includes('dolar') && !contexto.includes('usd')) {
-            valor = valor * 1000; // "30" → 30.000
-        }
-
+        // En Venezuela, todos los precios son en USD directamente
+        // No hay conversión necesaria
+        
         return valor;
     }
 
@@ -144,8 +132,8 @@ class FiltrosCatalogoService {
         let productos = catalogoCompletoService.productos;
 
         console.log(`🔍 Filtrando con:`, {
-            precioMin: filtros.precioMin ? `$${filtros.precioMin.toLocaleString()}` : 'N/A',
-            precioMax: filtros.precioMax ? `$${filtros.precioMax.toLocaleString()}` : 'N/A',
+            precioMin: filtros.precioMin ? `$${filtros.precioMin} USD` : 'N/A',
+            precioMax: filtros.precioMax ? `$${filtros.precioMax} USD` : 'N/A',
             material: filtros.material || 'Todos',
             categoria: filtros.categoria || 'Todas',
             keywords: filtros.keywords.join(', ') || 'Ninguna'
@@ -215,11 +203,11 @@ class FiltrosCatalogoService {
         const partes = [];
 
         if (filtros.precioMin && filtros.precioMax) {
-            partes.push(`entre $${filtros.precioMin.toLocaleString('es-CO')} y $${filtros.precioMax.toLocaleString('es-CO')}`);
+            partes.push(`entre $${filtros.precioMin} y $${filtros.precioMax} USD`);
         } else if (filtros.precioMin) {
-            partes.push(`mayor de $${filtros.precioMin.toLocaleString('es-CO')}`);
+            partes.push(`mayor de $${filtros.precioMin} USD`);
         } else if (filtros.precioMax) {
-            partes.push(`menor de $${filtros.precioMax.toLocaleString('es-CO')}`);
+            partes.push(`menor de $${filtros.precioMax} USD`);
         }
 
         if (filtros.material) {
@@ -238,7 +226,7 @@ class FiltrosCatalogoService {
     }
 
     /**
-     * Formatear resultados para WhatsApp
+     * Formatear resultados para WhatsApp (Venezuela - USD)
      */
     formatearResultados(busqueda, limite = 5) {
         const { consulta, filtros, resultados, total } = busqueda;
@@ -261,7 +249,14 @@ class FiltrosCatalogoService {
         for (const prod of resultados.slice(0, limite)) {
             mensaje += `📄 *Página ${prod.page}*\n`;
             mensaje += `   💎 ${prod.name}\n`;
-            mensaje += `   💰 ${prod.price_text}\n`;
+            
+            // Precio en USD o Consultar
+            if (prod.price) {
+                mensaje += `   💵 ${prod.price_text}\n`;
+            } else {
+                mensaje += `   💬 Precio: Consultar\n`;
+            }
+            
             if (prod.material) {
                 mensaje += `   ✨ ${prod.material.replace('_', ' ').toUpperCase()}\n`;
             }
