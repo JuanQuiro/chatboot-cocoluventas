@@ -3,6 +3,7 @@ import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
 import productsKeywordsService from '../services/products-keywords.service.js';
+import botControlService from '../services/bot-control.service.js';
 
 /**
  * Flujo: Keywords de Productos
@@ -16,13 +17,15 @@ export const productoKeywordFlow = addKeyword([
     'ANILLO', 'anillo'
 ])
     .addAnswer(
-        '💎 *¡Gran elección!* 💎',
-        { delay: 300 }
-    )
-    .addAnswer(
-        '✨ Me encanta tu gusto. Deja que te cuente sobre este producto...',
-        { delay: 500 },
-        async (ctx, { state, flowDynamic, provider }) => {
+        '💎 *¡Gran elección!* 💎\n\n✨ Me encanta tu gusto. Deja que te cuente sobre este producto...',
+        { delay: 200 },
+        async (ctx, { state, flowDynamic, provider, endFlow }) => {
+            // Verificar si bot está pausado
+            if (botControlService.isPaused(ctx.from)) {
+                console.log(`⏸️ Bot pausado - flujo keyword bloqueado para ${ctx.from}`);
+                return endFlow();
+            }
+            
             const currentState = state.getMyState();
             
             // Buscar el producto por keyword
@@ -40,17 +43,13 @@ export const productoKeywordFlow = addKeyword([
                 // Enviar información del producto
                 await flowDynamic([productInfo.message]);
                 
-                await flowDynamic([
-                    '',
-                    '💝 ¿Qué te parece?',
-                    '',
-                    '¿Tienes preguntas?',
-                    '',
-                    '*SI* - Quiero más info',
-                    '*NO* - Está todo claro',
-                    '',
-                    '_Estoy aquí para ayudarte_ 💗'
-                ]);
+                await flowDynamic(
+                    `\n💝 ¿Qué te parece?\n\n` +
+                    `¿Tienes preguntas?\n\n` +
+                    `*SI* - Quiero más info\n` +
+                    `*NO* - Está todo claro\n\n` +
+                    `_Estoy aquí para ayudarte_ 💗`
+                );
             } else {
                 // Producto no encontrado
                 await flowDynamic([
@@ -91,18 +90,14 @@ export const productoKeywordFlow = addKeyword([
 
                 const sellerWhatsAppLink = `https://wa.me/${seller.phone.replace('+', '')}`;
 
-                await flowDynamic([
-                    '',
-                    `👤 *${seller.name}*`,
-                    'Experta en Productos',
-                    '',
-                    '💎 Conoce cada detalle',
-                    '',
-                    '🔗 *Haz clic:*',
-                    sellerWhatsAppLink,
-                    '',
-                    '💬 Envíale tus preguntas'
-                ]);
+                await flowDynamic(
+                    `\n👤 *${seller.name}*\n` +
+                    `Experta en Productos\n\n` +
+                    `💎 Conoce cada detalle\n\n` +
+                    `🔗 *Haz clic:*\n` +
+                    `${sellerWhatsAppLink}\n\n` +
+                    `💬 Envíale tus preguntas`
+                );
 
                 // Enviar alerta al vendedor
                 await alertsService.sendAlert({

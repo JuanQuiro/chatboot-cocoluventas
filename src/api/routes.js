@@ -34,6 +34,101 @@ export const setupRoutes = (app) => {
     app.use('/api/logs', logsRouter);
     
     // ============================================
+    // COMANDOS - Listado de comandos del bot
+    // ============================================
+    app.get('/api/comandos', (req, res) => {
+        const comandos = {
+            control: {
+                pause: {
+                    command: 'BOT PAUSA YA',
+                    alternative: 'PAUSAR BOT COCOLU AHORA',
+                    description: 'Pausa el bot en este chat',
+                    caseSensitive: true,
+                    exactMatch: true
+                },
+                resume: {
+                    command: 'BOT ACTIVA YA',
+                    alternative: 'ACTIVAR BOT COCOLU AHORA',
+                    description: 'Reactiva el bot en este chat',
+                    caseSensitive: true,
+                    exactMatch: true
+                }
+            },
+            navigation: {
+                menu: {
+                    commands: ['hola', 'hi', 'hello', 'inicio', 'empezar', 'comenzar', 'menu', 'menú', 'start'],
+                    description: 'Muestra el menú principal con 5 opciones'
+                },
+                help: {
+                    commands: ['comandos', 'ayuda', 'help', 'comando'],
+                    description: 'Muestra la lista de comandos disponibles'
+                }
+            },
+            menuOptions: {
+                asesor: {
+                    number: '1',
+                    keywords: ['asesor', 'hablar', 'atención'],
+                    description: 'Conecta con un asesor personal'
+                },
+                catalogo: {
+                    number: '2',
+                    keywords: ['catalogo', 'catálogo', 'productos'],
+                    description: 'Ver catálogo completo de productos'
+                },
+                pedido: {
+                    number: '3',
+                    keywords: ['pedido', 'información pedido', 'info pedido'],
+                    description: 'Información sobre tu pedido'
+                },
+                horarios: {
+                    number: '4',
+                    keywords: ['horario', 'horarios', 'hora'],
+                    description: 'Horarios de atención'
+                },
+                problema: {
+                    number: '5',
+                    keywords: ['problema', 'queja', 'reclamo'],
+                    description: 'Reportar un problema (atención prioritaria)'
+                }
+            },
+            productKeywords: {
+                relicario: {
+                    keywords: ['RELICARIO', 'relicario'],
+                    description: 'Información sobre relicarios'
+                },
+                dije: {
+                    keywords: ['DIJE', 'dije'],
+                    description: 'Información sobre dijes'
+                },
+                cadena: {
+                    keywords: ['CADENA', 'cadena'],
+                    description: 'Información sobre cadenas'
+                },
+                pulsera: {
+                    keywords: ['PULSERA', 'pulsera'],
+                    description: 'Información sobre pulseras'
+                },
+                anillo: {
+                    keywords: ['ANILLO', 'anillo'],
+                    description: 'Información sobre anillos'
+                }
+            },
+            tips: [
+                'Los comandos de control (BOT PAUSA YA) DEBEN escribirse en MAYÚSCULAS exactas',
+                'Puedes escribir "menu" en cualquier momento para volver al inicio',
+                'Los números (1-5) son atajos rápidos para las opciones del menú',
+                'Las keywords de productos funcionan en mayúsculas o minúsculas'
+            ]
+        };
+        
+        res.json({
+            success: true,
+            comandos,
+            timestamp: new Date().toISOString()
+        });
+    });
+    
+    // ============================================
     // DASHBOARD - Información general
     // ============================================
     

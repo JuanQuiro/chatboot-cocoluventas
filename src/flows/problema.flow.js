@@ -2,6 +2,7 @@ import { addKeyword } from '@builderbot/bot';
 import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
+import botControlService from '../services/bot-control.service.js';
 
 /**
  * Flujo: Tengo un Problema
@@ -9,13 +10,15 @@ import alertsService from '../services/alerts.service.js';
  */
 export const problemaFlow = addKeyword(['problema', 'queja', 'reclamo'])
     .addAnswer(
-        '💔 *Tu Satisfacción es Nuestra Prioridad*',
-        { delay: 300 }
-    )
-    .addAnswer(
-        '😔 Lamento muchísimo que estés pasando por esto. Voy a ayudarte *AHORA MISMO*.',
-        { delay: 500 },
-        async (ctx, { state, flowDynamic, provider }) => {
+        '💔 *Tu Satisfacción es Nuestra Prioridad*\n\n😔 Lamento muchísimo que estés pasando por esto. Voy a ayudarte *AHORA MISMO*.',
+        { delay: 200 },
+        async (ctx, { state, flowDynamic, provider, endFlow }) => {
+            // Verificar si bot está pausado
+            if (botControlService.isPaused(ctx.from)) {
+                console.log(`⏸️ Bot pausado - flujo problema bloqueado para ${ctx.from}`);
+                return endFlow();
+            }
+            
             const currentState = state.getMyState();
             const seller = sellersManager.getAssignedSeller(ctx.from) || 
                           sellersManager.assignSeller(ctx.from);
@@ -46,24 +49,18 @@ export const problemaFlow = addKeyword(['problema', 'queja', 'reclamo'])
 
             const sellerWhatsAppLink = `https://wa.me/${seller.phone.replace('+', '')}`;
 
-            await flowDynamic([
-                '🚨 *ALERTA URGENTE ENVIADA*',
-                '',
-                `⚡ *${seller.name}*`,
-                'Tiene tu caso como PRIORITARIO',
-                '',
-                '💝 Resolverá tu problema',
-                'personalmente',
-                '',
-                '🔗 *Haz clic aquí:*',
-                sellerWhatsAppLink,
-                '',
-                '📝 Describe lo que pasó',
-                'Solución inmediata',
-                '',
-                '🙏 _Tu satisfacción es lo',
-                'más importante para nosotros_'
-            ]);
+            // Mensaje consolidado
+            await flowDynamic(
+                `🚨 *ALERTA URGENTE ENVIADA*\n\n` +
+                `⚡ *${seller.name}*\n` +
+                `Tiene tu caso como PRIORITARIO\n\n` +
+                `💝 Resolverá tu problema personalmente\n\n` +
+                `🔗 *Haz clic aquí:*\n` +
+                `${sellerWhatsAppLink}\n\n` +
+                `📝 Describe lo que pasó\n` +
+                `Solución inmediata\n\n` +
+                `🙏 _Tu satisfacción es lo más importante_`
+            );
 
             // Programar seguimiento a 15 minutos (más corto por ser problema)
             console.log(`⚠️ Problema reportado - seguimiento a 15 min para ${ctx.from}`);

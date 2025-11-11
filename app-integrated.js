@@ -12,11 +12,12 @@ import cors from 'cors';
 
 // Importar flujos de negocio
 import welcomeFlow from './src/flows/welcome.flow.js';
-import menuFlow from './src/flows/menu.flow.js';
-import productsFlow from './src/flows/products.flow.js';
-import ordersFlow, { trackOrderFlow } from './src/flows/orders.flow.js';
-import supportFlow from './src/flows/support.flow.js';
-import scheduleFlow, { shippingFlow, paymentFlow } from './src/flows/schedule.flow.js';
+// FLUJOS VIEJOS COMENTADOS - Causaban confusión
+// import menuFlow from './src/flows/menu.flow.js';
+// import productsFlow from './src/flows/products.flow.js';
+// import ordersFlow, { trackOrderFlow } from './src/flows/orders.flow.js';
+// import supportFlow from './src/flows/support.flow.js';
+// import scheduleFlow, { shippingFlow, paymentFlow } from './src/flows/schedule.flow.js';
 
 // NUEVO: Importar flujos premium de Cocolu
 import { hablarAsesorFlow } from './src/flows/hablar-asesor.flow.js';
@@ -25,6 +26,9 @@ import { infoPedidoFlow } from './src/flows/info-pedido.flow.js';
 import { horariosFlow } from './src/flows/horarios.flow.js';
 import { problemaFlow } from './src/flows/problema.flow.js';
 import { productoKeywordFlow } from './src/flows/producto-keyword.flow.js';
+import { comandosFlow } from './src/flows/comandos.flow.js';
+import { registroFlow } from './src/flows/registro.flow.js';
+import { debugFlow } from './src/flows/debug.flow.js';
 
 // Importar API routes
 import { setupRoutes } from './src/api/routes.js';
@@ -98,28 +102,21 @@ const main = async () => {
         console.log('📝 Cargando flujos de negocio...');
         const botId = 'bot_principal_cocolu'; // Declarar aquí para usar en flujos y bot manager
         const flows = [
-            // Flujos PREMIUM de Cocolu (nuevos - prioridad alta)
+            // SOLO Flujos PREMIUM de Cocolu - Flujos viejos ELIMINADOS
             { flow: welcomeFlow, name: 'Welcome Premium', description: 'Bienvenida con menú 5 opciones', category: 'core', keywords: ['hola', 'inicio', 'empezar'], priority: 100 },
+            { flow: comandosFlow, name: 'Comandos', description: 'Lista de comandos disponibles', category: 'core', keywords: ['comandos', 'ayuda', 'help'], priority: 99 },
+            { flow: problemaFlow, name: 'Atención Problemas', description: 'Resolución prioritaria de problemas', category: 'support', keywords: ['problema', 'queja', 'reclamo'], priority: 98 },
+            { flow: registroFlow, name: 'Registro Cliente', description: 'Historial y estado del cliente', category: 'core', keywords: ['registro', 'estado', 'historial'], priority: 97 },
+            { flow: debugFlow, name: 'Debug Técnico', description: 'Información técnica completa (Dev)', category: 'dev', keywords: ['debug', 'tecnico', 'dev'], priority: 96 },
             { flow: hablarAsesorFlow, name: 'Hablar con Asesor', description: 'Conexión directa con asesor', category: 'atencion', keywords: ['asesor', 'hablar', 'atención'], priority: 95 },
             { flow: catalogoFlow, name: 'Catálogo Premium', description: 'Catálogo con seguimiento automático', category: 'sales', keywords: ['catalogo', 'catálogo', 'productos'], priority: 90 },
             { flow: infoPedidoFlow, name: 'Info Pedido', description: 'Información de pedidos existentes', category: 'sales', keywords: ['pedido', 'información', 'orden'], priority: 88 },
             { flow: horariosFlow, name: 'Horarios', description: 'Horarios de atención', category: 'info', keywords: ['horario', 'horarios', 'hora'], priority: 86 },
-            { flow: problemaFlow, name: 'Atención Problemas', description: 'Resolución prioritaria de problemas', category: 'support', keywords: ['problema', 'queja', 'reclamo'], priority: 98 },
             { flow: productoKeywordFlow, name: 'Keywords Productos', description: 'Búsqueda por palabra clave', category: 'sales', keywords: ['relicario', 'dije', 'cadena', 'pulsera', 'anillo'], priority: 85 },
-            
-            // Flujos originales (compatibilidad)
-            { flow: menuFlow, name: 'Menu', description: 'Menú principal de opciones', category: 'core', keywords: ['menu', 'opciones'], priority: 80 },
-            { flow: productsFlow, name: 'Products', description: 'Catálogo de productos', category: 'sales', keywords: ['productos'], priority: 75 },
-            { flow: ordersFlow, name: 'Orders', description: 'Gestión de órdenes', category: 'sales', keywords: ['orden', 'comprar'], priority: 70 },
-            { flow: trackOrderFlow, name: 'Track Order', description: 'Rastrear órdenes existentes', category: 'sales', keywords: ['rastrear', 'tracking'], priority: 65 },
-            { flow: supportFlow, name: 'Support', description: 'Soporte técnico', category: 'support', keywords: ['ayuda', 'soporte'], priority: 60 },
-            { flow: scheduleFlow, name: 'Schedule', description: 'Agendar cita', category: 'support', keywords: ['agendar', 'cita'], priority: 55 },
-            { flow: shippingFlow, name: 'Shipping', description: 'Información de envío', category: 'sales', keywords: ['envío', 'entrega'], priority: 50 },
-            { flow: paymentFlow, name: 'Payment', description: 'Métodos de pago', category: 'sales', keywords: ['pago', 'pagar'], priority: 50 },
         ];
         
         const adapterFlow = createFlow(flows.map(f => f.flow));
-        console.log(`✅ ${flows.length} flujos cargados`);
+        console.log(`✅ ${flows.length} flujos PREMIUM cargados (flujos viejos eliminados)`);
         
         // Registrar flujos en el flowManager
         flows.forEach((flowConfig, index) => {
@@ -133,7 +130,7 @@ const main = async () => {
                 botId: botId,
             });
         });
-        console.log(`✅ ${flows.length} flujos registrados en dashboard`);
+        console.log(`✅ ${flows.length} flujos PREMIUM registrados en dashboard`);
         console.log('');
 
         // ============================================

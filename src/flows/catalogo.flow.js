@@ -2,6 +2,7 @@ import { addKeyword } from '@builderbot/bot';
 import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
+import botControlService from '../services/bot-control.service.js';
 
 /**
  * Flujo: Catálogo
@@ -9,13 +10,15 @@ import alertsService from '../services/alerts.service.js';
  */
 export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
     .addAnswer(
-        '💖 *¡Te va a encantar lo que tenemos!*',
-        { delay: 300 }
-    )
-    .addAnswer(
-        '✨ Prepárate para enamorarte de nuestros productos...',
-        { delay: 500 },
-        async (ctx, { state, flowDynamic, provider }) => {
+        '💖 *¡Te va a encantar lo que tenemos!*\n\n✨ Prepárate para enamorarte de nuestros productos...',
+        { delay: 200 },
+        async (ctx, { state, flowDynamic, provider, endFlow }) => {
+            // Verificar si bot está pausado
+            if (botControlService.isPaused(ctx.from)) {
+                console.log(`⏸️ Bot pausado - flujo catálogo bloqueado para ${ctx.from}`);
+                return endFlow();
+            }
+            
             const currentState = state.getMyState();
             const seller = sellersManager.getAssignedSeller(ctx.from) || 
                           sellersManager.assignSeller(ctx.from);
@@ -30,20 +33,17 @@ export const catalogoFlow = addKeyword(['catalogo', 'catálogo', 'productos'])
             // URL del catálogo (configurable desde .env)
             const catalogoUrl = process.env.CATALOG_URL || 'https://cocoluventas.com/catalogo';
 
-            await flowDynamic([
-                '🌟 *CATÁLOGO COMPLETO*',
-                '',
-                '🔗 *Haz clic aquí:*',
-                catalogoUrl,
-                '',
-                '💎 Piezas únicas y especiales',
-                '✨ Diseños exclusivos',
-                '💝 Calidad premium',
-                '',
-                '📱 Tómate tu tiempo',
-                '',
-                '_Te escribiré en un momento_ 💗'
-            ]);
+            // Mensaje consolidado
+            await flowDynamic(
+                `🌟 *CATÁLOGO COMPLETO*\n\n` +
+                `🔗 *Haz clic aquí:*\n` +
+                `${catalogoUrl}\n\n` +
+                `💎 Piezas únicas\n` +
+                `✨ Diseños exclusivos\n` +
+                `💝 Calidad premium\n\n` +
+                `📱 Tómate tu tiempo\n\n` +
+                `_Te escribiré en un momento_ 💗`
+            );
 
             // Configurar provider en alerts service
             if (!alertsService.provider && provider) {

@@ -1,5 +1,6 @@
 import { addKeyword } from '@builderbot/bot';
 import sellersManager from '../services/sellers.service.js';
+import botControlService from '../services/bot-control.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
 
@@ -9,27 +10,23 @@ import alertsService from '../services/alerts.service.js';
  */
 export const horariosFlow = addKeyword(['horario', 'horarios', 'hora'])
     .addAnswer(
-        '⏰ *Nuestros Horarios de Atención*',
-        { delay: 300 }
-    )
-    .addAnswer(
-        [
-            '🕒 *HORARIO DE ATENCIÓN*',
-            '',
-            '📅 *Lunes a Viernes*',
-            `${process.env.BUSINESS_HOURS_START || '09:00'} a ${process.env.BUSINESS_HOURS_END || '18:00'}`,
-            '',
-            '✨ Listos para atenderte',
-            '',
-            '💬 Nuestro equipo experto',
-            'te espera',
-            '',
-            '💝 ¿List@ para hacer un pedido?'
-        ],
-        { delay: 500, capture: true },
-        async (ctx, { state, flowDynamic, gotoFlow }) => {
+        `⏰ *HORARIO DE ATENCIÓN*\n\n` +
+        `📅 *Lunes a Viernes*\n` +
+        `${process.env.BUSINESS_HOURS_START || '09:00'} a ${process.env.BUSINESS_HOURS_END || '18:00'}\n\n` +
+        `✨ Listos para atenderte\n\n` +
+        `💬 Nuestro equipo experto te espera\n\n` +
+        `💝 ¿List@ para hacer un pedido?`,
+        { delay: 200, capture: true },
+        async (ctx, { state, flowDynamic, gotoFlow, endFlow }) => {
+            // Verificar si bot está pausado
+            if (botControlService.isPaused(ctx.from)) {
+                console.log(`⏸️ Bot pausado - flujo horarios bloqueado para ${ctx.from}`);
+                return endFlow();
+            }
+            
             const currentState = state.getMyState();
             const userResponse = ctx.body.toLowerCase().trim();
+            const rawResponse = ctx.body.trim();
 
             await state.update({
                 ...currentState,
@@ -37,7 +34,8 @@ export const horariosFlow = addKeyword(['horario', 'horarios', 'hora'])
                 flowStartedAt: new Date().toISOString()
             });
 
-            if (userResponse.includes('si') || userResponse.includes('sí') || userResponse.includes('quiero')) {
+            if (userResponse.includes('si') || userResponse.includes('sí') || userResponse.includes('quiero') || 
+                userResponse.includes('1') || rawResponse.includes('1️⃣') || userResponse.includes('asesor')) {
                 // Cliente quiere hacer pedido - ir a flujo de asesor
                 await flowDynamic([
                     '🎉 *¡Excelente!* 💖',

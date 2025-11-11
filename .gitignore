@@ -40,3 +40,7 @@ bot.qr.png
 tmp/
 temp/
 *.tmp
+bot_principal_sessions/
+primera-prueba-flujo-chatboot/
+segunda-prueba-flujo/
+*.log

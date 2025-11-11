@@ -2,6 +2,7 @@ import { addKeyword } from '@builderbot/bot';
 import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
+import botControlService from '../services/bot-control.service.js';
 
 /**
  * Flujo: Información de Pedido
@@ -9,13 +10,15 @@ import alertsService from '../services/alerts.service.js';
  */
 export const infoPedidoFlow = addKeyword(['pedido', 'información pedido', 'info pedido'])
     .addAnswer(
-        '📦 *Información de tu Pedido*',
-        { delay: 300 }
-    )
-    .addAnswer(
-        '¡Claro que sí! 💝 Con gusto te ayudo a revisar tu pedido.',
-        { delay: 500 },
-        async (ctx, { state, flowDynamic, provider }) => {
+        '📦 *Información de tu Pedido*\n\n¡Claro que sí! 💝 Con gusto te ayudo a revisar tu pedido.',
+        { delay: 200 },
+        async (ctx, { state, flowDynamic, provider, endFlow }) => {
+            // Verificar si bot está pausado
+            if (botControlService.isPaused(ctx.from)) {
+                console.log(`⏸️ Bot pausado - flujo info pedido bloqueado para ${ctx.from}`);
+                return endFlow();
+            }
+            
             const currentState = state.getMyState();
             const seller = sellersManager.getAssignedSeller(ctx.from) || 
                           sellersManager.assignSeller(ctx.from);
@@ -28,20 +31,16 @@ export const infoPedidoFlow = addKeyword(['pedido', 'información pedido', 'info
 
             const sellerWhatsAppLink = `https://wa.me/${seller.phone.replace('+', '')}`;
 
-            await flowDynamic([
-                `👤 *${seller.name}*`,
-                'Experta en Pedidos',
-                '',
-                '✨ Revisará tu pedido al instante',
-                '',
-                '🔗 *Haz clic aquí:*',
-                sellerWhatsAppLink,
-                '',
-                '📝 *Tip:* Ten a mano tu',
-                'número de pedido o nombre',
-                '',
-                '📦 Toda la info que necesitas'
-            ]);
+            // Mensaje consolidado
+            await flowDynamic(
+                `👤 *${seller.name}*\n` +
+                `Experta en Pedidos\n\n` +
+                `✨ Revisará tu pedido al instante\n\n` +
+                `🔗 *Haz clic aquí:*\n` +
+                `${sellerWhatsAppLink}\n\n` +
+                `📝 *Tip:* Ten a mano tu número de pedido\n\n` +
+                `📦 Toda la info que necesitas`
+            );
 
             // Configurar provider
             if (!alertsService.provider && provider) {
