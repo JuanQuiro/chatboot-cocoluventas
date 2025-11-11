@@ -85,24 +85,37 @@ export const welcomeFlow = addKeyword(['hola', 'hi', 'hello', 'inicio', 'empezar
             const { horariosFlow } = await import('./horarios.flow.js');
             const { problemaFlow } = await import('./problema.flow.js');
             
-            // Detectar opción 1: número "1" o emoji "1️⃣" o palabras clave
-            if (userInput.includes('1') || rawInput.includes('1️⃣') || userInput.includes('asesor') || userInput.includes('hablar')) {
+            // Limpiar estado de flujo anterior
+            await state.update({
+                ...currentState,
+                currentFlow: null,
+                waitingFollowupResponse: false,
+                waitingCatalogResponse: false,
+                waitingInfoPedidoResponse: false,
+                waitingProblemaResponse: false,
+                waitingKeywordResponse: false,
+                waitingFinalResponse: false
+            });
+            
+            // Detectar opción - EXACTA o por palabra clave
+            // Opción 1: Asesor
+            if (userInput === '1' || rawInput === '1️⃣' || userInput.includes('asesor') || userInput.includes('hablar')) {
                 return gotoFlow(hablarAsesorFlow);
             } 
-            // Detectar opción 2: número "2" o emoji "2️⃣" o palabras clave
-            else if (userInput.includes('2') || rawInput.includes('2️⃣') || userInput.includes('catalogo') || userInput.includes('catálogo')) {
+            // Opción 2: Catálogo
+            else if (userInput === '2' || rawInput === '2️⃣' || userInput.includes('catalogo') || userInput.includes('catálogo')) {
                 return gotoFlow(catalogoFlow);
             } 
-            // Detectar opción 3: número "3" o emoji "3️⃣" o palabras clave
-            else if (userInput.includes('3') || rawInput.includes('3️⃣') || userInput.includes('pedido') || userInput.includes('información')) {
+            // Opción 3: Pedido
+            else if (userInput === '3' || rawInput === '3️⃣' || userInput.includes('pedido') || userInput.includes('información')) {
                 return gotoFlow(infoPedidoFlow);
             } 
-            // Detectar opción 4: número "4" o emoji "4️⃣" o palabras clave
-            else if (userInput.includes('4') || rawInput.includes('4️⃣') || userInput.includes('horario')) {
+            // Opción 4: Horarios
+            else if (userInput === '4' || rawInput === '4️⃣' || userInput.includes('horario')) {
                 return gotoFlow(horariosFlow);
             } 
-            // Detectar opción 5: número "5" o emoji "5️⃣" o palabras clave
-            else if (userInput.includes('5') || rawInput.includes('5️⃣') || userInput.includes('problema')) {
+            // Opción 5: Problema
+            else if (userInput === '5' || rawInput === '5️⃣' || userInput.includes('problema')) {
                 return gotoFlow(problemaFlow);
             } 
             // Mensaje de error mejorado con todas las opciones
