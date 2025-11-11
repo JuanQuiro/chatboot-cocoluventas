@@ -1,4 +1,5 @@
 import { addKeyword } from '@builderbot/bot';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 import { createOrder, getOrderStatus } from '../services/orders.service.js';
 import { formatCurrency } from '../utils/format.js';
 import analyticsService from '../services/analytics.service.js';
@@ -23,7 +24,10 @@ const ordersFlow = addKeyword(['2', 'pedido', 'comprar', 'orden', 'hacer pedido'
     .addAnswer(
         '1️⃣ *¿Qué producto(s) deseas?*',
         { capture: true },
-        async (ctx, { flowDynamic, state, fallBack }) => {
+        async (ctx, { flowDynamic, state, fallBack, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const products = ctx.body.trim();
             
             if (products.length < 3) {
@@ -38,7 +42,10 @@ const ordersFlow = addKeyword(['2', 'pedido', 'comprar', 'orden', 'hacer pedido'
     .addAnswer(
         '2️⃣ *¿Cuántas unidades de cada uno?*',
         { capture: true },
-        async (ctx, { flowDynamic, state, fallBack }) => {
+        async (ctx, { flowDynamic, state, fallBack, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const quantity = ctx.body.trim();
             
             if (!quantity) {
@@ -53,7 +60,10 @@ const ordersFlow = addKeyword(['2', 'pedido', 'comprar', 'orden', 'hacer pedido'
     .addAnswer(
         '3️⃣ *¿Cuál es tu nombre completo?*',
         { capture: true },
-        async (ctx, { flowDynamic, state, fallBack }) => {
+        async (ctx, { flowDynamic, state, fallBack, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const name = ctx.body.trim();
             
             if (name.length < 3) {
@@ -68,7 +78,10 @@ const ordersFlow = addKeyword(['2', 'pedido', 'comprar', 'orden', 'hacer pedido'
     .addAnswer(
         '4️⃣ *¿Dirección de entrega?*',
         { capture: true },
-        async (ctx, { flowDynamic, state, fallBack }) => {
+        async (ctx, { flowDynamic, state, fallBack, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const address = ctx.body.trim();
             
             if (address.length < 10) {
@@ -83,7 +96,10 @@ const ordersFlow = addKeyword(['2', 'pedido', 'comprar', 'orden', 'hacer pedido'
     .addAnswer(
         '5️⃣ *¿Método de pago preferido?*\n\n💳 Tarjeta\n💵 Efectivo\n🏦 Transferencia',
         { capture: true },
-        async (ctx, { flowDynamic, state }) => {
+        async (ctx, { flowDynamic, state, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const paymentMethod = ctx.body.trim();
             await state.update({ paymentMethod });
             await flowDynamic('✅ Método de pago registrado.');
@@ -182,7 +198,10 @@ const trackOrderFlow = addKeyword(['3', 'seguimiento', 'rastrear', 'estado', 'tr
     .addAnswer(
         'Por favor, proporciona tu número de pedido:',
         { capture: true },
-        async (ctx, { flowDynamic, fallBack }) => {
+        async (ctx, { flowDynamic, fallBack, gotoFlow, state }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const orderId = ctx.body.trim();
             
             if (!orderId) {

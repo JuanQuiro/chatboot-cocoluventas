@@ -1,6 +1,7 @@
 import { addKeyword } from '@builderbot/bot';
-import { getProducts, getProductCategories } from '../services/products.service.js';
+import { getProducts, getProductCategories, searchProducts } from '../services/products.service.js';
 import analyticsService from '../services/analytics.service.js';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 
 /**
  * Flujo de productos y catálogo
@@ -107,7 +108,10 @@ const searchProductFlow = addKeyword(['buscar', 'busco'])
     .addAnswer(
         '🔍 *BÚSQUEDA DE PRODUCTOS*',
         { capture: true },
-        async (ctx, { flowDynamic, fallBack }) => {
+        async (ctx, { flowDynamic, fallBack, gotoFlow, state }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const searchTerm = ctx.body.replace(/buscar/i, '').trim();
             
             if (searchTerm.length < 3) {

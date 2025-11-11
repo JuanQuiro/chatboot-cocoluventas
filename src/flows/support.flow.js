@@ -1,4 +1,5 @@
 import { addKeyword } from '@builderbot/bot';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 import { createSupportTicket } from '../services/support.service.js';
 
 /**
@@ -38,7 +39,10 @@ const advisorFlow = addKeyword(['1', 'asesor', 'agente', 'humano', 'persona'])
             'Por favor describe brevemente tu consulta:',
         ],
         { capture: true },
-        async (ctx, { flowDynamic, state }) => {
+        async (ctx, { flowDynamic, state, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const query = ctx.body.trim();
             await state.update({ supportQuery: query });
             
@@ -74,7 +78,10 @@ const reportProblemFlow = addKeyword(['2', 'problema', 'error', 'falla', 'report
     .addAnswer(
         'Describe el problema que estás experimentando:',
         { capture: true },
-        async (ctx, { flowDynamic }) => {
+        async (ctx, { flowDynamic, gotoFlow, state }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
             const problem = ctx.body.trim();
             
             const ticket = await createSupportTicket({

@@ -2,6 +2,7 @@ import { addKeyword } from '@builderbot/bot';
 import sellersManager from '../services/sellers.service.js';
 import timerService from '../services/timer.service.js';
 import alertsService from '../services/alerts.service.js';
+import { processGlobalIntent } from '../utils/intent-interceptor.js';
 import productsKeywordsService from '../services/products-keywords.service.js';
 import botControlService from '../services/bot-control.service.js';
 
@@ -72,7 +73,11 @@ export const productoKeywordFlow = addKeyword([
     .addAnswer(
         null,
         { capture: true },
-        async (ctx, { state, flowDynamic, provider }) => {
+        async (ctx, { state, flowDynamic, provider, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
+            
             const currentState = state.getMyState();
             const userResponse = ctx.body.toLowerCase().trim();
             const seller = sellersManager.getAssignedSeller(ctx.from) || 
@@ -168,6 +173,10 @@ export const productoKeywordFlow = addKeyword([
         null,
         { capture: true },
         async (ctx, { state, flowDynamic, endFlow, gotoFlow }) => {
+            // INTERCEPTOR: Detectar intenciones globales PRIMERO
+            const globalIntentProcessed = await processGlobalIntent(ctx, { gotoFlow, flowDynamic, state });
+            if (globalIntentProcessed) return;
+            
             const currentState = state.getMyState();
             
             // Si está esperando respuesta de seguimiento
