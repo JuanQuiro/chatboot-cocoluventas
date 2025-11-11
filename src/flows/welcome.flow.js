@@ -12,19 +12,31 @@ import { sleep, DELAYS } from '../utils/delays.js';
  * Menú principal con 5 opciones
  */
 export const welcomeFlow = addKeyword([
-    // Saludos
+    // Saludos (todas las variaciones)
     'hola', 'hi', 'hello', 'inicio', 'empezar', 'comenzar', 'menu', 'menú', 'start',
+    'Hola', 'Hi', 'Hello', 'Inicio', 'Empezar', 'Comenzar', 'Menu', 'Menú', 'Start',
     'HOLA', 'HI', 'HELLO', 'INICIO', 'EMPEZAR', 'COMENZAR', 'MENU', 'MENÚ', 'START',
+    'hola!', 'HOLA!', 'Hola!', 'holaa', 'holaaa',
     // Números
     '1', '2', '3', '4', '5',
     // Emojis
     '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣',
-    // Palabras clave - todas las variaciones
-    'asesor', 'Asesor', 'ASESOR', 'hablar', 'Hablar', 'HABLAR',
+    // Opción 1: Asesor (todas las variaciones posibles)
+    'asesor', 'Asesor', 'ASESOR', 'asesora', 'Asesora', 'ASESORA',
+    'hablar', 'Hablar', 'HABLAR', 'hablr', 'ablar',
+    // Opción 2: Catálogo (con variaciones ortográficas)
     'catalogo', 'catálogo', 'Catalogo', 'Catálogo', 'CATALOGO', 'CATÁLOGO',
-    'pedido', 'Pedido', 'PEDIDO', 'informacion', 'información', 'Información', 'INFORMACION', 'INFORMACIÓN',
+    'katalogo', 'katálogo', 'Katalogo', 'Katálogo', 'catalgo', 'catalogo',
+    // Opción 3: Pedido (todas las variaciones)
+    'pedido', 'Pedido', 'PEDIDO', 'pedidos', 'Pedidos', 'PEDIDOS',
+    'informacion', 'información', 'Información', 'INFORMACION', 'INFORMACIÓN',
+    'info', 'Info', 'INFO',
+    // Opción 4: Horarios (todas las variaciones)
     'horario', 'horarios', 'Horario', 'Horarios', 'HORARIO', 'HORARIOS',
-    'problema', 'Problema', 'PROBLEMA'
+    'orario', 'orarios',
+    // Opción 5: Problema (todas las variaciones)
+    'problema', 'Problema', 'PROBLEMA', 'problemas', 'Problemas', 'PROBLEMAS',
+    'pblema', 'prblema'
 ])
     .addAnswer(
         null,
@@ -67,11 +79,19 @@ export const welcomeFlow = addKeyword([
             analyticsService.trackMessage(ctx.from, 'incoming');
             analyticsService.trackConversation(ctx.from);
             
-            // 6. Procesar input ATÓMICAMENTE - NORMALIZADO
-            const userInput = ctx.body.toLowerCase().trim();
-            const rawInput = ctx.body.trim();
-            // Normalizar: quitar acentos y convertir a minúsculas
-            const normalizedInput = userInput.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            // 6. Procesar input ATÓMICAMENTE - NORMALIZACIÓN ULTRA ROBUSTA
+            const rawInput = ctx.body.trim(); // Input original para emojis
+            
+            // Normalización completa en múltiples pasos:
+            let normalizedInput = ctx.body
+                .toLowerCase()                                          // Minúsculas
+                .trim()                                                 // Quitar espacios inicio/fin
+                .replace(/\s+/g, ' ')                                  // Múltiples espacios → uno solo
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')     // Quitar acentos (á→a, é→e)
+                .replace(/[^a-z0-9\s]/gi, '')                          // Quitar caracteres especiales
+                .trim();                                                // Trim final
+            
+            const userInput = normalizedInput; // Alias para compatibilidad
             
             // 7. Asignar vendedor si no existe
             let currentState = state.getMyState();
@@ -126,35 +146,40 @@ export const welcomeFlow = addKeyword([
                 return endFlow();
             }
             
-            // 11. PROCESAMIENTO ATÓMICO DE INTENCIONES - ULTRA ROBUSTO
-            // Opción 1: Asesor (acepta: asesor, Asesor, ASESOR, hablar, Hablar, HABLAR)
+            // 11. PROCESAMIENTO ATÓMICO DE INTENCIONES - PERFECCIÓN TOTAL
+            // Opción 1: Asesor
             if (userInput === '1' || rawInput === '1️⃣' || 
-                normalizedInput.includes('asesor') || normalizedInput.includes('hablar')) {
-                console.log(`🎯 Intención detectada: ASESOR (input: ${userInput})`);
+                normalizedInput.includes('asesor') || normalizedInput.includes('hablar') ||
+                normalizedInput === '1' || normalizedInput.startsWith('asesor') || normalizedInput.startsWith('hablar')) {
+                console.log(`🎯 ASESOR detectado | Original: "${ctx.body}" | Normalizado: "${normalizedInput}"`);
                 return gotoFlow(hablarAsesorFlow);
             } 
-            // Opción 2: Catálogo (acepta: catalogo, catálogo, Catalogo, Catálogo, CATALOGO, CATÁLOGO)
+            // Opción 2: Catálogo
             else if (userInput === '2' || rawInput === '2️⃣' || 
-                     normalizedInput.includes('catalogo')) {
-                console.log(`🎯 Intención detectada: CATÁLOGO (input: ${userInput})`);
+                     normalizedInput.includes('catalogo') || normalizedInput.includes('katalogo') ||
+                     normalizedInput === '2' || normalizedInput.startsWith('catalogo')) {
+                console.log(`🎯 CATÁLOGO detectado | Original: "${ctx.body}" | Normalizado: "${normalizedInput}"`);
                 return gotoFlow(catalogoFlow);
             } 
-            // Opción 3: Pedido (acepta: pedido, Pedido, PEDIDO, informacion, información, Información)
+            // Opción 3: Pedido
             else if (userInput === '3' || rawInput === '3️⃣' || 
-                     normalizedInput.includes('pedido') || normalizedInput.includes('informacion')) {
-                console.log(`🎯 Intención detectada: PEDIDO (input: ${userInput})`);
+                     normalizedInput.includes('pedido') || normalizedInput.includes('informacion') ||
+                     normalizedInput === '3' || normalizedInput.startsWith('pedido') || normalizedInput.startsWith('info')) {
+                console.log(`🎯 PEDIDO detectado | Original: "${ctx.body}" | Normalizado: "${normalizedInput}"`);
                 return gotoFlow(infoPedidoFlow);
             } 
-            // Opción 4: Horarios (acepta: horario, horarios, Horario, Horarios, HORARIO, HORARIOS)
+            // Opción 4: Horarios
             else if (userInput === '4' || rawInput === '4️⃣' || 
-                     normalizedInput.includes('horario')) {
-                console.log(`🎯 Intención detectada: HORARIOS (input: ${userInput})`);
+                     normalizedInput.includes('horario') ||
+                     normalizedInput === '4' || normalizedInput.startsWith('horario')) {
+                console.log(`🎯 HORARIOS detectado | Original: "${ctx.body}" | Normalizado: "${normalizedInput}"`);
                 return gotoFlow(horariosFlow);
             } 
-            // Opción 5: Problema (acepta: problema, Problema, PROBLEMA)
+            // Opción 5: Problema
             else if (userInput === '5' || rawInput === '5️⃣' || 
-                     normalizedInput.includes('problema')) {
-                console.log(`🎯 Intención detectada: PROBLEMA (input: ${userInput})`);
+                     normalizedInput.includes('problema') ||
+                     normalizedInput === '5' || normalizedInput.startsWith('problema')) {
+                console.log(`🎯 PROBLEMA detectado | Original: "${ctx.body}" | Normalizado: "${normalizedInput}"`);
                 return gotoFlow(problemaFlow);
             }
             // Sin match
