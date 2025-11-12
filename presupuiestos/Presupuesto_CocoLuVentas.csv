@@ -1,0 +1,114 @@
+PRESUPUESTO - CHATBOT WHATSAPP COCOLUVENTAS
+Cliente:,CocoLuVentas
+Proyecto:,Sistema de Chatbot WhatsApp con Rotación de Vendedores  
+Fecha:,11/11/2025
+Desarrollador:,Ember Drago
+
+Fase/Tarea,Descripción,Horas,Días,Costo/Hora,Total USD
+FASE 1: ANÁLISIS Y DISEÑO,,,,
+1.1 Análisis de requerimientos,Reunión con cliente - definición de flujos,4,0.5,$50,"$200"
+1.2 Diseño de arquitectura,Definir stack tecnológico - estructura,6,0.75,$50,"$300"
+1.3 Diseño de base de datos,Modelado de datos - vendedores - historial,4,0.5,$50,"$200"
+1.4 Diseño de flujos conversacionales,Mapeo de comandos y respuestas,6,0.75,$50,"$300"
+
+FASE 2: CONFIGURACIÓN DEL ENTORNO,,,,
+2.1 Setup Node.js y dependencias,Instalación de BuilderBot - Baileys,3,0.4,$50,"$150"
+2.2 Configuración de repositorio,Git - estructura de carpetas,2,0.25,$50,"$100"
+2.3 Configuración de WhatsApp Web,Baileys provider - autenticación,4,0.5,$50,"$200"
+
+FASE 3: DESARROLLO DEL CORE,,,,
+3.1 Sistema de vendedores,Configuración de 5 vendedores con datos,4,0.5,$50,"$200"
+3.2 Sistema de rotación Round-Robin,Algoritmo de asignación secuencial,6,0.75,$50,"$300"
+3.3 Flow de asignación automática,Detección de keywords - asignación,8,1,$50,"$400"
+3.4 Flow de lista de vendedores,Comando para ver equipo completo,3,0.4,$50,"$150"
+3.5 Flow de estadísticas,Tracking de asignaciones - reportes,5,0.6,$50,"$250"
+3.6 Historial de asignaciones,Registro temporal de asignaciones,4,0.5,$50,"$200"
+
+FASE 4: FUNCIONALIDADES AVANZADAS,,,,
+4.1 Respuestas personalizadas,Templates con datos del vendedor,4,0.5,$50,"$200"
+4.2 Manejo de múltiples comandos,Keywords variadas - sinónimos,3,0.4,$50,"$150"
+4.3 Sistema de logs,Registro en consola de actividad,3,0.4,$50,"$150"
+4.4 Validación y manejo de errores,Try-catch - fallbacks,4,0.5,$50,"$200"
+
+FASE 5: INTEGRACIÓN Y API REST,,,,
+5.1 API REST básica,Endpoints para stats y mensajes,6,0.75,$50,"$300"
+5.2 Endpoint de estadísticas,GET /v1/stats,3,0.4,$50,"$150"
+5.3 Endpoint de envío de mensajes,POST /v1/messages,4,0.5,$50,"$200"
+5.4 Documentación de API,README con ejemplos de uso,3,0.4,$50,"$150"
+
+FASE 6: TESTING Y ASEGURAMIENTO DE CALIDAD,,,,
+6.1 Pruebas unitarias,Test de funciones principales,8,1,$50,"$400"
+6.2 Pruebas de integración,Test de flujos completos,6,0.75,$50,"$300"
+6.3 Pruebas con WhatsApp real,QR scanning - envío/recepción,6,0.75,$50,"$300"
+6.4 Testing de rotación,Verificar Round-Robin funciona,4,0.5,$50,"$200"
+6.5 Pruebas de estrés,Múltiples mensajes simultáneos,4,0.5,$50,"$200"
+6.6 Corrección de bugs,Fix de problemas encontrados,8,1,$50,"$400"
+
+FASE 7: DOCUMENTACIÓN,,,,
+7.1 Manual de usuario,Guía de comandos para clientes,4,0.5,$50,"$200"
+7.2 Guía de instalación,Scripts e instrucciones de setup,5,0.6,$50,"$250"
+7.3 Documentación técnica,Arquitectura - código - APIs,6,0.75,$50,"$300"
+7.4 README completo,GitHub README con ejemplos,3,0.4,$50,"$150"
+
+FASE 8: DEPLOYMENT Y ENTREGA,,,,
+8.1 Preparación de scripts,Scripts de inicio automático,4,0.5,$50,"$200"
+8.2 Configuración de entorno producción,Variables de entorno - seguridad,5,0.6,$50,"$250"
+8.3 Entrenamiento al cliente,Sesión de capacitación,4,0.5,$50,"$200"
+8.4 Entrega y documentación final,Transferencia de archivos,3,0.4,$50,"$150"
+
+FASE 9: SOPORTE POST-LANZAMIENTO (1 MES),,,,
+9.1 Soporte técnico,Resolución de dudas y problemas,20,2.5,$50,"$1,000"
+9.2 Ajustes menores,Modificaciones de vendedores - textos,8,1,$50,"$400"
+9.3 Monitoreo de estabilidad,Verificación de funcionamiento,6,0.75,$50,"$300"
+
+TOTAL PROYECTO,,172,21.5,,"$8,600"
+
+RESUMEN EJECUTIVO
+Total de Horas:,172,horas
+Total de Días Laborables:,21.5,días (8 hrs/día)
+Duración Estimada (calendario):,32,días (incluyendo imprevistos +50%)
+Costo por Hora:,$50,USD
+COSTO TOTAL DEL PROYECTO:,"$8,600",USD
+
+DESGLOSE POR FASE
+Fase 1 - Análisis y Diseño:,"$1,000",11.6%
+Fase 2 - Configuración del Entorno:,"$450",5.2%
+Fase 3 - Desarrollo del Core:,"$1,500",17.4%
+Fase 4 - Funcionalidades Avanzadas:,"$700",8.1%
+Fase 5 - Integración y API REST:,"$800",9.3%
+Fase 6 - Testing y QA:,"$1,800",20.9%
+Fase 7 - Documentación:,"$900",10.5%
+Fase 8 - Deployment y Entrega:,"$800",9.3%
+Fase 9 - Soporte Post-Lanzamiento:,"$1,700",19.8%
+
+NOTAS IMPORTANTES
+• Los tiempos son estimados REALISTAS basados en experiencia
+• Incluye 1 mes de soporte post-lanzamiento
+• No incluye hosting o infraestructura de servidor
+• Requiere cuenta de WhatsApp del cliente
+• Proyecto basado en BuilderBot (Leifer Méndez)
+• Tecnología: Node.js - Baileys - WhatsApp Web Protocol
+• Sistema de rotación Round-Robin automatizado
+• 5 vendedores configurables con información personalizada
+• Estimación conservadora con buffer de imprevistos
+
+COMPARACIÓN DE ESCENARIOS
+Escenario Optimista:,15 días,130 horas,"$6,500"
+Escenario Realista:,21.5 días,172 horas,"$8,600"
+Escenario Conservador:,32 días,215 horas,"$10,750"
+
+HITOS DEL PROYECTO
+Semana 1:,Análisis y diseño completo
+Semana 2:,Core del chatbot funcionando
+Semana 3:,Testing y correcciones
+Semana 4:,Deployment y entrega
+Mes 2:,Soporte y ajustes
+
+ENTREGABLES
+✓ Código fuente completo del chatbot
+✓ Sistema de rotación de 5 vendedores
+✓ API REST para integración
+✓ Documentación técnica y de usuario
+✓ Scripts de instalación y deployment
+✓ 1 mes de soporte técnico
+✓ Capacitación al equipo

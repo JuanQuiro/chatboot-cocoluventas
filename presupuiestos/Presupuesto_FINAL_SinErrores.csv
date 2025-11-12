@@ -1,0 +1,203 @@
+PRESUPUESTO CHATBOT WHATSAPP - COCOLUVENTAS
+,,,,,,
+Cliente:,CocoLuVentas,,,Fecha:,11/11/2025
+Proyecto:,Sistema de Chatbot WhatsApp con Rotación Automática de Vendedores,,,Desarrollador:,Ember Drago
+,,,,,,
+TARIFA/HORA:,50,USD,← AJUSTAR AQUÍ PARA RECALCULAR TODO,,
+,,,,,,
+#,Fase/Tarea,Descripción Detallada,Horas,Días (8h),Tarifa,Total USD
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 1: ANÁLISIS Y DISEÑO,,,,
+,══════════════════════════════════════════════════════════════,,,,
+1.1,Análisis de Requerimientos,,,,,
+1.1.1,Reunión inicial con cliente,Definición objetivos y alcance,2,=D14/8,=$B$6,=D14*F14
+1.1.2,Levantamiento necesidades,Flujos conversacionales,2,=D15/8,=$B$6,=D15*F15
+1.1.3,Documentación requerimientos,Especificaciones funcionales,2,=D16/8,=$B$6,=D16*F16
+,,,,,,
+1.2,Diseño de Arquitectura,,,,,
+1.2.1,Stack tecnológico,Node.js + BuilderBot + Baileys,2,=D19/8,=$B$6,=D19*F19
+1.2.2,Diseño de componentes,Módulos y estructura,2,=D20/8,=$B$6,=D20*F20
+1.2.3,Diagrama arquitectura,Documentación visual,2,=D21/8,=$B$6,=D21*F21
+,,,,,,
+1.3,Diseño Base de Datos,,,,,
+1.3.1,Modelado vendedores,5 vendedores con datos,2,=D24/8,=$B$6,=D24*F24
+1.3.2,Modelado historial,Registro asignaciones,2,=D25/8,=$B$6,=D25*F25
+,,,,,,
+1.4,Diseño de Flujos,,,,,
+1.4.1,Mapeo comandos,hola-lista-stats,2,=D28/8,=$B$6,=D28*F28
+1.4.2,Templates respuestas,Mensajes automáticos,2,=D29/8,=$B$6,=D29*F29
+1.4.3,Diagrama de flujos,Flowchart completo,2,=D30/8,=$B$6,=D30*F30
+,,,,,,
+,SUBTOTAL FASE 1:,,=D14+D15+D16+D19+D20+D21+D24+D25+D28+D29+D30,=D32/8,,=G14+G15+G16+G19+G20+G21+G24+G25+G28+G29+G30
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 2: CONFIGURACIÓN DEL ENTORNO,,,,
+,══════════════════════════════════════════════════════════════,,,,
+2.1,Setup Node.js,,,,,
+2.1.1,Instalación Node.js v20+,Configuración entorno,3,=D38/8,=$B$6,=D38*F38
+2.1.2,Instalación BuilderBot,@builderbot/bot,2,=D39/8,=$B$6,=D39*F39
+2.1.3,Instalación Baileys,@builderbot/provider-baileys,2,=D40/8,=$B$6,=D40*F40
+,,,,,,
+2.2,Repositorio Git,,,,,
+2.2.1,Inicialización Git,Repo local y remoto,1,=D43/8,=$B$6,=D43*F43
+2.2.2,Estructura carpetas,src-docs-scripts,1,=D44/8,=$B$6,=D44*F44
+,,,,,,
+2.3,WhatsApp Web,,,,,
+2.3.1,Configuración Baileys,Provider WhatsApp,2,=D47/8,=$B$6,=D47*F47
+2.3.2,Sistema autenticación,QR code y sesiones,2,=D48/8,=$B$6,=D48*F48
+2.3.3,Reconexión automática,Recovery sesiones,2,=D49/8,=$B$6,=D49*F49
+,,,,,,
+,SUBTOTAL FASE 2:,,=D38+D39+D40+D43+D44+D47+D48+D49,=D51/8,,=G38+G39+G40+G43+G44+G47+G48+G49
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 3: DESARROLLO DEL CORE,,,,
+,══════════════════════════════════════════════════════════════,,,,
+3.1,Sistema Vendedores,,,,,
+3.1.1,Estructura de datos,Array de 5 vendedores,2,=D57/8,=$B$6,=D57*F57
+3.1.2,Información vendedores,Nombre-especialidad-contacto,2,=D58/8,=$B$6,=D58*F58
+,,,,,,
+3.2,Rotación Round-Robin,,,,,
+3.2.1,Algoritmo asignación,Rotación secuencial,3,=D61/8,=$B$6,=D61*F61
+3.2.2,Control de índice,Gestión posición actual,2,=D62/8,=$B$6,=D62*F62
+3.2.3,Contador asignaciones,Tracking diario,1,=D63/8,=$B$6,=D63*F63
+,,,,,,
+3.3,Flow de Asignación,,,,,
+3.3.1,Detección keywords,hola-hello-hi-ayuda,2,=D66/8,=$B$6,=D66*F66
+3.3.2,Lógica asignación,getNextVendedor(),3,=D67/8,=$B$6,=D67*F67
+3.3.3,Generación respuesta,Mensaje personalizado,3,=D68/8,=$B$6,=D68*F68
+,,,,,,
+3.4,Flow Lista Vendedores,,,,,
+3.4.1,Comando lista,Keywords: lista-vendedores,1,=D71/8,=$B$6,=D71*F71
+3.4.2,Formato respuesta,Lista completa formateada,2,=D72/8,=$B$6,=D72*F72
+,,,,,,
+3.5,Flow Estadísticas,,,,,
+3.5.1,Comando stats,Keyword: stats,1,=D75/8,=$B$6,=D75*F75
+3.5.2,Cálculo métricas,Asignaciones-próximo,2,=D76/8,=$B$6,=D76*F76
+3.5.3,Formato reporte,Respuesta formateada,2,=D77/8,=$B$6,=D77*F77
+,,,,,,
+3.6,Historial,,,,,
+3.6.1,Registro asignaciones,Log temporal en memoria,2,=D80/8,=$B$6,=D80*F80
+3.6.2,Tracking por sesión,Historial por usuario,2,=D81/8,=$B$6,=D81*F81
+,,,,,,
+,SUBTOTAL FASE 3:,,=D57+D58+D61+D62+D63+D66+D67+D68+D71+D72+D75+D76+D77+D80+D81,=D83/8,,=G57+G58+G61+G62+G63+G66+G67+G68+G71+G72+G75+G76+G77+G80+G81
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 4: FUNCIONALIDADES AVANZADAS,,,,
+,══════════════════════════════════════════════════════════════,,,,
+4.1,Respuestas Personalizadas,Templates dinámicos,4,=D89/8,=$B$6,=D89*F89
+4.2,Múltiples Comandos,Keywords y sinónimos,3,=D90/8,=$B$6,=D90*F90
+4.3,Sistema de Logs,Console logging,3,=D91/8,=$B$6,=D91*F91
+4.4,Manejo de Errores,Try-catch y fallbacks,4,=D92/8,=$B$6,=D92*F92
+,,,,,,
+,SUBTOTAL FASE 4:,,=D89+D90+D91+D92,=D94/8,,=G89+G90+G91+G92
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 5: INTEGRACIÓN Y API REST,,,,
+,══════════════════════════════════════════════════════════════,,,,
+5.1,API REST Básica,Express + endpoints,8,=D100/8,=$B$6,=D100*F100
+5.2,Endpoint Stats,GET /v1/stats,3,=D101/8,=$B$6,=D101*F101
+5.3,Endpoint Mensajes,POST /v1/messages,4,=D102/8,=$B$6,=D102*F102
+5.4,Documentación API,README con ejemplos,4,=D103/8,=$B$6,=D103*F103
+,,,,,,
+,SUBTOTAL FASE 5:,,=D100+D101+D102+D103,=D105/8,,=G100+G101+G102+G103
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 6: TESTING Y ASEGURAMIENTO DE CALIDAD,,,,
+,══════════════════════════════════════════════════════════════,,,,
+6.1,Pruebas Unitarias,Tests de funciones,12,=D111/8,=$B$6,=D111*F111
+6.2,Pruebas Integración,Tests de flujos,10,=D112/8,=$B$6,=D112*F112
+6.3,Pruebas WhatsApp Real,QR y envío/recepción,8,=D113/8,=$B$6,=D113*F113
+6.4,Testing Rotación,Verificar Round-Robin,4,=D114/8,=$B$6,=D114*F114
+6.5,Pruebas de Estrés,Mensajes simultáneos,6,=D115/8,=$B$6,=D115*F115
+6.6,Corrección Bugs,Fix problemas,12,=D116/8,=$B$6,=D116*F116
+,,,,,,
+,SUBTOTAL FASE 6:,,=D111+D112+D113+D114+D115+D116,=D118/8,,=G111+G112+G113+G114+G115+G116
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 7: DOCUMENTACIÓN,,,,
+,══════════════════════════════════════════════════════════════,,,,
+7.1,Manual de Usuario,Guía de comandos,5,=D124/8,=$B$6,=D124*F124
+7.2,Guía de Instalación,Scripts e instrucciones,5,=D125/8,=$B$6,=D125*F125
+7.3,Documentación Técnica,Arquitectura y código,6,=D126/8,=$B$6,=D126*F126
+7.4,README Completo,GitHub con ejemplos,4,=D127/8,=$B$6,=D127*F127
+,,,,,,
+,SUBTOTAL FASE 7:,,=D124+D125+D126+D127,=D129/8,,=G124+G125+G126+G127
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 8: DEPLOYMENT Y ENTREGA,,,,
+,══════════════════════════════════════════════════════════════,,,,
+8.1,Scripts de Inicio,Auto-inicio automático,4,=D135/8,=$B$6,=D135*F135
+8.2,Config Producción,Variables y seguridad,6,=D136/8,=$B$6,=D136*F136
+8.3,Training Cliente,Sesión capacitación,4,=D137/8,=$B$6,=D137*F137
+8.4,Entrega Final,Transferencia archivos,4,=D138/8,=$B$6,=D138*F138
+,,,,,,
+,SUBTOTAL FASE 8:,,=D135+D136+D137+D138,=D140/8,,=G135+G136+G137+G138
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,FASE 9: SOPORTE POST-LANZAMIENTO (1 MES),,,,
+,══════════════════════════════════════════════════════════════,,,,
+9.1,Soporte Técnico,Resolución problemas,20,=D146/8,=$B$6,=D146*F146
+9.2,Ajustes Menores,Modificaciones,10,=D147/8,=$B$6,=D147*F147
+9.3,Monitoreo,Verificación estabilidad,6,=D148/8,=$B$6,=D148*F148
+,,,,,,
+,SUBTOTAL FASE 9:,,=D146+D147+D148,=D150/8,,=G146+G147+G148
+,,,,,,
+,,,,,,
+,══════════════════════════════════════════════════════════════,,,,
+,TOTAL PROYECTO,,=D32+D51+D83+D94+D105+D118+D129+D140+D150,=D154/8,,=G32+G51+G83+G94+G105+G118+G129+G140+G150
+,══════════════════════════════════════════════════════════════,,,,
+,,,,,,
+══════════════════════════════════════════════════════════════,,,,
+RESUMEN EJECUTIVO,,,,
+══════════════════════════════════════════════════════════════,,,,
+,,,,,,
+Total de Horas:,=D154,horas,,
+Total de Días (8h/día):,=E154,días laborables,,
+Semanas (5 días/sem):,=E162/5,semanas,,
+Duración con Imprevistos (+30%):,=E162*1.3,días calendario,,
+,,,,,,
+Tarifa por Hora:,=$B$6,USD,,
+COSTO TOTAL PROYECTO:,=G154,USD,,
+,,,,,,
+,,,,,,
+══════════════════════════════════════════════════════════════,,,,
+DESGLOSE POR FASE,,,,
+══════════════════════════════════════════════════════════════,,,,
+,,,,,,
+Fase,Horas,Días,Costo USD,% del Total
+Fase 1 - Análisis y Diseño,=D32,=E32,=G32,=G32/$G$154*100
+Fase 2 - Configuración Entorno,=D51,=E51,=G51,=G51/$G$154*100
+Fase 3 - Desarrollo Core,=D83,=E83,=G83,=G83/$G$154*100
+Fase 4 - Funcionalidades Avanzadas,=D94,=E94,=G94,=G94/$G$154*100
+Fase 5 - API REST,=D105,=E105,=G105,=G105/$G$154*100
+Fase 6 - Testing y QA,=D118,=E118,=G118,=G118/$G$154*100
+Fase 7 - Documentación,=D129,=E129,=G129,=G129/$G$154*100
+Fase 8 - Deployment,=D140,=E140,=G140,=G140/$G$154*100
+Fase 9 - Soporte (1 mes),=D150,=E150,=G150,=G150/$G$154*100
+,,,,,,
+,,,,,,
+══════════════════════════════════════════════════════════════,,,,
+COMPARACIÓN DE ESCENARIOS,,,,
+══════════════════════════════════════════════════════════════,,,,
+,,,,,,
+Escenario,Horas,Días,Semanas,Costo USD
+Optimista (-20%),=D154*0.8,=B190/8,=C190/5,=$B$6*B190
+REALISTA (Base),=D154,=B191/8,=C191/5,=G154
+Conservador (+30%),=D154*1.3,=B192/8,=C192/5,=$B$6*B192
+Pesimista (+50%),=D154*1.5,=B193/8,=C193/5,=$B$6*B193
+,,,,,,
+,,,,,,
+══════════════════════════════════════════════════════════════,,,,
+NOTAS IMPORTANTES,,,,
+══════════════════════════════════════════════════════════════,,,,
+,,,,,,
+• Tiempos estimados REALISTAS basados en experiencia,,,,
+• Incluye 1 mes completo de soporte post-lanzamiento,,,,
+• NO incluye hosting o infraestructura de servidor,,,,
+• Requiere cuenta de WhatsApp Business del cliente,,,,
+• Proyecto con BuilderBot (Leifer Méndez),,,,
+• Tecnología: Node.js + Baileys + WhatsApp Web Protocol,,,,
+• Sistema de rotación Round-Robin automatizado,,,,
+• 5 vendedores configurables con información personalizada,,,,
+• AJUSTA LA TARIFA/HORA en celda B6 para recalcular TODO,,,,
