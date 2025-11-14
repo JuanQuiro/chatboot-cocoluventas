@@ -79,15 +79,28 @@ BUSINESS_DAYS=1,2,3,4,5  # 0=Domingo, 1=Lunes, ..., 6=Sábado
 
 4. **Iniciar el bot**
 
-Modo desarrollo:
-```bash
-npm run dev
-```
-
-Modo producción:
+**Método Interactivo (Recomendado)**:
 ```bash
 npm start
 ```
+
+El CLI te permitirá elegir entre:
+- 🔢 **Número telefónico** (código de 8 dígitos) - Recomendado
+- 📷 **QR Code** (escanear con cámara)
+
+**Métodos Directos**:
+```bash
+# Con número telefónico
+npm run start:phone
+
+# Con QR code
+npm run start:qr
+
+# Desarrollo
+npm run dev
+```
+
+**📱 Para Venezuela**: Ver [`INICIO_RAPIDO_VENEZUELA.md`](INICIO_RAPIDO_VENEZUELA.md)
 
 ## 📚 Estructura del Proyecto
 

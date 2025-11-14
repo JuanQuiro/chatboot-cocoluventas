@@ -47,6 +47,8 @@ const PORT = process.env.PORT || 3008;
 const API_PORT = process.env.API_PORT || 3009;
 const BOT_NAME = process.env.BOT_NAME || 'Bot Principal Cocolu';
 const TENANT_ID = process.env.TENANT_ID || 'cocolu';
+const USE_PAIRING_CODE = process.env.USE_PAIRING_CODE === 'true';
+const PHONE_NUMBER = process.env.PHONE_NUMBER || '+584244370180';
 
 // Variable global para el bot
 let mainBot = null;
@@ -138,7 +140,8 @@ const main = async () => {
         // ============================================
         // 4. CONFIGURAR PROVEEDOR BAILEYS (ROBUSTO)
         // ============================================
-        console.log('🔧 Configurando provider Baileys con configuración robusta...');
+        const metodoConexion = USE_PAIRING_CODE ? 'NÚMERO TELEFÓNICO' : 'QR CODE';
+        console.log(`🔧 Configurando provider Baileys (${metodoConexion})...`);
         
         // Configuración optimizada para evitar errores de sesión
         const providerConfig = {
@@ -147,7 +150,8 @@ const main = async () => {
             headless: true,
             markOnlineOnConnect: true,
             syncFullHistory: false,
-            usePairingCode: false,
+            usePairingCode: USE_PAIRING_CODE,
+            phoneNumber: USE_PAIRING_CODE ? PHONE_NUMBER : undefined,
             useBaileysStore: true,
             qrTimeout: 60000, // 60 segundos para escanear QR
             authTimeout: 60000, // 60 segundos para autenticación
@@ -157,6 +161,8 @@ const main = async () => {
         };
         
         console.log('📋 Configuración Baileys:', {
+            metodo: metodoConexion,
+            numero: USE_PAIRING_CODE ? PHONE_NUMBER : 'N/A',
             qrTimeout: `${providerConfig.qrTimeout/1000}s`,
             authTimeout: `${providerConfig.authTimeout/1000}s`,
             maxRetries: providerConfig.maxRetries,
@@ -315,6 +321,38 @@ const main = async () => {
             } catch (e) {
                 console.error('Error registrando auth_failure:', e);
             }
+        });
+
+        // Evento de Pairing Code (conexión por número)
+        mainProvider.on('code', (code) => {
+            console.log('');
+            console.log('🔥 =======================================');
+            console.log('🔢 CÓDIGO DE VINCULACIÓN GENERADO');
+            console.log('🔥 =======================================');
+            console.log('');
+            console.log('📱 Tu código de vinculación es:');
+            console.log('');
+            console.log('     ╔═══════════════╗');
+            console.log(`     ║  ${code.slice(0, 4)}-${code.slice(4)}  ║`);
+            console.log('     ╚═══════════════╝');
+            console.log('');
+            console.log('📝 INSTRUCCIONES:');
+            console.log('');
+            console.log('1️⃣  Abre WhatsApp en tu teléfono');
+            console.log('2️⃣  Ve a: Ajustes → Dispositivos vinculados');
+            console.log('3️⃣  Toca: "Vincular un dispositivo"');
+            console.log('4️⃣  Selecciona: "Vincular con número de teléfono"');
+            console.log(`5️⃣  Ingresa el código: ${code.slice(0, 4)}-${code.slice(4)}`);
+            console.log('');
+            console.log('⏰ El código expira en 60 segundos');
+            console.log('🔥 =======================================');
+            console.log('');
+            
+            botManager.updateBotStatus(botId, {
+                state: 'pairing_code_ready',
+                pairingCode: code
+            });
+            botManager.emit('bot:pairing_code', { botId, code });
         });
 
         // Evento QR con instrucciones mejoradas
