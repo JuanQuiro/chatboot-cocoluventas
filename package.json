@@ -5,7 +5,7 @@
   "main": "app-integrated.js",
   "scripts": {
     "start": "node iniciar-bot.js",
-    "start:phone": "node app-integrated.js",
+    "start:phone": "USE_PAIRING_CODE=true node app-integrated.js",
     "start:qr": "USE_PAIRING_CODE=false node app-integrated.js",
     "dev": "node iniciar-bot.js",
     "debug": "node --inspect app-integrated.js",
