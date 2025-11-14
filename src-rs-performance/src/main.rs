@@ -1,6 +1,6 @@
 use axum::{extract::State, http::StatusCode, routing::{get, post}, Json, Router};
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, process::Stdio, sync::Arc};
+use std::{path::PathBuf, process::Stdio, sync::Arc, time::Duration};
 use tokio::{io::{AsyncBufReadExt, AsyncWriteExt, BufReader}, process::{Child, ChildStdin, Command}, sync::{Mutex, RwLock}};
 use tracing::{error, info, Level};
 use tracing_subscriber::EnvFilter;
@@ -102,9 +102,11 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn spawn_bridge_and_listen(state: Arc<AppState>, use_pairing: bool, phone_number: String) -> anyhow::Result<()> {
+    // Allow override via WA_BRIDGE env (e.g., bridge/venom-bridge.mjs)
+    let bridge_hint = std::env::var("WA_BRIDGE").ok();
     // Determine bridge path (ESM): we will run with current_dir("src-rs-performance")
     // so use relative path "bridge/baileys-bridge.mjs"
-    let mut script = PathBuf::from("bridge/baileys-bridge.mjs");
+    let mut script = PathBuf::from(bridge_hint.unwrap_or_else(|| "bridge/baileys-bridge.mjs".to_string()));
     // If running from project root, ensure file exists relative to that cwd too
     if !PathBuf::from("src-rs-performance").join(&script).exists() {
         // Fallback: try absolute from current cwd
@@ -119,6 +121,9 @@ async fn spawn_bridge_and_listen(state: Arc<AppState>, use_pairing: bool, phone_
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .env("NODE_ENV", "production")
+        .env("NODE_NO_WARNINGS", "1")
+        .env("NODE_OPTIONS", "--max-old-space-size=256")
         .current_dir("src-rs-performance")
         .spawn()?;
 
@@ -140,6 +145,7 @@ async fn spawn_bridge_and_listen(state: Arc<AppState>, use_pairing: bool, phone_
 
     // Spawn task to read events
     let st = state.clone();
+    let pn = phone_number.clone();
     tokio::spawn(async move {
         while let Ok(Some(line)) = reader.next_line().await {
             if line.trim().is_empty() { continue; }
@@ -174,7 +180,10 @@ async fn spawn_bridge_and_listen(state: Arc<AppState>, use_pairing: bool, phone_
                 }
             }
         }
-        info!("bridge stdout closed");
+        info!("bridge stdout closed, scheduling restart");
+        // backoff a little and restart
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let _ = spawn_bridge_and_listen(st.clone(), use_pairing, pn.clone()).await;
     });
 
     Ok(())

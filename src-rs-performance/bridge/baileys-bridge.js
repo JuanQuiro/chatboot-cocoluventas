@@ -5,7 +5,7 @@
 // - Emite eventos JSON por STDOUT
 // - Logs a STDERR
 
-import readline from 'node:readline';
+const readline = require('node:readline');
 
 let baileys = null;
 let sock = null;
