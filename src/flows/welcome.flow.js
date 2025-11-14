@@ -7,6 +7,20 @@ import testingCommandsService from '../services/testing-commands.service.js';
 import { isFrustrated, isTesting, getFrustrationResponse, getTestingResponse } from '../utils/frustration-detector.js';
 import { sleep, DELAYS } from '../utils/delays.js';
 
+// Importar messageLog para registrar mensajes
+let messageLog = null;
+async function getMessageLog() {
+    if (!messageLog) {
+        try {
+            const { messageLog: ml } = await import('../../app-integrated.js');
+            messageLog = ml;
+        } catch (e) {
+            console.error('⚠️ No se pudo importar messageLog:', e.message);
+        }
+    }
+    return messageLog;
+}
+
 /**
  * Flujo de bienvenida mejorado
  * KEYWORDS ESPECÍFICAS para prevenir loop infinito
@@ -37,12 +51,23 @@ export const welcomeFlow = addKeyword([
     'orario', 'orarios',
     // Opción 5: Problema (todas las variaciones)
     'problema', 'Problema', 'PROBLEMA', 'problemas', 'Problemas', 'PROBLEMAS',
-    'pblema', 'prblema'
+    'pblema', 'prblema',
+    // Palabras comunes de fallback
+    'si', 'no', 'ok', 'vale', 'bueno', 'gracias', 'ayuda', 'soporte',
+    'Si', 'No', 'Ok', 'Vale', 'Bueno', 'Gracias', 'Ayuda', 'Soporte',
+    'SI', 'NO', 'OK', 'VALE', 'BUENO', 'GRACIAS', 'AYUDA', 'SOPORTE'
 ])
     .addAnswer(
         null,
         { capture: false },
         async (ctx, { gotoFlow, flowDynamic, state, endFlow }) => {
+            // 0. REGISTRAR MENSAJE RECIBIDO
+            const ml = await getMessageLog();
+            if (ml) {
+                ml.addReceived(ctx.from, ctx.body);
+                console.log(`📥 [MENSAJE RECIBIDO] De: ${ctx.from} | Mensaje: "${ctx.body}"`);
+            }
+            
             // 1. VERIFICAR COMANDOS DE TESTING Y DEBUG (PRIORITARIO)
             const testingCommand = testingCommandsService.checkTestingCommand(ctx.body);
             
