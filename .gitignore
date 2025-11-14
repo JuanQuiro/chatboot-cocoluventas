@@ -17,6 +17,10 @@ database/
 catalogo-noviembre/
 public/*.pdf
 public/catalogo*
+ocr-debug/
+presupuiestos/
+*.traineddata
+public/
 
 # Logs
 logs/
@@ -60,6 +64,17 @@ dashoffice-rust/crates/*/target/
 # WhatsApp sessions
 bot_principal_sessions/
 *_sessions/
+auth/
+tokens/
+*.auth.json
+
+# QR y archivos temporales de WhatsApp
+QR-WhatsApp.png
+QR-WhatsApp.html
+public/qr.png
+public/qr-large.png
+public/qr.html
+pairing-code.txt
 
 # Pruebas
 primera-prueba-flujo-chatboot/

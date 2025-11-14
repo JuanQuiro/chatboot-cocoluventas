@@ -51,6 +51,8 @@ const TENANT_ID = process.env.TENANT_ID || 'cocolu';
 // Variable global para el bot
 let mainBot = null;
 let mainProvider = null;
+let qrWatchdog = null;
+let connUpdateAttached = false;
 
 const main = async () => {
     try {
@@ -134,12 +136,34 @@ const main = async () => {
         console.log('');
 
         // ============================================
-        // 4. CONFIGURAR PROVEEDOR BAILEYS
+        // 4. CONFIGURAR PROVEEDOR BAILEYS (ROBUSTO)
         // ============================================
-        console.log('🔧 Configurando provider Baileys...');
-        mainProvider = createProvider(Provider, {
+        console.log('🔧 Configurando provider Baileys con configuración robusta...');
+        
+        // Configuración optimizada para evitar errores de sesión
+        const providerConfig = {
             name: 'bot_principal',
+            gifPlayback: false,
+            headless: true,
+            markOnlineOnConnect: true,
+            syncFullHistory: false,
+            usePairingCode: false,
+            useBaileysStore: true,
+            qrTimeout: 60000, // 60 segundos para escanear QR
+            authTimeout: 60000, // 60 segundos para autenticación
+            restartDelay: 2000, // 2 segundos entre reintentos
+            maxRetries: 3, // Máximo 3 reintentos
+            browser: ['Bot Cocolu', 'Chrome', '120.0.0']
+        };
+        
+        console.log('📋 Configuración Baileys:', {
+            qrTimeout: `${providerConfig.qrTimeout/1000}s`,
+            authTimeout: `${providerConfig.authTimeout/1000}s`,
+            maxRetries: providerConfig.maxRetries,
+            browser: providerConfig.browser[0]
         });
+        
+        mainProvider = createProvider(Provider, providerConfig);
 
         // ============================================
         // 5. CREAR BOT DE BUILDERBOT
@@ -183,12 +207,65 @@ const main = async () => {
         // ============================================
         console.log('🔗 Conectando eventos con bot-manager...');
         
+        // Listener para connection.update (Baileys moderno) -> captura QR y estados
+        const onConnUpdate = (update = {}) => {
+            try {
+                const { connection, lastDisconnect, qr } = update;
+                botManager.emit('bot:connupdate', { botId, update });
+                if (qr) {
+                    console.log('📱 QR recibido (connection.update)');
+                    // Reiniciar watchdog
+                    if (qrWatchdog) clearTimeout(qrWatchdog);
+                    qrWatchdog = setTimeout(() => {
+                        console.log('⏳ QR no escaneado en 90s (connection.update). Recomendaciones:');
+                        console.log('   • Cerrar todas las sesiones en el teléfono');
+                        console.log('   • Usar datos móviles (evitar WiFi/VPN)');
+                        console.log('   • Ejecuta ./clean-restart.sh si persiste');
+                    }, 90_000);
+                    botManager.qrCodes.set(botId, qr);
+                    botManager.updateBotStatus(botId, { state: 'qr_ready' });
+                    botManager.emit('bot:qr', { botId, qr });
+                }
+                if (connection === 'open') {
+                    // El ready handler ya marca conectado; aquí solo limpiamos QR y watchdog
+                    botManager.qrCodes.delete(botId);
+                    if (qrWatchdog) { clearTimeout(qrWatchdog); qrWatchdog = null; }
+                }
+                if (connection === 'close') {
+                    botManager.updateBotStatus(botId, { state: 'disconnected', lastDisconnectReason: lastDisconnect?.error?.message || 'unknown' });
+                }
+            } catch (e) {
+                console.error('Error procesando connection.update:', e);
+            }
+        };
+
+        const attachConnUpdate = () => {
+            if (connUpdateAttached) return;
+            try {
+                if (typeof mainProvider?.on === 'function') {
+                    mainProvider.on('connection.update', onConnUpdate);
+                    connUpdateAttached = true;
+                }
+            } catch {}
+            try {
+                if (!connUpdateAttached && mainProvider?.vendor?.ev?.on) {
+                    mainProvider.vendor.ev.on('connection.update', onConnUpdate);
+                    connUpdateAttached = true;
+                }
+            } catch {}
+        };
+        
+        // Intentar adjuntar connection.update ahora
+        attachConnUpdate();
+        
         // Simular que el bot se "inició" para el manager
         setTimeout(() => {
             botManager.updateBotStatus(botId, {
                 state: 'connecting',
                 startedAt: new Date(),
             });
+            // Reintentar adjuntar connection.update
+            attachConnUpdate();
         }, 500);
 
         // Cuando el provider esté listo
@@ -205,9 +282,70 @@ const main = async () => {
             botManager.emit('bot:connected', { botId });
         });
 
-        // Evento QR
+        // Evento moderno del provider: require_action -> contiene QR o pairing code
+        mainProvider.on('require_action', (evt) => {
+            try {
+                const qr = evt?.payload?.qr;
+                const code = evt?.payload?.code;
+                console.log('⚡ require_action recibido', { hasQR: !!qr, hasCode: !!code });
+                if (qr) {
+                    // Refrescar watchdog
+                    if (qrWatchdog) clearTimeout(qrWatchdog);
+                    qrWatchdog = setTimeout(() => {
+                        console.log('⏳ QR no escaneado en 90s. Sugerencias: cerrar sesiones en el teléfono y reintentar.');
+                    }, 90_000);
+                    botManager.qrCodes.set(botId, qr);
+                    botManager.updateBotStatus(botId, { state: 'qr_ready' });
+                    botManager.emit('bot:qr', { botId, qr });
+                }
+                if (code) {
+                    botManager.updateBotStatus(botId, { state: 'pairing_code', pairingCode: code });
+                    console.log('🔢 Pairing code disponible:', code);
+                }
+            } catch (e) {
+                console.error('Error en require_action:', e);
+            }
+        });
+
+        // Fallo de autenticación crítico
+        mainProvider.on('auth_failure', (info) => {
+            try {
+                console.error('⚡⚡ AUTH FAILURE ⚡⚡', info);
+                botManager.updateBotStatus(botId, { state: 'error', lastError: Array.isArray(info) ? info.join(' | ') : String(info) });
+            } catch (e) {
+                console.error('Error registrando auth_failure:', e);
+            }
+        });
+
+        // Evento QR con instrucciones mejoradas
         mainProvider.on('qr', (qr) => {
-            console.log('📱 QR Code generado - Escanea con WhatsApp');
+            console.log('');
+            console.log('🔥 =======================================');
+            console.log('📱 QR CODE GENERADO - INSTRUCCIONES:');
+            console.log('🔥 =======================================');
+            console.log('');
+            console.log('1️⃣ En tu teléfono: WhatsApp → Ajustes → Dispositivos vinculados');
+            console.log('2️⃣ CERRAR TODAS las sesiones activas');
+            console.log('3️⃣ Tocar "Vincular un dispositivo"');
+            console.log('4️⃣ Escanear el QR de arriba ⬆️');
+            console.log('5️⃣ NO cerrar esta ventana hasta ver "BOT CONECTADO"');
+            console.log('');
+            console.log('⚠️  IMPORTANTE: NO abrir WhatsApp Web en navegador');
+            console.log('⏰ Tienes 60 segundos para escanear');
+            console.log('');
+            
+            // Watchdog: si no escanean en 90s, avisar y regenerar QR automáticamente
+            if (qrWatchdog) {
+                clearTimeout(qrWatchdog);
+            }
+            qrWatchdog = setTimeout(() => {
+                console.log('⏳ QR no escaneado en 90s. Si sigue fallando:');
+                console.log('   • Cierra TODAS las sesiones en el teléfono');
+                console.log('   • Cambia a datos móviles (evitar WiFi/VPN)');
+                console.log('   • Reabre WhatsApp y vuelve a intentar');
+                console.log('   • Ejecuta ./clean-restart.sh para limpieza completa');
+            }, 90_000);
+            
             botManager.qrCodes.set(botId, qr);
             botManager.updateBotStatus(botId, {
                 state: 'qr_ready',
@@ -227,17 +365,73 @@ const main = async () => {
             botManager.emit('bot:message', { botId, message });
         });
 
-        // Errores
+        // Manejo robusto de errores y reconexión
         mainProvider.on('error', (error) => {
-            console.error('❌ Error en el bot:', error);
+            console.error('');
+            console.error('🔴 =======================================');
+            console.error('❌ ERROR DE CONEXIÓN DETECTADO');
+            console.error('🔴 =======================================');
+            const errMsg = (error && (error.message || error.reason || error.toString && error.toString())) || 'unknown';
+            console.error('Error:', errMsg);
+            if (error && typeof error === 'object') {
+                try { console.error('Detalle:', JSON.stringify(error)); } catch {}
+                console.error('Objeto completo:', error);
+            }
+            
+            // Errores comunes y soluciones
+            if (error.message.includes('QR')) {
+                console.error('');
+                console.error('🔧 SOLUCIÓN: Problema con QR');
+                console.error('1. Cierra TODAS las sesiones de WhatsApp Web');
+                console.error('2. Espera 30 segundos');
+                console.error('3. Reinicia el bot');
+            } else if (error.message.includes('session') || error.message.includes('auth')) {
+                console.error('');
+                console.error('🔧 SOLUCIÓN: Problema de sesión');
+                console.error('1. Elimina carpetas de sesión');
+                console.error('2. Reinicia el bot');
+                console.error('3. Escanea nuevo QR');
+            } else if (error.message.includes('timeout')) {
+                console.error('');
+                console.error('🔧 SOLUCIÓN: Timeout de conexión');
+                console.error('1. Verifica tu conexión a internet');
+                console.error('2. Reinicia el bot');
+            }
+            console.error('🔴 =======================================');
+            console.error('');
+            
             const status = botManager.botStatus.get(botId);
             if (status) {
                 botManager.updateBotStatus(botId, {
                     errors: (status.errors || 0) + 1,
                     lastError: error.message,
+                    state: 'error'
                 });
             }
             botManager.emit('bot:error', { botId, error: error.message });
+        });
+
+        // Evento de desconexión
+        mainProvider.on('close', (reason) => {
+            console.log('');
+            console.log('⚠️  CONEXIÓN CERRADA:', reason);
+            console.log('🔄 El bot intentará reconectarse automáticamente...');
+            console.log('');
+            
+            botManager.updateBotStatus(botId, {
+                state: 'disconnected',
+                disconnectedAt: new Date(),
+                lastDisconnectReason: reason
+            });
+        });
+
+        // Evento de reconexión
+        mainProvider.on('connecting', () => {
+            console.log('🔄 Reconectando...');
+            botManager.updateBotStatus(botId, {
+                state: 'connecting',
+                reconnectingAt: new Date()
+            });
         });
 
         // Guardar referencia del bot en el manager
@@ -309,6 +503,28 @@ process.on('SIGINT', async () => {
         console.error('❌ Error al detener:', error);
         process.exit(1);
     }
+});
+
+// Manejar SIGTERM (producción/PM2)
+process.on('SIGTERM', async () => {
+    console.log('');
+    console.log('🛑 Deteniendo sistema (SIGTERM)...');
+    try {
+        await botManager.stopAll();
+        console.log('✅ Bots detenidos');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Error al detener (SIGTERM):', error);
+        process.exit(1);
+    }
+});
+
+// Capturar errores no controlados para evitar estados inconsistentes
+process.on('unhandledRejection', (reason) => {
+    console.error('🔴 Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('🔴 Uncaught Exception:', err);
 });
 
 // Iniciar aplicación

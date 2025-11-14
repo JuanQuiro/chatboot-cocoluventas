@@ -93,29 +93,45 @@ npm start
 
 ```
 chatboot-cocoluventas/
-├── src/
+├── src/                    # Código fuente principal
 │   ├── flows/              # Flujos de conversación
-│   │   ├── welcome.flow.js     # Flujo de bienvenida
-│   │   ├── menu.flow.js        # Menú principal
-│   │   ├── products.flow.js    # Catálogo de productos
-│   │   ├── orders.flow.js      # Gestión de pedidos
-│   │   ├── support.flow.js     # Soporte y ayuda
-│   │   └── schedule.flow.js    # Horarios e información
 │   ├── services/           # Servicios de negocio
-│   │   ├── products.service.js # Gestión de productos
-│   │   ├── orders.service.js   # Gestión de pedidos
-│   │   └── support.service.js  # Gestión de tickets
+│   ├── api/                # API REST endpoints
+│   ├── models/             # Modelos de datos
 │   └── utils/              # Utilidades
-│       ├── schedule.js         # Manejo de horarios
-│       ├── format.js           # Formateo de datos
-│       └── validators.js       # Validaciones
-├── database/               # Base de datos (generada automáticamente)
-├── app.js                  # Punto de entrada
+├── docs/                   # 📖 Documentación completa
+│   ├── arquitectura/       # Documentación de arquitectura
+│   ├── guias/              # Guías de uso e instalación
+│   ├── implementacion/     # Detalles de implementación
+│   ├── changelog/          # Historial de cambios
+│   └── actualizacion/      # Documentación de actualizaciones
+├── scripts/                # 📜 Scripts utilitarios
+│   ├── catalogo/           # Scripts de catálogo
+│   ├── deployment/         # Scripts de deployment
+│   └── utils/              # Utilidades generales
+├── legacy/                 # 🗄️ Código legacy (no usar)
+│   ├── apps/               # Aplicaciones antiguas
+│   └── python/             # Scripts Python antiguos
+├── dashboard/              # Panel de administración web
+├── tests/                  # Tests automatizados
+├── app-integrated.js       # ⭐ Aplicación principal
+├── app.js                  # Aplicación básica
 ├── package.json
 ├── .env.example
-├── .gitignore
 └── README.md
 ```
+
+### 📖 Navegación de Documentación
+
+Toda la documentación ha sido organizada en la carpeta `docs/`. Para encontrar lo que necesitas:
+
+- **¿Empezando?** → Lee [`docs/guias/`](docs/guias/)
+- **¿Arquitectura técnica?** → Lee [`docs/arquitectura/`](docs/arquitectura/)
+- **¿Qué cambió recientemente?** → Lee [`docs/actualizacion/`](docs/actualizacion/)
+- **¿Historial completo?** → Lee [`docs/changelog/`](docs/changelog/)
+- **¿Cómo implementar algo?** → Lee [`docs/implementacion/`](docs/implementacion/)
+
+📌 **Índice completo**: [`docs/README.md`](docs/README.md)
 
 ## 🎨 Flujos de Conversación
 
