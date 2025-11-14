@@ -11,7 +11,14 @@
 
 ════════════════════════════════════════════════════════════════════════════
 
-⚡ INICIO RÁPIDO (2 PASOS)
+⚡ INICIO RÁPIDO (3 PASOS)
+
+0. Instalar Node.js con fnm (UNA SOLA VEZ):
+   $ curl -fsSL https://fnm.io/install | bash
+   $ eval "$(fnm env --use-on-cd)"
+   $ fnm install --lts
+   
+   (Ver SETUP_NODEJS.md para detalles)
 
 1. Instalar dependencias:
    $ npm install

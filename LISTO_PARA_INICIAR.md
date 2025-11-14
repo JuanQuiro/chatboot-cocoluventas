@@ -6,7 +6,23 @@ El sistema está **100% configurado y listo para usar**. Solo necesitas ejecutar
 
 ---
 
-## 🎯 Inicio Rápido (2 pasos)
+## 🎯 Inicio Rápido (3 pasos)
+
+### Paso 0: Instalar Node.js con fnm (UNA SOLA VEZ)
+
+```bash
+# Instalar fnm
+curl -fsSL https://fnm.io/install | bash
+
+# Configurar shell (agregar a ~/.bashrc o ~/.zshrc)
+eval "$(fnm env --use-on-cd)"
+
+# Instalar Node.js LTS
+fnm install --lts
+fnm use lts-latest
+```
+
+**Ver `SETUP_NODEJS.md` para instrucciones detalladas.**
 
 ### Paso 1: Instalar Dependencias
 
@@ -19,7 +35,7 @@ npm install
 - BuilderBot y providers
 - Baileys (WhatsApp Web)
 - Inquirer (CLI interactivo)
-- 11 dependencias nuevas v5.0.1
+- 11 dependencias nuevas de la v5.0.1
 - Todas las dependencias del proyecto
 
 ### Paso 2: Iniciar el Bot
