@@ -165,6 +165,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Build API
     let app = Router::new()
+        .route("/", get(dashboard))
         .route("/health", get(health))
         .route("/metrics", get(metrics))
         .route("/qr", get(get_qr))
@@ -325,6 +326,10 @@ async fn spawn_bridge_and_listen(
 // API HANDLERS
 // ============================================================================
 
+async fn dashboard() -> axum::response::Html<&'static str> {
+    axum::response::Html(include_str!("../dashboard.html"))
+}
+
 async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
     let uptime = state.started_at.elapsed().as_secs();
     let connected = *state.connected.read().await;
@@ -332,7 +337,7 @@ async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
     let messages_sent = *state.messages_sent.read().await;
     let has_qr = state.last_qr.read().await.is_some();
     let has_pairing = state.last_pairing_code.read().await.is_some();
-    let bridge_alive = state.bridge.child.blocking_lock().is_some();
+    let bridge_alive = state.bridge.child.lock().await.is_some();
 
     let memory_mb = {
         if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
