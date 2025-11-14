@@ -49,6 +49,7 @@ const BOT_NAME = process.env.BOT_NAME || 'Bot Principal Cocolu';
 const TENANT_ID = process.env.TENANT_ID || 'cocolu';
 const USE_PAIRING_CODE = process.env.USE_PAIRING_CODE === 'true';
 const PHONE_NUMBER = process.env.PHONE_NUMBER || '+584244370180';
+const BOT_ADAPTER = process.env.BOT_ADAPTER || 'baileys';
 
 // Variable global para el bot
 let mainBot = null;
@@ -62,6 +63,7 @@ const main = async () => {
         console.log('🤖 =======================================');
         console.log('🤖   COCOLU VENTAS - EMBER DRAGO');
         console.log('🤖   Bot Integrado con Dashboard');
+        console.log(`🤖   Adaptador: ${BOT_ADAPTER.toUpperCase()}`);
         console.log('🤖 =======================================');
         console.log('');
 
