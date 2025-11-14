@@ -406,8 +406,8 @@ export const setupRoutes = (app) => {
     // WEBSOCKET (información en tiempo real)
     // ============================================
     
-    // Endpoint para SSE (Server-Sent Events)
-    app.get('/api/stream', (req, res) => {
+    // Página de LOGIN
+    app.get('/', (req, res) => {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');

@@ -32,6 +32,7 @@ import { debugFlow } from './src/flows/debug.flow.js';
 
 // Importar API routes
 import { setupRoutes } from './src/api/routes.js';
+import { setupDashboardRoutes } from './src/api/dashboard-routes.js';
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
 import botManager from './src/services/bot-manager.service.js';
@@ -85,6 +86,9 @@ const main = async () => {
         
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
+        
+        // Configurar rutas del Dashboard (login, dashboard, adaptadores, logs)
+        setupDashboardRoutes(apiApp);
         
         // Iniciar servidor API
         const apiServer = apiApp.listen(API_PORT, () => {
