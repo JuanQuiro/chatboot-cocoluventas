@@ -28,18 +28,18 @@ ARCH=$(uname -m)
 
 if [ "$OS" = "Linux" ]; then
     if [ "$ARCH" = "x86_64" ]; then
-        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.35.0/fnm-linux"
+        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.37.1/fnm-linux"
     elif [ "$ARCH" = "aarch64" ]; then
-        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.35.0/fnm-linux-arm64"
+        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.37.1/fnm-linux-arm64"
     else
         echo "❌ Arquitectura no soportada: $ARCH"
         exit 1
     fi
 elif [ "$OS" = "Darwin" ]; then
     if [ "$ARCH" = "x86_64" ]; then
-        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.35.0/fnm-macos"
+        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.37.1/fnm-macos"
     elif [ "$ARCH" = "arm64" ]; then
-        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.35.0/fnm-macos-arm64"
+        FNM_URL="https://github.com/Schniz/fnm/releases/download/v1.37.1/fnm-macos-arm64"
     else
         echo "❌ Arquitectura no soportada: $ARCH"
         exit 1
