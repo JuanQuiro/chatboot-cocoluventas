@@ -162,6 +162,10 @@ export const setupDashboardRoutes = (app) => {
         <span class="nav-icon">❤️</span>
         <span class="nav-label">Salud</span>
       </a>
+      <a href="/meta-billing" class="nav-item">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">Facturación Meta</span>
+      </a>
     </div>
 
     <div class="main">
@@ -724,6 +728,451 @@ export const setupDashboardRoutes = (app) => {
     }
     loadPairingCode();
     setInterval(loadPairingCode, 3000);
+  </script>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    });
+
+    // Página de FACTURACIÓN META
+    app.get('/meta-billing', (req, res) => {
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Facturación Meta - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
+    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
+    .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    h2 { margin-bottom: 15px; color: #111827; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+    .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; padding: 20px; }
+    .metric-label { font-size: 12px; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .metric-value { font-size: 28px; font-weight: 700; }
+    .metric-sub { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+    .table-container { overflow-x: auto; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f9fafb; font-weight: 600; color: #6b7280; font-size: 12px; position: sticky; top: 0; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .chart-container { margin-top: 20px; height: 300px; position: relative; }
+    .loading { text-align: center; padding: 40px; color: #6b7280; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { padding: 8px 16px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .filter-btn.active { background: #667eea; color: white; border-color: #667eea; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 Facturación Meta (WhatsApp Business API)</h1>
+  </div>
+  <div class="container">
+    <a href="/dashboard" class="back-btn">← Volver al Dashboard</a>
+    
+    <!-- Resumen Principal -->
+    <div class="card">
+      <h2>📊 Resumen de Facturación</h2>
+      <div class="metrics-grid" id="summaryMetrics">
+        <div class="loading">Cargando...</div>
+      </div>
+    </div>
+    
+    <!-- Filtros de Período -->
+    <div class="card">
+      <h2>📅 Seleccionar Período</h2>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="loadSummary('today')">Hoy</button>
+        <button class="filter-btn" onclick="loadSummary('week')">Esta Semana</button>
+        <button class="filter-btn" onclick="loadSummary('month')">Este Mes</button>
+        <button class="filter-btn" onclick="loadSummary('year')">Este Año</button>
+        <button class="filter-btn" onclick="loadSummary('all')">Todo</button>
+      </div>
+    </div>
+    
+    <!-- Desglose por Tipo -->
+    <div class="card">
+      <h2>📋 Desglose por Tipo de Mensaje</h2>
+      <div class="table-container">
+        <table id="typeBreakdown">
+          <thead>
+            <tr><th>Tipo</th><th>Cantidad</th><th>Costo Total</th><th>% del Total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Desglose por Categoría -->
+    <div class="card">
+      <h2>📂 Desglose por Categoría</h2>
+      <div class="table-container">
+        <table id="categoryBreakdown">
+          <thead>
+            <tr><th>Categoría</th><th>Cantidad</th><th>Costo Total</th><th>% del Total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Desglose por País -->
+    <div class="card">
+      <h2>🌍 Desglose por País</h2>
+      <div class="table-container">
+        <table id="countryBreakdown">
+          <thead>
+            <tr><th>País</th><th>Cantidad</th><th>Costo Total</th><th>% del Total</th><th>Tier</th><th>Precio Unitario</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Estadísticas Mensuales -->
+    <div class="card">
+      <h2>📈 Estadísticas Mensuales (Últimos 6 Meses)</h2>
+      <div class="table-container">
+        <table id="monthlyStats">
+          <thead>
+            <tr><th>Mes</th><th>Mensajes</th><th>Costo Total</th><th>Promedio Diario</th><th>Costo Diario</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Historial Reciente -->
+    <div class="card">
+      <h2>📝 Historial Reciente de Mensajes</h2>
+      <div class="table-container">
+        <table id="messageHistory">
+          <thead>
+            <tr><th>Fecha/Hora</th><th>Destinatario</th><th>País</th><th>Tipo</th><th>Categoría</th><th>Costo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Precios Actuales por País -->
+    <div class="card">
+      <h2>💵 Precios Actuales de Meta por País</h2>
+      <p style="color: #6b7280; font-size: 13px; margin-bottom: 15px;">
+        Los precios varían según el país del destinatario. Venezuela y otros países latinoamericanos tienen precios más bajos (Tier 0).
+      </p>
+      <div class="table-container">
+        <table id="pricingTable">
+          <thead>
+            <tr><th>País</th><th>Tier</th><th>Conversación (texto)</th><th>Template (texto)</th><th>Moneda</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="loading">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+    
+    let currentPeriod = 'month';
+    
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(amount);
+    }
+    
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleString('es-ES');
+    }
+    
+    function getPeriodDates(period) {
+      const now = new Date();
+      let start, end = now;
+      
+      switch(period) {
+        case 'today':
+          start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          start = new Date(now);
+          start.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          start = new Date(now.getFullYear(), now.getMonth(), 1);
+          break;
+        case 'year':
+          start = new Date(now.getFullYear(), 0, 1);
+          break;
+        case 'all':
+          start = null;
+          break;
+        default:
+          start = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+      
+      return { start, end };
+    }
+    
+    async function loadSummary(period = 'month') {
+      currentPeriod = period;
+      
+      // Actualizar botones activos
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event?.target?.classList.add('active');
+      
+      const { start, end } = getPeriodDates(period);
+      const params = new URLSearchParams();
+      if (start) params.append('startDate', start.toISOString());
+      if (end) params.append('endDate', end.toISOString());
+      
+      try {
+        const res = await fetch('/api/meta/billing/summary?' + params);
+        const json = await res.json();
+        const data = json.data || {};
+        const summary = data.summary || {};
+        const breakdown = data.breakdown || {};
+        
+        // Actualizar métricas principales
+        const metricsHtml = \`
+          <div class="metric-card">
+            <div class="metric-label">Total Mensajes</div>
+            <div class="metric-value">\${summary.totalMessages || 0}</div>
+            <div class="metric-sub">En el período seleccionado</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Costo Total</div>
+            <div class="metric-value">\${formatCurrency(summary.totalCost || 0)}</div>
+            <div class="metric-sub">USD</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Promedio Diario</div>
+            <div class="metric-value">\${summary.avgDailyMessages?.toFixed(0) || 0}</div>
+            <div class="metric-sub">mensajes/día</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Proyección Mensual</div>
+            <div class="metric-value">\${formatCurrency(summary.projectedMonthlyCost || 0)}</div>
+            <div class="metric-sub">basado en promedio diario</div>
+          </div>
+        \`;
+        document.getElementById('summaryMetrics').innerHTML = metricsHtml;
+        
+        // Actualizar desglose por tipo
+        const typeBody = document.querySelector('#typeBreakdown tbody');
+        if (breakdown.byType && Object.keys(breakdown.byType).length > 0) {
+          const totalCost = summary.totalCost || 1;
+          typeBody.innerHTML = Object.entries(breakdown.byType)
+            .map(([type, stats]) => \`
+              <tr>
+                <td><span class="badge badge-info">\${type}</span></td>
+                <td>\${stats.count}</td>
+                <td>\${formatCurrency(stats.cost)}</td>
+                <td>\${((stats.cost / totalCost) * 100).toFixed(1)}%</td>
+              </tr>
+            \`).join('');
+        } else {
+          typeBody.innerHTML = '<tr><td colspan="4">No hay datos disponibles</td></tr>';
+        }
+        
+        // Actualizar desglose por categoría
+        const categoryBody = document.querySelector('#categoryBreakdown tbody');
+        if (breakdown.byCategory && Object.keys(breakdown.byCategory).length > 0) {
+          const totalCost = summary.totalCost || 1;
+          categoryBody.innerHTML = Object.entries(breakdown.byCategory)
+            .map(([category, stats]) => \`
+              <tr>
+                <td><span class="badge badge-success">\${category}</span></td>
+                <td>\${stats.count}</td>
+                <td>\${formatCurrency(stats.cost)}</td>
+                <td>\${((stats.cost / totalCost) * 100).toFixed(1)}%</td>
+              </tr>
+            \`).join('');
+        } else {
+          categoryBody.innerHTML = '<tr><td colspan="4">No hay datos disponibles</td></tr>';
+        }
+        
+        // Actualizar desglose por país
+        const countryBody = document.querySelector('#countryBreakdown tbody');
+        if (breakdown.byCountry && Object.keys(breakdown.byCountry).length > 0) {
+          const totalCost = summary.totalCost || 1;
+          const countries = Object.values(breakdown.byCountry).sort((a, b) => b.cost - a.cost);
+          countryBody.innerHTML = countries
+            .map(country => {
+              const avgPrice = country.count > 0 ? country.cost / country.count : 0;
+              const tierBadge = country.tier !== null ? \`<span class="badge badge-info">Tier \${country.tier}</span>\` : '<span class="badge badge-warning">N/A</span>';
+              return \`
+                <tr>
+                  <td><strong>\${country.countryName}</strong> <span style="color: #6b7280; font-size: 11px;">(\${country.countryCode})</span></td>
+                  <td>\${country.count}</td>
+                  <td>\${formatCurrency(country.cost)}</td>
+                  <td>\${((country.cost / totalCost) * 100).toFixed(1)}%</td>
+                  <td>\${tierBadge}</td>
+                  <td>\${formatCurrency(avgPrice)}</td>
+                </tr>
+              \`;
+            }).join('');
+        } else {
+          countryBody.innerHTML = '<tr><td colspan="6">No hay datos disponibles</td></tr>';
+        }
+      } catch (e) {
+        console.error('Error cargando resumen:', e);
+        document.getElementById('summaryMetrics').innerHTML = '<div class="loading">Error al cargar datos</div>';
+      }
+    }
+    
+    async function loadMonthlyStats() {
+      try {
+        const res = await fetch('/api/meta/billing/monthly?months=6');
+        const json = await res.json();
+        const stats = json.data || [];
+        
+        const body = document.querySelector('#monthlyStats tbody');
+        if (stats.length > 0) {
+          body.innerHTML = stats.map(stat => \`
+            <tr>
+              <td>\${stat.monthName}</td>
+              <td>\${stat.totalMessages}</td>
+              <td>\${formatCurrency(stat.totalCost)}</td>
+              <td>\${stat.avgDailyMessages?.toFixed(0) || 0}</td>
+              <td>\${formatCurrency(stat.avgDailyCost)}</td>
+            </tr>
+          \`).join('');
+        } else {
+          body.innerHTML = '<tr><td colspan="5">No hay datos disponibles</td></tr>';
+        }
+      } catch (e) {
+        console.error('Error cargando estadísticas mensuales:', e);
+      }
+    }
+    
+    async function loadMessageHistory() {
+      try {
+        const res = await fetch('/api/meta/billing/history?limit=50');
+        const json = await res.json();
+        const data = json.data || {};
+        const messages = data.messages || [];
+        
+        const body = document.querySelector('#messageHistory tbody');
+        if (messages.length > 0) {
+          body.innerHTML = messages.map(msg => \`
+            <tr>
+              <td>\${formatDate(msg.timestamp)}</td>
+              <td>\${msg.to}</td>
+              <td><strong>\${msg.countryName || 'Desconocido'}</strong> <span style="color: #6b7280; font-size: 11px;">(\${msg.countryCode || 'N/A'})</span></td>
+              <td><span class="badge badge-info">\${msg.type}</span></td>
+              <td><span class="badge badge-success">\${msg.category}</span></td>
+              <td>\${formatCurrency(msg.cost)}</td>
+            </tr>
+          \`).join('');
+        } else {
+          body.innerHTML = '<tr><td colspan="6">No hay mensajes registrados aún</td></tr>';
+        }
+      } catch (e) {
+        console.error('Error cargando historial:', e);
+      }
+    }
+    
+    async function loadPricing() {
+      try {
+        const res = await fetch('/api/meta/billing/pricing');
+        const json = await res.json();
+        const pricingByCountry = json.data || {};
+        
+        const body = document.querySelector('#pricingTable tbody');
+        const countries = Object.entries(pricingByCountry)
+          .map(([countryCode, pricing]) => ({
+            countryCode,
+            countryName: COUNTRY_NAMES[countryCode] || countryCode,
+            tier: pricing.tier,
+            conversationText: pricing.conversation?.text || 0,
+            templateText: pricing.template?.text || 0,
+            currency: pricing.currency || 'USD',
+          }))
+          .sort((a, b) => {
+            // Ordenar por tier primero, luego por nombre
+            if (a.tier !== b.tier) {
+              return (a.tier || 999) - (b.tier || 999);
+            }
+            return a.countryName.localeCompare(b.countryName);
+          });
+        
+        if (countries.length > 0) {
+          body.innerHTML = countries.map(country => {
+            const tierBadge = country.tier !== null ? \`<span class="badge badge-info">Tier \${country.tier}</span>\` : '<span class="badge badge-warning">N/A</span>';
+            return \`
+              <tr>
+                <td><strong>\${country.countryName}</strong> <span style="color: #6b7280; font-size: 11px;">(\${country.countryCode})</span></td>
+                <td>\${tierBadge}</td>
+                <td>\${formatCurrency(country.conversationText)}</td>
+                <td>\${formatCurrency(country.templateText)}</td>
+                <td>\${country.currency}</td>
+              </tr>
+            \`;
+          }).join('');
+        } else {
+          body.innerHTML = '<tr><td colspan="5">No hay información de precios disponible</td></tr>';
+        }
+      } catch (e) {
+        console.error('Error cargando precios:', e);
+      }
+    }
+    
+    // Nombres de países para el frontend
+    const COUNTRY_NAMES = {
+      VE: 'Venezuela',
+      MX: 'México',
+      AR: 'Argentina',
+      BR: 'Brasil',
+      CL: 'Chile',
+      CO: 'Colombia',
+      PE: 'Perú',
+      EC: 'Ecuador',
+      PY: 'Paraguay',
+      UY: 'Uruguay',
+      BO: 'Bolivia',
+      CR: 'Costa Rica',
+      PA: 'Panamá',
+      GT: 'Guatemala',
+      SV: 'El Salvador',
+      HN: 'Honduras',
+      NI: 'Nicaragua',
+      ES: 'España',
+      US: 'Estados Unidos',
+    };
+    
+    // Cargar todo al inicio
+    loadSummary('month');
+    loadMonthlyStats();
+    loadMessageHistory();
+    loadPricing();
+    
+    // Actualizar cada 30 segundos
+    setInterval(() => {
+      loadSummary(currentPeriod);
+      loadMessageHistory();
+    }, 30000);
   </script>
 </body>
 </html>`;

@@ -1,0 +1,15 @@
+URL de Cloudflare Tunnel:
+https://nevada-senators-sized-spreading.trycloudflare.com
+
+URL completa del webhook para Meta Developers:
+https://nevada-senators-sized-spreading.trycloudflare.com/webhooks/whatsapp
+
+Verify Token:
+cocolu_webhook_verify_2025_secure_token_meta
+
+Campos a suscribir en Meta:
+- messages
+- message_status
+
+⚠️ IMPORTANTE: Esta URL cambia cada vez que reinicias Cloudflare Tunnel.
+Para obtener la URL actual, ejecuta: tail -20 logs/cloudflared.log | grep trycloudflare

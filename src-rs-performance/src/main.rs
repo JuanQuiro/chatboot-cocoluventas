@@ -2,12 +2,13 @@
 //! Versión completa y optimizada para deployment
 
 use axum::{
-    extract::{State, Json},
+    extract::{State, Json, Query, Path},
     http::{StatusCode, HeaderMap},
-    response::Html,
-    routing::get,
+    response::{Html, Response, IntoResponse},
+    routing::{get, post},
     Router,
 };
+use std::collections::HashMap;
 use serde::Serialize;
 use std::sync::Arc;
 use std::time::Instant;
@@ -135,6 +136,13 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/metrics", get(metrics))
         .route("/api/health/combined", get(combined_health))
         .route("/api/stats", get(stats))
+        // Proxy routes para el frontend
+        .route("/api/analytics/events", get(proxy_analytics_events))
+        .route("/api/analytics/metrics", get(proxy_analytics_metrics))
+        .route("/api/logs/batch", post(proxy_logs_batch))
+        .route("/api/dashboard", get(proxy_dashboard))
+        .route("/api/orders", get(proxy_orders))
+        .route("/api/orders/:id", get(proxy_order_by_id))
         .with_state(state);
 
     info!("🌐 Rust API listening on 0.0.0.0:{}", api_port);
@@ -337,6 +345,94 @@ async fn stats(
         "node": node_health,
         "timestamp": chrono::Local::now().to_rfc3339()
     })))
+}
+
+// Funciones de proxy para reenviar peticiones al Node.js API
+async fn proxy_to_node(
+    state: &AppState,
+    path: &str,
+    query: Option<&str>,
+    body: Option<serde_json::Value>,
+) -> Result<Response, StatusCode> {
+    let url = if let Some(q) = query {
+        format!("{}{}?{}", state.node_api_url, path, q)
+    } else {
+        format!("{}{}", state.node_api_url, path)
+    };
+
+    let mut request = if body.is_some() {
+        state.http_client.post(&url)
+    } else {
+        state.http_client.get(&url)
+    };
+
+    if let Some(body_data) = body {
+        request = request.json(&body_data);
+    }
+
+    match request
+        .timeout(std::time::Duration::from_secs(30))
+        .send()
+        .await
+    {
+        Ok(resp) => {
+            match resp.json::<serde_json::Value>().await {
+                Ok(json) => Ok(Json(json).into_response()),
+                Err(_) => {
+                    warn!("Error parsing Node.js response for {}", path);
+                    Err(StatusCode::INTERNAL_SERVER_ERROR)
+                }
+            }
+        }
+        Err(e) => {
+            warn!("Failed to proxy to Node.js API {}: {}", path, e);
+            Err(StatusCode::BAD_GATEWAY)
+        }
+    }
+}
+
+async fn proxy_analytics_events(
+    State(state): State<AppState>,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Response, StatusCode> {
+    let query_str = params
+        .iter()
+        .map(|(k, v)| format!("{}={}", k, v))
+        .collect::<Vec<_>>()
+        .join("&");
+    proxy_to_node(&state, "/api/analytics/events", Some(&query_str), None).await
+}
+
+async fn proxy_analytics_metrics(
+    State(state): State<AppState>,
+) -> Result<Response, StatusCode> {
+    proxy_to_node(&state, "/api/analytics/metrics", None, None).await
+}
+
+async fn proxy_logs_batch(
+    State(state): State<AppState>,
+    Json(body): Json<serde_json::Value>,
+) -> Result<Response, StatusCode> {
+    proxy_to_node(&state, "/api/logs/batch", None, Some(body)).await
+}
+
+async fn proxy_dashboard(
+    State(state): State<AppState>,
+) -> Result<Response, StatusCode> {
+    proxy_to_node(&state, "/api/dashboard", None, None).await
+}
+
+async fn proxy_orders(
+    State(state): State<AppState>,
+) -> Result<Response, StatusCode> {
+    proxy_to_node(&state, "/api/orders", None, None).await
+}
+
+async fn proxy_order_by_id(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<Response, StatusCode> {
+    proxy_to_node(&state, &format!("/api/orders/{}", id), None, None).await
 }
 
 fn get_memory_usage() -> u64 {

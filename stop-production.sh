@@ -37,5 +37,34 @@ fi
 pkill -f "cocolu_rs_perf" 2>/dev/null || true
 pkill -f "app-integrated.js" 2>/dev/null || true
 
+# Detener cloudflared si está corriendo
+if pgrep -f "cloudflared" > /dev/null; then
+    echo "  Deteniendo cloudflared..."
+    pkill -f "cloudflared" 2>/dev/null || true
+    sleep 1
+    pkill -9 -f "cloudflared" 2>/dev/null || true
+fi
+
+# Detener ngrok si está corriendo
+if pgrep -f "ngrok" > /dev/null; then
+    echo "  Deteniendo ngrok..."
+    pkill -f "ngrok" 2>/dev/null || true
+    sleep 1
+    pkill -9 -f "ngrok" 2>/dev/null || true
+fi
+
+# Detener localtunnel si está corriendo
+if pgrep -f "localtunnel" > /dev/null; then
+    echo "  Deteniendo localtunnel..."
+    pkill -f "localtunnel" 2>/dev/null || true
+    sleep 1
+    pkill -9 -f "localtunnel" 2>/dev/null || true
+fi
+
+# Liberar puertos
+echo "  Liberando puertos..."
+lsof -ti:3008 | xargs kill -9 2>/dev/null || true
+lsof -ti:3009 | xargs kill -9 2>/dev/null || true
+
 echo "✅ Servicios detenidos"
 

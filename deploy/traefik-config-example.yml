@@ -1,0 +1,93 @@
+# Ejemplo de configuración de Traefik para Cocolu Bot
+# Este archivo muestra cómo configurar Traefik para el bot
+# Ajusta según tu configuración actual de Traefik
+
+# Si Traefik usa archivos de configuración dinámica:
+# Coloca este contenido en: /etc/traefik/dynamic/cocolu-bot.yml
+
+http:
+  routers:
+    # Router para la API
+    cocolu-api:
+      rule: "Host(`emberdrago.com`) && PathPrefix(`/api`)"
+      service: cocolu-api
+      entryPoints:
+        - web
+        - websecure
+      middlewares:
+        - cocolu-headers
+        - cocolu-cors
+      tls:
+        certResolver: letsencrypt
+
+    # Router para webhooks de Meta
+    cocolu-webhooks:
+      rule: "Host(`emberdrago.com`) && PathPrefix(`/webhooks`)"
+      service: cocolu-api
+      entryPoints:
+        - web
+        - websecure
+      middlewares:
+        - cocolu-headers
+      tls:
+        certResolver: letsencrypt
+
+    # Router para el dashboard (todo lo demás)
+    cocolu-dashboard:
+      rule: "Host(`emberdrago.com`)"
+      service: cocolu-api
+      entryPoints:
+        - web
+        - websecure
+      middlewares:
+        - cocolu-headers
+        - cocolu-cors
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    # Servicio que apunta a la aplicación Node.js
+    cocolu-api:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:3009"
+        healthCheck:
+          path: "/api/health"
+          interval: "30s"
+          timeout: "3s"
+
+  middlewares:
+    # Headers de seguridad
+    cocolu-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        customResponseHeaders:
+          X-Content-Type-Options: "nosniff"
+          X-Frame-Options: "DENY"
+          X-XSS-Protection: "1; mode=block"
+          Referrer-Policy: "strict-origin-when-cross-origin"
+
+    # CORS (si es necesario)
+    cocolu-cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowOriginList:
+          - "https://emberdrago.com"
+          - "http://emberdrago.com"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+# Si Traefik usa Docker labels, usa estos labels en tu contenedor:
+# traefik.enable=true
+# traefik.http.routers.cocolu-api.rule=Host(`emberdrago.com`) && PathPrefix(`/api`)
+# traefik.http.routers.cocolu-api.entrypoints=web,websecure
+# traefik.http.routers.cocolu-api.service=cocolu-api
+# traefik.http.routers.cocolu-api.tls.certresolver=letsencrypt
+# traefik.http.services.cocolu-api.loadbalancer.server.port=3009
+

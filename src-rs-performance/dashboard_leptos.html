@@ -3,255 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 Cocolu Bot - Dashboard Leptos</title>
+    <title>🤖 Cocolu Bot - Dashboard en Tiempo Real</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f172a;
+            color: #e2e8f0;
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1800px; margin: 0 auto; }
         header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        h1 { color: #333; margin-bottom: 10px; }
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #4caf50;
-            color: white;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
+        h1 { color: white; font-size: 28px; }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
         }
         .card {
-            background: white;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
         }
-        .card h2 { color: #667eea; font-size: 18px; margin-bottom: 15px; }
+        .card h2 { 
+            color: #818cf8; 
+            font-size: 18px; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .metric {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
         }
         .metric:last-child { border-bottom: none; }
-        .metric-label { color: #666; }
-        .metric-value { font-weight: bold; color: #333; }
-        .rust-badge { background: #f97316; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-        .node-badge { background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-        .combined-badge { background: #6366f1; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-        .loading { color: #999; font-style: italic; }
+        .metric-label { color: #94a3b8; font-size: 14px; }
+        .metric-value { 
+            font-weight: bold; 
+            color: #e2e8f0; 
+            font-size: 16px;
+        }
+        
+        /* Mensajes en tiempo real */
+        .messages-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .message-item {
+            background: #0f172a;
+            border-left: 3px solid #818cf8;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .message-item.received { border-left-color: #10b981; }
+        .message-item.sent { border-left-color: #3b82f6; }
+        .message-item.error { border-left-color: #ef4444; }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .message-body {
+            color: #e2e8f0;
+            word-break: break-word;
+        }
+        .message-from {
+            font-weight: 600;
+            color: #818cf8;
+        }
+        
+        /* Logs en tiempo real */
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-item {
+            padding: 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            border-left: 3px solid #64748b;
+            background: #0f172a;
+            animation: slideIn 0.3s ease-out;
+        }
+        .log-item.ERROR { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .log-item.WARNING { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .log-item.INFO { border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+        .log-type {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .log-time {
+            color: #64748b;
+        }
+        .log-message {
+            color: #cbd5e1;
+        }
+        
+        /* Métricas visuales */
+        .metric-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        .metric-big {
+            font-size: 32px;
+            color: #818cf8;
+            margin: 10px 0;
+        }
+        .metric-label-big {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Scrollbar personalizado */
+        .messages-container::-webkit-scrollbar,
+        .logs-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .messages-container::-webkit-scrollbar-track,
+        .logs-container::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .messages-container::-webkit-scrollbar-thumb,
+        .logs-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .messages-container::-webkit-scrollbar-thumb:hover,
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🤖 Cocolu Bot - Dashboard Leptos (Producción)</h1>
-            <span class="status-badge">✅ Running</span>
-            <p style="margin-top: 10px; color: #666;">
-                Rust API (ultra-fast) + Node.js (full functionality) + Dashboard Reactivo
-            </p>
+            <div>
+                <h1>🤖 Cocolu Bot - Dashboard en Tiempo Real</h1>
+                <p style="margin-top: 8px; color: rgba(255,255,255,0.8); font-size: 14px;">
+                    Rust API (ultra-fast) + Node.js (full functionality)
+                </p>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span style="color: white; font-weight: 600;" id="connection-status">Conectado</span>
+            </div>
         </header>
 
         <div class="grid">
-            <div class="card">
-                <h2>🦀 Rust API</h2>
+            <!-- Métricas del Sistema -->
+            <div class="card metric-card">
+                <h2>📊 Métricas del Sistema</h2>
                 <div class="metric">
-                    <span class="metric-label">Status</span>
-                    <span class="metric-value">✅ OK</span>
+                    <span class="metric-label">Rust API RAM</span>
+                    <span class="metric-value" id="rust-memory">-</span>
                 </div>
                 <div class="metric">
-                    <span class="metric-label">RAM</span>
-                    <span class="metric-value" id="rust-memory" class="loading">Cargando...</span>
+                    <span class="metric-label">Rust Uptime</span>
+                    <span class="metric-value" id="rust-uptime">-</span>
                 </div>
                 <div class="metric">
-                    <span class="metric-label">Uptime</span>
-                    <span class="metric-value" id="rust-uptime" class="loading">Cargando...</span>
+                    <span class="metric-label">Node.js Status</span>
+                    <span class="metric-value" id="node-status">-</span>
                 </div>
                 <div class="metric">
-                    <span class="metric-label">Version</span>
-                    <span class="metric-value">6.0.0</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>📦 Node.js API</h2>
-                <div class="metric">
-                    <span class="metric-label">Status</span>
-                    <span class="metric-value" id="node-status" class="loading">Checking...</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">RAM (est.)</span>
-                    <span class="metric-value">~250 MB</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Uptime</span>
-                    <span class="metric-value" id="node-uptime" class="loading">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Bots</span>
-                    <span class="metric-value" id="node-bots" class="loading">-</span>
+                    <span class="metric-label">Total Mensajes</span>
+                    <span class="metric-value" id="total-messages">0</span>
                 </div>
             </div>
 
-            <div class="card">
-                <h2>📊 Combined Metrics</h2>
-                <div class="metric">
-                    <span class="metric-label">Total Messages</span>
-                    <span class="metric-value" id="total-messages" class="loading">-</span>
+            <!-- Métricas de Mensajes -->
+            <div class="card metric-card">
+                <h2>💬 Actividad de Mensajes</h2>
+                <div class="metric-big" id="messages-received-count">0</div>
+                <div class="metric-label-big">Mensajes Recibidos</div>
+                <div style="margin-top: 15px;">
+                    <div class="metric">
+                        <span class="metric-label">Enviados</span>
+                        <span class="metric-value" id="messages-sent-count">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Errores</span>
+                        <span class="metric-value" id="messages-errors-count">0</span>
+                    </div>
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Total Bots</span>
-                    <span class="metric-value" id="total-bots" class="loading">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Active Sellers</span>
-                    <span class="metric-value" id="active-sellers" class="loading">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Total RAM</span>
-                    <span class="metric-value" id="total-ram" class="loading">-</span>
+            </div>
+
+            <!-- Métricas de Logs -->
+            <div class="card metric-card">
+                <h2>📝 Sistema de Logs</h2>
+                <div class="metric-big" id="logs-total-count">0</div>
+                <div class="metric-label-big">Logs Totales</div>
+                <div style="margin-top: 15px;">
+                    <div class="metric">
+                        <span class="metric-label">Errores</span>
+                        <span class="metric-value" id="logs-errors-count">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Warnings</span>
+                        <span class="metric-value" id="logs-warnings-count">0</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <h2>🔗 API Endpoints</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 15px;">
-                <div style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-                    <strong>GET /health</strong><br>
-                    <small>Health check combinado</small>
+        <div class="grid" style="grid-template-columns: 1fr 1fr;">
+            <!-- Mensajes en Tiempo Real -->
+            <div class="card" style="grid-column: span 1;">
+                <h2>📨 Mensajes en Tiempo Real</h2>
+                <div class="messages-container" id="messages-list">
+                    <div class="empty-state">Esperando mensajes...</div>
                 </div>
-                <div style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-                    <strong>GET /api/metrics</strong><br>
-                    <small>Métricas completas</small>
-                </div>
-                <div style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-                    <strong>GET /api/health/combined</strong><br>
-                    <small>Health Rust + Node</small>
-                </div>
-                <div style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-                    <strong>GET /api/stats</strong><br>
-                    <small>Estadísticas (requiere auth)</small>
+            </div>
+
+            <!-- Logs en Tiempo Real -->
+            <div class="card" style="grid-column: span 1;">
+                <h2>📋 Logs del Sistema</h2>
+                <div class="logs-container" id="logs-list">
+                    <div class="empty-state">Cargando logs...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Reactividad estilo Leptos - Actualización automática
-        let metricsData = null;
-        
-        async function loadMetrics() {
-            try {
-                const res = await fetch('/api/health/combined');
-                if (!res.ok) throw new Error('Failed to fetch');
-                const data = await res.json();
-                metricsData = data;
-                updateUI(data);
-            } catch (e) {
-                console.error('Error loading metrics:', e);
-                document.getElementById('node-status').textContent = '❌ Disconnected';
+        let eventSource = null;
+        let lastMessagesHash = '';
+        let lastLogsHash = '';
+
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES');
+        }
+
+        function updateMessages(messages) {
+            const container = document.getElementById('messages-list');
+            const hash = JSON.stringify(messages);
+            
+            if (hash === lastMessagesHash) return;
+            lastMessagesHash = hash;
+
+            // Actualizar contadores
+            document.getElementById('messages-received-count').textContent = messages.received?.length || 0;
+            document.getElementById('messages-sent-count').textContent = messages.sent?.length || 0;
+            document.getElementById('messages-errors-count').textContent = messages.errors?.length || 0;
+
+            // Mostrar mensajes (últimos 20)
+            const allMessages = [
+                ...(messages.received || []).slice(0, 10).map(m => ({ ...m, type: 'received' })),
+                ...(messages.sent || []).slice(0, 10).map(m => ({ ...m, type: 'sent' })),
+                ...(messages.errors || []).slice(0, 10).map(m => ({ ...m, type: 'error' }))
+            ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 20);
+
+            if (allMessages.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay mensajes aún</div>';
+                return;
+            }
+
+            container.innerHTML = allMessages.map(msg => {
+                const typeClass = msg.type === 'received' ? 'received' : 
+                                 msg.type === 'sent' ? 'sent' : 'error';
+                const icon = msg.type === 'received' ? '📥' : 
+                            msg.type === 'sent' ? '📤' : '❌';
+                const from = msg.from || msg.to || 'Sistema';
+                const body = msg.body || msg.error || 'Sin contenido';
+
+                return `
+                    <div class="message-item ${typeClass}">
+                        <div class="message-header">
+                            <span class="message-from">${icon} ${from}</span>
+                            <span>${formatTime(msg.timestamp)}</span>
+                        </div>
+                        <div class="message-body">${escapeHtml(body)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateLogs(logs) {
+            const container = document.getElementById('logs-list');
+            const hash = JSON.stringify(logs);
+            
+            if (hash === lastLogsHash) return;
+            lastLogsHash = hash;
+
+            const logsData = logs.logs || logs.data || [];
+            
+            // Actualizar contadores
+            document.getElementById('logs-total-count').textContent = logsData.length;
+            document.getElementById('logs-errors-count').textContent = 
+                logsData.filter(l => l.log_type === 'ERROR').length;
+            document.getElementById('logs-warnings-count').textContent = 
+                logsData.filter(l => l.log_type === 'WARNING').length;
+
+            if (logsData.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay logs aún</div>';
+                return;
+            }
+
+            // Mostrar últimos 30 logs
+            const recentLogs = logsData.slice(0, 30);
+            container.innerHTML = recentLogs.map(log => {
+                const type = log.log_type || 'INFO';
+                return `
+                    <div class="log-item ${type}">
+                        <div class="log-header">
+                            <span class="log-type">${type}</span>
+                            <span class="log-time">${formatDate(log.createdAt || log.timestamp)}</span>
+                        </div>
+                        <div class="log-message">${escapeHtml(log.message || '')}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMetrics(metrics) {
+            if (metrics.rust) {
+                document.getElementById('rust-memory').textContent = metrics.rust.memory_mb + ' MB';
+                document.getElementById('rust-uptime').textContent = formatUptime(metrics.rust.uptime_secs);
+            }
+            if (metrics.node) {
+                document.getElementById('node-status').textContent = '✅ ' + metrics.node.status;
+            }
+            if (metrics.combined) {
+                document.getElementById('total-messages').textContent = metrics.combined.total_messages || 0;
             }
         }
-        
-        function updateUI(data) {
-            // Rust metrics
-            const rustEl = document.getElementById('rust-memory');
-            if (rustEl && data.rust) {
-                rustEl.textContent = data.rust.memory_mb + ' MB';
-                rustEl.classList.remove('loading');
-            }
-            
-            const rustUptime = document.getElementById('rust-uptime');
-            if (rustUptime && data.rust) {
-                rustUptime.textContent = formatUptime(data.rust.uptime_secs);
-                rustUptime.classList.remove('loading');
-            }
-            
-            // Node metrics
-            const nodeStatus = document.getElementById('node-status');
-            if (nodeStatus) {
-                if (data.node) {
-                    nodeStatus.textContent = '✅ ' + data.node.status;
-                    nodeStatus.classList.remove('loading');
-                } else {
-                    nodeStatus.textContent = '❌ Disconnected';
-                    nodeStatus.classList.remove('loading');
-                }
-            }
-            
-            const nodeUptime = document.getElementById('node-uptime');
-            if (nodeUptime && data.node) {
-                nodeUptime.textContent = formatUptime(data.node.uptime_secs);
-                nodeUptime.classList.remove('loading');
-            }
-            
-            const nodeBots = document.getElementById('node-bots');
-            if (nodeBots && data.node) {
-                nodeBots.textContent = data.node.bots?.totalBots || 0;
-                nodeBots.classList.remove('loading');
-            }
-            
-            // Combined metrics
-            const totalMessages = document.getElementById('total-messages');
-            if (totalMessages && data.combined) {
-                totalMessages.textContent = data.combined.total_messages;
-                totalMessages.classList.remove('loading');
-            }
-            
-            const totalBots = document.getElementById('total-bots');
-            if (totalBots && data.combined) {
-                totalBots.textContent = data.combined.total_bots;
-                totalBots.classList.remove('loading');
-            }
-            
-            const activeSellers = document.getElementById('active-sellers');
-            if (activeSellers && data.combined) {
-                activeSellers.textContent = data.combined.active_sellers;
-                activeSellers.classList.remove('loading');
-            }
-            
-            const totalRam = document.getElementById('total-ram');
-            if (totalRam && data.combined) {
-                totalRam.textContent = data.combined.memory_total_mb + ' MB';
-                totalRam.classList.remove('loading');
-            }
-        }
-        
+
         function formatUptime(secs) {
             const h = Math.floor(secs / 3600);
             const m = Math.floor((secs % 3600) / 60);
             const s = Math.floor(secs % 60);
             return `${h}h ${m}m ${s}s`;
         }
-        
-        // Cargar inmediatamente
-        loadMetrics();
-        
-        // Actualizar cada 5 segundos (reactividad)
-        setInterval(loadMetrics, 5000);
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function connectSSE() {
+            // Intentar conectar al Node.js API directamente (puerto 3008)
+            const nodeUrl = 'http://localhost:3008/api/events';
+            
+            eventSource = new EventSource(nodeUrl);
+            
+            eventSource.onopen = () => {
+                document.getElementById('connection-status').textContent = 'Conectado';
+                document.getElementById('connection-status').style.color = '#10b981';
+            };
+            
+            eventSource.onerror = () => {
+                document.getElementById('connection-status').textContent = 'Desconectado';
+                document.getElementById('connection-status').style.color = '#ef4444';
+                // Reintentar después de 3 segundos
+                setTimeout(() => {
+                    if (eventSource) eventSource.close();
+                    connectSSE();
+                }, 3000);
+            };
+            
+            eventSource.addEventListener('messages', (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    updateMessages(data);
+                } catch (err) {
+                    console.error('Error parsing messages:', err);
+                }
+            });
+            
+            eventSource.addEventListener('logs', (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    updateLogs(data);
+                } catch (err) {
+                    console.error('Error parsing logs:', err);
+                }
+            });
+            
+            eventSource.addEventListener('metrics', (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    updateMetrics(data);
+                } catch (err) {
+                    console.error('Error parsing metrics:', err);
+                }
+            });
+        }
+
+        // Cargar métricas iniciales
+        async function loadInitialMetrics() {
+            try {
+                const res = await fetch('/api/health/combined');
+                if (res.ok) {
+                    const data = await res.json();
+                    updateMetrics(data);
+                }
+            } catch (err) {
+                console.error('Error loading initial metrics:', err);
+            }
+        }
+
+        // Inicializar
+        loadInitialMetrics();
+        connectSSE();
+
+        // Limpiar al cerrar
+        window.addEventListener('beforeunload', () => {
+            if (eventSource) eventSource.close();
+        });
     </script>
 </body>
 </html>
-

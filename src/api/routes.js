@@ -465,30 +465,172 @@ export const setupRoutes = (app) => {
     });
 
     // ============================================
-    // WEBSOCKET (información en tiempo real)
+    // SERVER-SENT EVENTS (SSE) - Tiempo real
     // ============================================
     
-    // Página de LOGIN
-    app.get('/', (req, res) => {
+    app.get('/api/events', (req, res) => {
+        // Configurar SSE
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
+        res.setHeader('Access-Control-Allow-Origin', '*');
         
-        // Enviar datos cada 5 segundos
-        const interval = setInterval(() => {
-            const data = {
-                sellers: sellersManager.getStats(),
-                analytics: analyticsService.getExecutiveSummary()
-            };
-            
+        // Enviar heartbeat cada 30 segundos
+        const heartbeat = setInterval(() => {
+            res.write(': heartbeat\n\n');
+        }, 30000);
+        
+        // Función para enviar eventos
+        const sendEvent = (event, data) => {
+            res.write(`event: ${event}\n`);
             res.write(`data: ${JSON.stringify(data)}\n\n`);
-        }, 5000);
+        };
+        
+        // Enviar datos iniciales
+        (async () => {
+            try {
+                // Mensajes
+                const mod = await import('../../app-integrated.js');
+                const log = mod.messageLog;
+                const messages = log && typeof log.getAll === 'function'
+                    ? log.getAll()
+                    : { received: [], sent: [], errors: [] };
+                
+                sendEvent('messages', messages);
+                
+                // Logs recientes
+                const logsService = (await import('../../services/logs.service.js')).default;
+                const recentLogs = await logsService.getRecentLogs({ limit: 50 });
+                sendEvent('logs', recentLogs);
+                
+                // Métricas
+                const metrics = analyticsService.getMetrics();
+                sendEvent('metrics', metrics);
+            } catch (error) {
+                console.error('Error en SSE inicial:', error);
+            }
+        })();
+        
+        // Polling para actualizar datos cada 2 segundos
+        const pollInterval = setInterval(async () => {
+            try {
+                // Mensajes
+                const mod = await import('../../app-integrated.js');
+                const log = mod.messageLog;
+                const messages = log && typeof log.getAll === 'function'
+                    ? log.getAll()
+                    : { received: [], sent: [], errors: [] };
+                
+                sendEvent('messages', messages);
+                
+                // Logs recientes (solo los últimos 20)
+                const logsService = (await import('../../services/logs.service.js')).default;
+                const recentLogs = await logsService.getRecentLogs({ limit: 20 });
+                sendEvent('logs', recentLogs);
+                
+                // Métricas
+                const metrics = analyticsService.getMetrics();
+                sendEvent('metrics', metrics);
+            } catch (error) {
+                console.error('Error en SSE polling:', error);
+            }
+        }, 2000);
         
         // Limpiar al cerrar conexión
         req.on('close', () => {
-            clearInterval(interval);
+            clearInterval(heartbeat);
+            clearInterval(pollInterval);
+            res.end();
         });
     });
+    
+    // ============================================
+    // META BILLING - Facturación de Meta
+    // ============================================
+    app.get('/api/meta/billing/summary', async (req, res) => {
+        try {
+            const { startDate, endDate } = req.query;
+            const start = startDate ? new Date(startDate) : null;
+            const end = endDate ? new Date(endDate) : null;
+            
+            const metaBillingService = (await import('../services/meta-billing.service.js')).default;
+            const summary = metaBillingService.getBillingSummary(start, end);
+            
+            res.json({
+                success: true,
+                data: summary,
+            });
+        } catch (error) {
+            console.error('Error obteniendo resumen de facturación:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    });
+    
+    app.get('/api/meta/billing/history', async (req, res) => {
+        try {
+            const limit = parseInt(req.query.limit) || 100;
+            const offset = parseInt(req.query.offset) || 0;
+            
+            const metaBillingService = (await import('../services/meta-billing.service.js')).default;
+            const history = metaBillingService.getMessageHistory(limit, offset);
+            
+            res.json({
+                success: true,
+                data: history,
+            });
+        } catch (error) {
+            console.error('Error obteniendo historial de facturación:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    });
+    
+    app.get('/api/meta/billing/monthly', async (req, res) => {
+        try {
+            const months = parseInt(req.query.months) || 6;
+            
+            const metaBillingService = (await import('../services/meta-billing.service.js')).default;
+            const stats = metaBillingService.getMonthlyStats(months);
+            
+            res.json({
+                success: true,
+                data: stats,
+            });
+        } catch (error) {
+            console.error('Error obteniendo estadísticas mensuales:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    });
+    
+    app.get('/api/meta/billing/pricing', async (req, res) => {
+        try {
+            const metaBillingService = (await import('../services/meta-billing.service.js')).default;
+            const pricing = metaBillingService.getPricing();
+            
+            res.json({
+                success: true,
+                data: pricing,
+            });
+        } catch (error) {
+            console.error('Error obteniendo precios:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    });
+
+    // ============================================
+    // WEBSOCKET (información en tiempo real)
+    // ============================================
 
     console.log('✅ API Routes configuradas');
 };
