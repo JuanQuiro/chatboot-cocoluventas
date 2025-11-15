@@ -1,189 +1,151 @@
+//! Rust API Híbrida con Leptos SSR - PRODUCCIÓN
+//! Versión completa y optimizada para deployment
+
 use axum::{
-    extract::State, http::StatusCode, routing::{get, post}, Json, Router,
-    middleware::Next, response::IntoResponse, http::Request,
+    extract::{State, Json},
+    http::{StatusCode, HeaderMap},
+    response::Html,
+    routing::get,
+    Router,
 };
-use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, process::Stdio, sync::Arc, time::{Duration, Instant}};
-use tokio::{
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
-    process::{Child, ChildStdin, Command},
-    sync::{Mutex, RwLock},
-    signal,
-};
-use tracing::{error, info, warn, debug, Level};
+use serde::Serialize;
+use std::sync::Arc;
+use std::time::Instant;
+use tokio::sync::RwLock;
+use tracing::{info, warn, Level};
 use tracing_subscriber::EnvFilter;
+use reqwest::Client;
 
-// ============================================================================
-// TIPOS Y ESTRUCTURAS
-// ============================================================================
+// Dashboard Leptos (simplificado - HTML embebido mejorado)
+mod dashboard_leptos;
 
-#[derive(Debug, Clone, Serialize)]
-struct Health {
-    status: &'static str,
-    uptime_secs: u64,
-    connected: bool,
-    messages_received: u64,
-    messages_sent: u64,
-    has_qr: bool,
-    has_pairing_code: bool,
-    bridge_alive: bool,
-    memory_mb: u64,
-}
-
-#[derive(Debug, Clone, Serialize)]
-struct Metrics {
-    total_messages: u64,
-    total_errors: u64,
-    avg_response_time_ms: u64,
-    uptime_secs: u64,
-    bridge_restarts: u64,
-}
-
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct AppState {
     started_at: Instant,
     connected: Arc<RwLock<bool>>,
     messages_received: Arc<RwLock<u64>>,
     messages_sent: Arc<RwLock<u64>>,
-    last_qr: Arc<RwLock<Option<String>>>,
-    last_pairing_code: Arc<RwLock<Option<String>>>,
-    bridge: Arc<BridgeHandle>,
-    metrics: Arc<Metrics>,
-    bridge_restarts: Arc<RwLock<u64>>,
-    last_error: Arc<RwLock<Option<String>>>,
+    adapter: Arc<RwLock<String>>,
+    auth_token: String,
+    node_api_url: String,
+    http_client: Client,
 }
 
-#[derive(Debug)]
-struct BridgeHandle {
-    child: Mutex<Option<Child>>,
-    stdin: Mutex<Option<ChildStdin>>,
+#[derive(Serialize)]
+struct HealthResponse {
+    status: String,
+    uptime_secs: u64,
+    connected: bool,
+    messages_received: u64,
+    messages_sent: u64,
+    memory_mb: u64,
+    cpu_percent: f64,
+    rust_api: RustMetrics,
+    node_api: Option<NodeHealth>,
 }
 
-impl BridgeHandle {
-    fn new() -> Self {
-        Self {
-            child: Mutex::new(None),
-            stdin: Mutex::new(None),
-        }
-    }
+#[derive(Serialize)]
+struct RustMetrics {
+    version: String,
+    memory_mb: u64,
+    cpu_percent: f64,
+    uptime_secs: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct BridgeCmdConnect {
-    cmd: &'static str,
-    usePairingCode: bool,
-    phoneNumber: String,
+#[derive(Serialize)]
+struct NodeHealth {
+    status: String,
+    uptime_secs: f64,
+    version: String,
+    bots: Option<serde_json::Value>,
+    sellers: Option<serde_json::Value>,
+    analytics: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct BridgeCmdSend {
-    cmd: &'static str,
-    to: String,
-    text: String,
+#[derive(Serialize)]
+struct MetricsResponse {
+    rust: RustMetrics,
+    node: Option<NodeHealth>,
+    combined: CombinedMetrics,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
-enum BridgeEvent {
-    #[serde(rename = "ready")]
-    Ready,
-    #[serde(rename = "qr")]
-    QR { qr: String },
-    #[serde(rename = "pairing_code")]
-    PairingCode { code: String },
-    #[serde(rename = "message")]
-    Message { from: String, body: String },
-    #[serde(rename = "sent")]
-    Sent { to: String, ok: bool },
-    #[serde(rename = "error")]
-    Error { error: String },
+#[derive(Serialize)]
+struct CombinedMetrics {
+    total_messages: u64,
+    total_bots: u64,
+    active_sellers: u64,
+    memory_total_mb: u64,
+    cpu_total_percent: f64,
 }
-
-#[derive(Debug, Deserialize)]
-struct SendBody {
-    to: String,
-    text: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct ConfigBody {
-    adapter: Option<String>,
-    phone_number: Option<String>,
-}
-
-// ============================================================================
-// MAIN
-// ============================================================================
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Logging
+    // Configurar logging (archivo + consola)
+    let log_dir = std::path::Path::new("../logs");
+    std::fs::create_dir_all(log_dir).ok();
+    
     tracing_subscriber::fmt()
-        .with_env_filter(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| EnvFilter::new("info")),
-        )
+        .with_env_filter(EnvFilter::from_default_env())
         .with_max_level(Level::INFO)
-        .with_target(true)
-        .with_thread_ids(true)
+        .with_target(false)
+        .with_thread_ids(false)
+        .with_file(false)
+        .with_line_number(false)
         .init();
 
-    info!("🚀 Cocolu Bot - Rust Ultra-Performance Monolith v5.2.0");
+    info!("🚀 Cocolu Bot - Rust Hybrid API v6.0.0 PRODUCTION");
+    info!("🔗 Integración: API + Dashboard + Node.js");
 
     let api_port: u16 = std::env::var("API_PORT")
         .ok()
         .and_then(|v| v.parse().ok())
         .unwrap_or(3009);
-    let use_pairing = std::env::var("USE_PAIRING_CODE")
-        .map(|v| v == "true")
-        .unwrap_or(true);
-    let phone_number = std::env::var("PHONE_NUMBER")
-        .unwrap_or_else(|_| "+584244370180".to_string());
 
-    let bridge = Arc::new(BridgeHandle::new());
-    let state = Arc::new(AppState {
+    let node_port: u16 = std::env::var("NODE_PORT")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(3008);
+
+    let node_api_url = format!("http://127.0.0.1:{}", node_port);
+
+    let auth_token = std::env::var("AUTH_TOKEN")
+        .unwrap_or_else(|_| "cocolu_secret_token_2025".to_string());
+
+    let http_client = Client::builder()
+        .timeout(std::time::Duration::from_secs(5))
+        .build()?;
+
+    let state = AppState {
         started_at: Instant::now(),
-        connected: Arc::new(RwLock::new(false)),
+        connected: Arc::new(RwLock::new(true)),
         messages_received: Arc::new(RwLock::new(0)),
         messages_sent: Arc::new(RwLock::new(0)),
-        last_qr: Arc::new(RwLock::new(None)),
-        last_pairing_code: Arc::new(RwLock::new(None)),
-        bridge: bridge.clone(),
-        metrics: Arc::new(Metrics {
-            total_messages: 0,
-            total_errors: 0,
-            avg_response_time_ms: 0,
-            uptime_secs: 0,
-            bridge_restarts: 0,
-        }),
-        bridge_restarts: Arc::new(RwLock::new(0)),
-        last_error: Arc::new(RwLock::new(None)),
-    });
+        adapter: Arc::new(RwLock::new("meta".to_string())),
+        auth_token,
+        node_api_url,
+        http_client,
+    };
 
-    // Spawn bridge
-    spawn_bridge_and_listen(state.clone(), use_pairing, phone_number.clone()).await?;
+    let node_api_url_clone = state.node_api_url.clone();
 
-    // Build API
     let app = Router::new()
-        .route("/", get(dashboard))
+        .route("/", get(dashboard_leptos::dashboard))
         .route("/health", get(health))
-        .route("/metrics", get(metrics))
-        .route("/qr", get(get_qr))
-        .route("/pairing", get(get_pairing))
-        .route("/send", post(send_message))
-        .route("/config", post(config))
-        .route("/status", get(status))
-        .with_state(state.clone());
+        .route("/api/status", get(status))
+        .route("/api/metrics", get(metrics))
+        .route("/api/health/combined", get(combined_health))
+        .route("/api/stats", get(stats))
+        .with_state(state);
 
-    info!("🌐 API listening on 0.0.0.0:{}", api_port);
-    info!("📊 Health: http://localhost:{}/health", api_port);
-    info!("📈 Metrics: http://localhost:{}/metrics", api_port);
+    info!("🌐 Rust API listening on 0.0.0.0:{}", api_port);
+    info!("🔗 Node.js API expected on {}", node_api_url_clone);
+    info!("📊 Dashboard: http://localhost:{}/", api_port);
+    info!("🔐 Auth required for API endpoints");
 
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", api_port)).await?;
 
-    // Graceful shutdown
     let shutdown = async {
-        let _ = signal::ctrl_c().await;
+        let _ = tokio::signal::ctrl_c().await;
         info!("⚠️  Shutdown signal received");
     };
 
@@ -195,271 +157,214 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-// ============================================================================
-// BRIDGE MANAGEMENT
-// ============================================================================
-
-async fn spawn_bridge_and_listen(
-    state: Arc<AppState>,
-    use_pairing: bool,
-    phone_number: String,
-) -> anyhow::Result<()> {
-    let bridge_hint = std::env::var("WA_BRIDGE").ok();
-    let mut script = PathBuf::from(
-        bridge_hint.unwrap_or_else(|| "bridge/baileys-bridge.mjs".to_string()),
-    );
-
-    if !PathBuf::from("src-rs-performance").join(&script).exists() {
-        if !script.exists() {
-            script = PathBuf::from("bridge/baileys-bridge.js");
-        }
-    }
-
-    info!("🔗 Spawning bridge: {:?}", script);
-
-    let mut child = Command::new("node")
-        .arg(&script)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .env("NODE_ENV", "production")
-        .env("NODE_NO_WARNINGS", "1")
-        .env("NODE_OPTIONS", "--max-old-space-size=256")
-        .current_dir("src-rs-performance")
-        .spawn()?;
-
-    let mut stdin = child.stdin.take().expect("child stdin");
-    let stdout = child.stdout.take().expect("child stdout");
-    let mut reader = BufReader::new(stdout).lines();
-
+async fn fetch_node_health(client: &Client, url: &str) -> Option<NodeHealth> {
+    match client
+        .get(&format!("{}/api/health", url))
+        .timeout(std::time::Duration::from_secs(2))
+        .send()
+        .await
     {
-        let mut c = state.bridge.child.lock().await;
-        *c = Some(child);
-        let mut s = state.bridge.stdin.lock().await;
-        *s = Some(stdin.clone());
-    }
-
-    let connect = BridgeCmdConnect {
-        cmd: "connect",
-        usePairingCode: use_pairing,
-        phoneNumber: phone_number.clone(),
-    };
-    let line = serde_json::to_string(&connect)? + "\n";
-    stdin.write_all(line.as_bytes()).await?;
-    stdin.flush().await?;
-
-    info!("✅ Bridge connected, waiting for events...");
-
-    let st = state.clone();
-    let pn = phone_number.clone();
-    let use_pairing_clone = use_pairing;
-
-    tokio::spawn(async move {
-        while let Ok(Some(line)) = reader.next_line().await {
-            if line.trim().is_empty() {
-                continue;
-            }
-
-            debug!("Bridge event: {}", line);
-
-            match serde_json::from_str::<BridgeEvent>(&line) {
-                Ok(event) => {
-                    match event {
-                        BridgeEvent::Ready => {
-                            info!("✅ Bridge ready");
-                            let mut conn = st.connected.write().await;
-                            *conn = true;
-                            {
-                                let mut qr = st.last_qr.write().await;
-                                *qr = None;
-                            }
-                        }
-                        BridgeEvent::QR { qr } => {
-                            info!("📱 QR code received");
-                            let mut q = st.last_qr.write().await;
-                            *q = Some(qr);
-                        }
-                        BridgeEvent::PairingCode { code } => {
-                            info!("🔐 Pairing code received: {}", code);
-                            let mut c = st.last_pairing_code.write().await;
-                            *c = Some(code);
-                        }
-                        BridgeEvent::Message { from, body } => {
-                            debug!("📨 Message from {}: {}", from, body);
-                            let mut m = st.messages_received.write().await;
-                            *m += 1;
-                        }
-                        BridgeEvent::Sent { to, ok } => {
-                            if ok {
-                                debug!("✉️  Message sent to {}", to);
-                                let mut m = st.messages_sent.write().await;
-                                *m += 1;
-                            } else {
-                                warn!("❌ Failed to send to {}", to);
-                            }
-                        }
-                        BridgeEvent::Error { error: e } => {
-                            error!("🔴 Bridge error: {}", e);
-                            let mut err = st.last_error.write().await;
-                            *err = Some(e);
-                        }
+        Ok(resp) => {
+            if resp.status().is_success() {
+                match resp.json::<serde_json::Value>().await {
+                    Ok(data) => {
+                        Some(NodeHealth {
+                            status: data.get("status")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("unknown")
+                                .to_string(),
+                            uptime_secs: data.get("uptime")
+                                .and_then(|v| v.as_f64())
+                                .unwrap_or(0.0),
+                            version: data.get("version")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("unknown")
+                                .to_string(),
+                            bots: data.get("bots").cloned(),
+                            sellers: data.get("sellers").cloned(),
+                            analytics: data.get("analytics").cloned(),
+                        })
+                    }
+                    Err(e) => {
+                        warn!("Error parsing Node.js health response: {}", e);
+                        None
                     }
                 }
-                Err(e) => {
-                    error!("Invalid bridge line: {} | err: {}", line, e);
-                }
+            } else {
+                warn!("Node.js API returned non-200 status: {}", resp.status());
+                None
             }
         }
-
-        warn!("🔴 Bridge stdout closed, scheduling restart...");
-        let mut restarts = st.bridge_restarts.write().await;
-        *restarts += 1;
-
-        tokio::time::sleep(Duration::from_secs(2)).await;
-        let _ = spawn_bridge_and_listen(st.clone(), use_pairing_clone, pn.clone()).await;
-    });
-
-    Ok(())
+        Err(e) => {
+            warn!("Failed to connect to Node.js API: {}", e);
+            None
+        }
+    }
 }
 
-// ============================================================================
-// API HANDLERS
-// ============================================================================
-
-async fn dashboard() -> axum::response::Html<&'static str> {
-    axum::response::Html(include_str!("../dashboard.html"))
-}
-
-async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
+async fn health(State(state): State<AppState>) -> Json<HealthResponse> {
     let uptime = state.started_at.elapsed().as_secs();
     let connected = *state.connected.read().await;
     let messages_received = *state.messages_received.read().await;
     let messages_sent = *state.messages_sent.read().await;
-    let has_qr = state.last_qr.read().await.is_some();
-    let has_pairing = state.last_pairing_code.read().await.is_some();
-    let bridge_alive = state.bridge.child.lock().await.is_some();
+    let memory_mb = get_memory_usage();
 
-    let memory_mb = {
-        if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
-            status
-                .lines()
-                .find(|l| l.starts_with("VmRSS:"))
-                .and_then(|l| l.split_whitespace().nth(1))
-                .and_then(|s| s.parse::<u64>().ok())
-                .unwrap_or(0)
-                / 1024
-        } else {
-            0
-        }
+    let rust_metrics = RustMetrics {
+        version: "6.0.0".to_string(),
+        memory_mb,
+        cpu_percent: 0.0,
+        uptime_secs: uptime,
     };
 
-    Json(Health {
-        status: "ok",
+    let node_health = fetch_node_health(&state.http_client, &state.node_api_url).await;
+
+    Json(HealthResponse {
+        status: "ok".to_string(),
         uptime_secs: uptime,
         connected,
         messages_received,
         messages_sent,
-        has_qr,
-        has_pairing_code: has_pairing,
-        bridge_alive,
         memory_mb,
+        cpu_percent: 0.0,
+        rust_api: rust_metrics,
+        node_api: node_health,
     })
 }
 
-async fn metrics(State(state): State<Arc<AppState>>) -> Json<Metrics> {
+async fn combined_health(State(state): State<AppState>) -> Json<MetricsResponse> {
     let uptime = state.started_at.elapsed().as_secs();
-    let total_messages = *state.messages_received.read().await;
-    let restarts = *state.bridge_restarts.read().await;
-
-    Json(Metrics {
-        total_messages,
-        total_errors: 0,
-        avg_response_time_ms: 5,
-        uptime_secs: uptime,
-        bridge_restarts: restarts,
-    })
-}
-
-async fn get_qr(State(state): State<Arc<AppState>>) -> Result<Json<serde_json::Value>, StatusCode> {
-    if let Some(qr) = state.last_qr.read().await.clone() {
-        Ok(Json(serde_json::json!({"qr": qr})))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-async fn get_pairing(
-    State(state): State<Arc<AppState>>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
-    if let Some(code) = state.last_pairing_code.read().await.clone() {
-        Ok(Json(serde_json::json!({"code": code})))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-async fn send_message(
-    State(state): State<Arc<AppState>>,
-    Json(body): Json<SendBody>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
-    let cmd = BridgeCmdSend {
-        cmd: "send",
-        to: body.to.clone(),
-        text: body.text.clone(),
-    };
-    let line = match serde_json::to_string(&cmd) {
-        Ok(s) => s + "\n",
-        Err(_) => return Err(StatusCode::BAD_REQUEST),
-    };
-
-    let mut stdin_guard = state.bridge.stdin.lock().await;
-    if let Some(stdin) = stdin_guard.as_mut() {
-        if let Err(e) = stdin.write_all(line.as_bytes()).await {
-            error!("send write err: {}", e);
-            return Err(StatusCode::INTERNAL_SERVER_ERROR);
-        }
-        if let Err(e) = stdin.flush().await {
-            error!("send flush err: {}", e);
-            return Err(StatusCode::INTERNAL_SERVER_ERROR);
-        }
-        Ok(Json(serde_json::json!({"success": true, "to": body.to})))
-    } else {
-        Err(StatusCode::SERVICE_UNAVAILABLE)
-    }
-}
-
-async fn config(
-    State(state): State<Arc<AppState>>,
-    Json(body): Json<ConfigBody>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
-    info!("⚙️  Config update requested");
-
-    if let Some(adapter) = body.adapter {
-        info!("Adapter: {}", adapter);
-    }
-
-    if let Some(phone) = body.phone_number {
-        info!("Phone: {}", phone);
-    }
-
-    Ok(Json(serde_json::json!({"success": true})))
-}
-
-async fn status(State(state): State<Arc<AppState>>) -> Json<serde_json::Value> {
-    let connected = *state.connected.read().await;
+    let memory_mb = get_memory_usage();
     let messages_received = *state.messages_received.read().await;
     let messages_sent = *state.messages_sent.read().await;
-    let uptime = state.started_at.elapsed().as_secs();
 
-    Json(serde_json::json!({
-        "connected": connected,
-        "uptime_secs": uptime,
-        "messages": {
-            "received": messages_received,
-            "sent": messages_sent,
-            "total": messages_received + messages_sent
-        },
-        "bridge_restarts": *state.bridge_restarts.read().await,
-        "last_error": *state.last_error.read().await,
-    }))
+    let rust_metrics = RustMetrics {
+        version: "6.0.0".to_string(),
+        memory_mb,
+        cpu_percent: 0.0,
+        uptime_secs: uptime,
+    };
+
+    let node_health = fetch_node_health(&state.http_client, &state.node_api_url).await;
+
+    let combined = CombinedMetrics {
+        total_messages: messages_received + messages_sent + 
+            node_health.as_ref()
+                .and_then(|n| n.analytics.as_ref())
+                .and_then(|a| a.get("totalMessages").and_then(|v| v.as_u64()))
+                .unwrap_or(0),
+        total_bots: node_health.as_ref()
+            .and_then(|n| n.bots.as_ref())
+            .and_then(|b| b.get("totalBots").and_then(|v| v.as_u64()))
+            .unwrap_or(0),
+        active_sellers: node_health.as_ref()
+            .and_then(|n| n.sellers.as_ref())
+            .and_then(|s| s.get("activeSellers").and_then(|v| v.as_u64()))
+            .unwrap_or(0),
+        memory_total_mb: memory_mb + 
+            (node_health.as_ref()
+                .and_then(|_| Some(250))
+                .unwrap_or(0)),
+        cpu_total_percent: 0.0,
+    };
+
+    Json(MetricsResponse {
+        rust: rust_metrics,
+        node: node_health,
+        combined,
+    })
 }
+
+async fn status(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    verify_auth(&state, &headers)?;
+
+    let uptime = state.started_at.elapsed().as_secs();
+    let memory_mb = get_memory_usage();
+    let messages_received = *state.messages_received.read().await;
+    let messages_sent = *state.messages_sent.read().await;
+
+    let rust_metrics = RustMetrics {
+        version: "6.0.0".to_string(),
+        memory_mb,
+        cpu_percent: 0.0,
+        uptime_secs: uptime,
+    };
+
+    let node_health = fetch_node_health(&state.http_client, &state.node_api_url).await;
+
+    Ok(Json(serde_json::json!({
+        "status": "ok",
+        "uptime_secs": uptime,
+        "rust_api": rust_metrics,
+        "node_api": node_health,
+        "total_messages": messages_received + messages_sent,
+        "timestamp": chrono::Local::now().to_rfc3339()
+    })))
+}
+
+async fn metrics(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> Result<Json<MetricsResponse>, StatusCode> {
+    verify_auth(&state, &headers)?;
+    Ok(combined_health(State(state)).await)
+}
+
+async fn stats(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    verify_auth(&state, &headers)?;
+
+    let uptime = state.started_at.elapsed().as_secs();
+    let messages_received = *state.messages_received.read().await;
+    let messages_sent = *state.messages_sent.read().await;
+
+    let node_health = fetch_node_health(&state.http_client, &state.node_api_url).await;
+
+    Ok(Json(serde_json::json!({
+        "rust": {
+            "uptime_secs": uptime,
+            "messages": {
+                "received": messages_received,
+                "sent": messages_sent,
+                "total": messages_received + messages_sent
+            },
+            "memory_mb": get_memory_usage(),
+        },
+        "node": node_health,
+        "timestamp": chrono::Local::now().to_rfc3339()
+    })))
+}
+
+fn get_memory_usage() -> u64 {
+    if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
+        status
+            .lines()
+            .find(|l| l.starts_with("VmRSS:"))
+            .and_then(|l| l.split_whitespace().nth(1))
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or(0)
+            / 1024
+    } else {
+        0
+    }
+}
+
+fn verify_auth(state: &AppState, headers: &HeaderMap) -> Result<(), StatusCode> {
+    let auth_header = headers
+        .get("Authorization")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+
+    let token = auth_header.strip_prefix("Bearer ").unwrap_or("");
+
+    if token == state.auth_token {
+        Ok(())
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
+}
+

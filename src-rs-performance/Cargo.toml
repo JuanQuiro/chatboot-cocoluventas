@@ -20,7 +20,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "ansi"] }
 
 # Web Framework
-axum = { version = "0.7", default-features = false, features = ["http1", "macros", "matched-path"] }
+axum = { version = "0.7", features = ["macros", "matched-path", "json"] }
 hyper = { version = "1.4", features = ["http1", "server"] }
 tower = "0.4"
 
@@ -30,6 +30,20 @@ bytes = "1.6"
 
 # Utilities
 uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# HTTP Client (para integración con Node.js)
+reqwest = { version = "0.11", features = ["json"] }
+
+# Leptos - Dashboard Full-Stack (opcional)
+leptos = { version = "0.5", features = ["ssr"], optional = true }
+leptos_axum = { version = "0.5", optional = true }
+leptos_meta = { version = "0.5", optional = true }
+leptos_router = { version = "0.5", optional = true }
+
+[features]
+default = []
+leptos-ssr = ["dep:leptos", "dep:leptos_axum", "dep:leptos_meta", "dep:leptos_router", "leptos/ssr"]
 
 [profile.release]
 opt-level = 3

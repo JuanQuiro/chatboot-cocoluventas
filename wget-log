@@ -1,0 +1,11 @@
+--2025-11-15 10:15:33--  https://deb.opera.com/archive.key
+Resolviendo deb.opera.com (deb.opera.com)... 2.18.177.217, 2.18.177.228
+Conectando con deb.opera.com (deb.opera.com)[2.18.177.217]:443... conectado.
+Petición HTTP enviada, esperando respuesta... 200 OK
+Longitud: 2505 (2,4K) [application/octet-stream]
+Grabando a: «STDOUT»
+
+-                      0%[                      ]       0  --.-KB/s               -                    100%[=====================>]   2,45K  --.-KB/s    en 0s      
+
+2025-11-15 10:15:35 (139 MB/s) - escritos a stdout [2505/2505]
+

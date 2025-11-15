@@ -3,6 +3,7 @@
  */
 
 export const setupDashboardRoutes = (app) => {
+    console.log('✅ Dashboard routes cargadas');
     // Página de LOGIN
     app.get('/login', (req, res) => {
         const html = `<!doctype html>
@@ -82,53 +83,112 @@ export const setupDashboardRoutes = (app) => {
   <title>Cocolu - Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; color: #333; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .header h1 { font-size: 24px; }
-    .logout-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-    .container { display: grid; grid-template-columns: 250px 1fr; min-height: calc(100vh - 70px); }
-    .sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; }
-    .sidebar h3 { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 15px; margin-top: 20px; }
-    .nav-item { display: block; padding: 12px 15px; color: #333; text-decoration: none; border-radius: 6px; font-size: 14px; transition: all 0.3s; margin-bottom: 5px; border-left: 3px solid transparent; }
-    .nav-item:hover { background: #f0f0f0; border-left-color: #667eea; }
-    .main { padding: 30px; }
-    .card { background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-    .module-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-decoration: none; transition: all 0.3s; cursor: pointer; text-align: center; }
-    .module-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
-    .module-icon { font-size: 32px; margin-bottom: 10px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f3f4f6; color: #111827; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .header h1 { font-size: 22px; }
+    .logout-btn { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 13px; }
+    .container { display: grid; grid-template-columns: 250px 1fr; min-height: calc(100vh - 60px); transition: grid-template-columns 0.25s ease; }
+    .container.sidebar-collapsed { grid-template-columns: 80px 1fr; }
+    .sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; transition: padding 0.25s ease; }
+    .sidebar h3 { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin-bottom: 12px; margin-top: 18px; }
+    .sidebar.collapsed { padding-left: 10px; padding-right: 10px; }
+    .sidebar.collapsed h3 { display: none; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #374151; text-decoration: none; border-radius: 8px; font-size: 14px; transition: all 0.2s; margin-bottom: 4px; border-left: 3px solid transparent; }
+    .nav-item:hover { background: #eef2ff; border-left-color: #818cf8; }
+    .nav-item.active { background: #eef2ff; border-left-color: #4f46e5; color: #111827; font-weight: 600; }
+    .nav-icon { width: 20px; text-align: center; }
+    .nav-label { flex: 1; }
+    .sidebar.collapsed .nav-label { display: none; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .menu-toggle { width: 32px; height: 32px; border-radius: 999px; border: none; background: rgba(15,23,42,0.2); color: #e5e7eb; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .menu-toggle:hover { background: rgba(15,23,42,0.35); }
+    .main { padding: 28px; }
+    .card { background: white; border-radius: 10px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(15,23,42,0.06); }
+    .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 18px 0 8px; }
+    .metric { background: #f9fafb; border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+    .metric-label { color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .metric-value { font-size: 16px; font-weight: 600; margin-top: 4px; }
+    .module-card { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 40%, #ec4899 100%); color: white; padding: 20px; border-radius: 12px; text-decoration: none; transition: all 0.25s; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 4px; }
+    .module-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(79,70,229,0.45); }
+    .module-icon { font-size: 26px; }
     .module-title { font-size: 14px; font-weight: 600; }
+    .module-sub { font-size: 12px; opacity: .9; }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>🤖 Cocolu Chatbot</h1>
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()" title="Contraer/expandir menú">☰</button>
+      <h1>🤖 Cocolu Chatbot</h1>
+    </div>
     <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
   </div>
 
   <div class="container">
     <div class="sidebar">
       <h3>📊 Principal</h3>
-      <a href="/dashboard" class="nav-item">Dashboard</a>
+      <a href="/dashboard" class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
       
       <h3>💬 Chatbot</h3>
-      <a href="/messages" class="nav-item">📱 Mensajes</a>
-      <a href="/analytics" class="nav-item">📊 Análisis</a>
-      <a href="/qr" class="nav-item">📲 Conexión</a>
+      <a href="/messages" class="nav-item">
+        <span class="nav-icon">�</span>
+        <span class="nav-label">Mensajes</span>
+      </a>
+      <a href="/analytics" class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Análisis</span>
+      </a>
+      <a href="/connection" class="nav-item">
+        <span class="nav-icon">📲</span>
+        <span class="nav-label">Conexión</span>
+      </a>
       
       <h3>⚙️ Configuración</h3>
-      <a href="/adapters" class="nav-item">🔌 Adaptadores</a>
-      <a href="/logs" class="nav-item">📝 Logs</a>
+      <a href="/adapters" class="nav-item">
+        <span class="nav-icon">🔌</span>
+        <span class="nav-label">Adaptadores</span>
+      </a>
+      <a href="/logs" class="nav-item">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Logs</span>
+      </a>
       
       <h3>📈 Monitoreo</h3>
-      <a href="/api/health" class="nav-item">❤️ Salud</a>
+      <a href="/health" class="nav-item">
+        <span class="nav-icon">❤️</span>
+        <span class="nav-label">Salud</span>
+      </a>
     </div>
 
     <div class="main">
       <div class="card">
         <h2>Bienvenido al Dashboard</h2>
         <p style="color: #666; margin: 15px 0;">Gestiona tu chatbot desde aquí.</p>
-        
+
+        <h3 style="margin-top: 15px; margin-bottom: 8px; font-size: 15px;">📊 Resumen rápido</h3>
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-label">Mensajes totales</div>
+            <div class="metric-value" id="dTotalMessages">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Usuarios únicos</div>
+            <div class="metric-value" id="dUniqueUsers">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Conversaciones activas</div>
+            <div class="metric-value" id="dActiveConversations">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Vendedores activos</div>
+            <div class="metric-value" id="dActiveSellers">0</div>
+          </div>
+        </div>
+
         <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 16px;">📦 Módulos</h3>
         <div class="modules-grid">
           <a href="/messages" class="module-card">
@@ -139,7 +199,7 @@ export const setupDashboardRoutes = (app) => {
             <div class="module-icon">📊</div>
             <div class="module-title">Análisis</div>
           </a>
-          <a href="/qr" class="module-card">
+          <a href="/connection" class="module-card">
             <div class="module-icon">📲</div>
             <div class="module-title">Conexión</div>
           </a>
@@ -151,7 +211,7 @@ export const setupDashboardRoutes = (app) => {
             <div class="module-icon">📝</div>
             <div class="module-title">Logs</div>
           </a>
-          <a href="/api/health" class="module-card">
+          <a href="/health" class="module-card">
             <div class="module-icon">❤️</div>
             <div class="module-title">Salud</div>
           </a>
@@ -170,6 +230,183 @@ export const setupDashboardRoutes = (app) => {
       localStorage.removeItem('cocolu_user');
       window.location.href = '/login';
     }
+
+    function toggleSidebar() {
+      try {
+        var container = document.querySelector('.container');
+        var sidebar = document.querySelector('.sidebar');
+        if (!container || !sidebar) return;
+        var collapsed = sidebar.classList.toggle('collapsed');
+        if (collapsed) {
+          container.classList.add('sidebar-collapsed');
+          localStorage.setItem('cocolu_sidebar_collapsed', '1');
+        } else {
+          container.classList.remove('sidebar-collapsed');
+          localStorage.removeItem('cocolu_sidebar_collapsed');
+        }
+      } catch (e) {}
+    }
+
+    (function restoreSidebarState() {
+      try {
+        if (localStorage.getItem('cocolu_sidebar_collapsed') === '1') {
+          var container = document.querySelector('.container');
+          var sidebar = document.querySelector('.sidebar');
+          if (container && sidebar) {
+            container.classList.add('sidebar-collapsed');
+            sidebar.classList.add('collapsed');
+          }
+        }
+      } catch (e) {}
+    })();
+
+    async function loadDashboardSummary() {
+      try {
+        const res = await fetch('/api/dashboard');
+        const json = await res.json();
+        const data = json.data || {};
+        const analytics = data.analytics || {};
+        const sellers = data.sellers || {};
+
+        document.getElementById('dTotalMessages').textContent = analytics.totalMessages || 0;
+        document.getElementById('dUniqueUsers').textContent = analytics.uniqueUsers || 0;
+        document.getElementById('dActiveConversations').textContent = analytics.activeConversations || 0;
+        document.getElementById('dActiveSellers').textContent = sellers.activeSellers || 0;
+      } catch (e) {
+        console.error('Error cargando resumen de dashboard', e);
+      }
+    }
+
+    loadDashboardSummary();
+    setInterval(loadDashboardSummary, 10000);
+  </script>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    });
+
+    // Página de MENSAJES
+    app.get('/messages', (req, res) => {
+        console.log('📨 GET /messages recibido');
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mensajes - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h2 { margin-bottom: 10px; }
+    .list { max-height: 350px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #f3f4f6; text-align: left; }
+    th { background: #f9fafb; font-weight: 600; font-size: 12px; color: #6b7280; position: sticky; top: 0; z-index: 1; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: #e0f2fe; color: #0369a1; }
+    .error { color: #b91c1c; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💬 Mensajes del Bot</h1>
+  </div>
+  <div class="container">
+    <a href="/dashboard" class="back-btn">← Volver</a>
+    <div class="grid">
+      <div class="card">
+        <h2>📥 Recibidos <span class="pill" id="countReceived">0</span></h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr><th>Hora</th><th>Remitente</th><th>Mensaje</th></tr>
+            </thead>
+            <tbody id="receivedBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>📤 Enviados <span class="pill" id="countSent">0</span></h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr><th>Hora</th><th>Destino</th><th>Mensaje</th></tr>
+            </thead>
+            <tbody id="sentBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="grid-column: 1 / -1;">
+        <h2>⚠️ Errores <span class="pill" id="countErrors">0</span></h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr><th>Hora</th><th>Contexto</th><th>Detalle</th></tr>
+            </thead>
+            <tbody id="errorsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+
+    async function loadMessages() {
+      try {
+        const res = await fetch('/api/open/messages');
+        const json = await res.json();
+        const data = json.data || { received: [], sent: [], errors: [] };
+
+        const receivedBody = document.getElementById('receivedBody');
+        const sentBody = document.getElementById('sentBody');
+        const errorsBody = document.getElementById('errorsBody');
+
+        receivedBody.innerHTML = '';
+        sentBody.innerHTML = '';
+        errorsBody.innerHTML = '';
+
+        document.getElementById('countReceived').textContent = data.received.length;
+        document.getElementById('countSent').textContent = data.sent.length;
+        document.getElementById('countErrors').textContent = data.errors.length;
+
+        data.received.forEach(function (m) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + new Date(m.timestamp).toLocaleTimeString() + '</td>' +
+                         '<td>' + (m.from || '') + '</td>' +
+                         '<td>' + (m.body || '') + '</td>';
+          receivedBody.appendChild(tr);
+        });
+
+        data.sent.forEach(function (m) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + new Date(m.timestamp).toLocaleTimeString() + '</td>' +
+                         '<td>' + (m.to || '') + '</td>' +
+                         '<td>' + (m.body || '') + '</td>';
+          sentBody.appendChild(tr);
+        });
+
+        data.errors.forEach(function (e) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + new Date(e.timestamp).toLocaleTimeString() + '</td>' +
+                         '<td>' + (e.context || '') + '</td>' +
+                         '<td class="error">' + (e.error || '') + '</td>';
+          errorsBody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Error cargando mensajes', e);
+      }
+    }
+
+    loadMessages();
+    setInterval(loadMessages, 5000);
   </script>
 </body>
 </html>`;
@@ -226,6 +463,11 @@ export const setupDashboardRoutes = (app) => {
       </div>
     </div>
   </div>
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+  </script>
 </body>
 </html>`;
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -263,6 +505,10 @@ export const setupDashboardRoutes = (app) => {
     </div>
   </div>
   <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+
     async function loadLogs() {
       try {
         const res = await fetch('/api/open/messages');
@@ -271,10 +517,10 @@ export const setupDashboardRoutes = (app) => {
         logsDiv.innerHTML = '';
         
         if (data.data?.errors?.length > 0) {
-          data.data.errors.forEach(err => {
-            const line = document.createElement('div');
+          data.data.errors.forEach(function (err) {
+            var line = document.createElement('div');
             line.className = 'log-line';
-            line.textContent = \`[\${err.timestamp}] ERROR: \${err.error}\`;
+            line.textContent = '[' + (err.timestamp || '') + '] ERROR: ' + (err.error || '');
             logsDiv.appendChild(line);
           });
         } else {
@@ -286,6 +532,344 @@ export const setupDashboardRoutes = (app) => {
     }
     loadLogs();
     setInterval(loadLogs, 5000);
+  </script>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    });
+
+    // Página de ANÁLISIS
+    app.get('/analytics', (req, res) => {
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Análisis - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h2 { margin-bottom: 10px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+    .metric { background: #f9fafb; border-radius: 6px; padding: 10px 12px; font-size: 13px; }
+    .metric-label { color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .metric-value { font-size: 16px; font-weight: 600; margin-top: 4px; }
+    .list { max-height: 350px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #f3f4f6; text-align: left; }
+    th { background: #f9fafb; font-weight: 600; font-size: 12px; color: #6b7280; position: sticky; top: 0; z-index: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 Análisis del Bot</h1>
+  </div>
+  <div class="container">
+    <a href="/dashboard" class="back-btn">← Volver</a>
+    <div class="grid">
+      <div class="card">
+        <h2>Resumen ejecutivo</h2>
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-label">Mensajes totales</div>
+            <div class="metric-value" id="mTotal">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Usuarios únicos</div>
+            <div class="metric-value" id="mUsers">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Conversaciones activas</div>
+            <div class="metric-value" id="mActive">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Pedidos completados</div>
+            <div class="metric-value" id="mOrders">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Tasa de conversión</div>
+            <div class="metric-value" id="mConversion">0%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Tickets de soporte</div>
+            <div class="metric-value" id="mTickets">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Tiempo resp. promedio</div>
+            <div class="metric-value" id="mResponse">0 ms</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Eventos recientes</h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr><th>Hora</th><th>Tipo</th><th>Detalle</th></tr>
+            </thead>
+            <tbody id="eventsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+
+    async function loadAnalytics() {
+      try {
+        const [summaryRes, eventsRes] = await Promise.all([
+          fetch('/api/analytics/summary'),
+          fetch('/api/analytics/events?limit=50'),
+        ]);
+        const summaryJson = await summaryRes.json();
+        const eventsJson = await eventsRes.json();
+        const summary = summaryJson.data || {};
+        const events = eventsJson.data || [];
+
+        document.getElementById('mTotal').textContent = summary.totalMessages || 0;
+        document.getElementById('mUsers').textContent = summary.uniqueUsers || 0;
+        document.getElementById('mActive').textContent = summary.activeConversations || 0;
+        document.getElementById('mOrders').textContent = summary.completedOrders || 0;
+        document.getElementById('mConversion').textContent = (summary.conversionRate || 0) + '%';
+        document.getElementById('mTickets').textContent = summary.supportTickets || 0;
+        document.getElementById('mResponse').textContent = (summary.averageResponseTime || 0) + ' ms';
+
+        const body = document.getElementById('eventsBody');
+        body.innerHTML = '';
+        events.forEach(function (ev) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + new Date(ev.timestamp).toLocaleTimeString() + '</td>' +
+                         '<td>' + (ev.type || '') + '</td>' +
+                         '<td>' + (ev.data ? JSON.stringify(ev.data) : '') + '</td>';
+          body.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Error cargando analytics', e);
+      }
+    }
+
+    loadAnalytics();
+    setInterval(loadAnalytics, 5000);
+  </script>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    });
+
+    // Página de CONEXIÓN
+    app.get('/connection', (req, res) => {
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conexión - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
+    .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .qr-container { text-align: center; padding: 20px; }
+    .qr-image { max-width: 300px; margin: 20px auto; }
+    .code-display { background: #f0f0f0; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
+    .code-value { font-size: 32px; font-weight: bold; color: #667eea; font-family: monospace; letter-spacing: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📲 Conexión del Bot</h1>
+  </div>
+  <div class="container">
+    <a href="/dashboard" class="back-btn">← Volver</a>
+    <div class="card">
+      <h2>Conectar por QR</h2>
+      <div class="qr-container">
+        <p>Escanea este código QR con tu teléfono</p>
+        <div id="qr" style="margin: 20px 0;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>O Conectar por Código de Emparejamiento</h2>
+      <div class="code-display">
+        <p>Tu código de emparejamiento:</p>
+        <div class="code-value" id="pairingCode">Esperando...</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+
+    async function loadPairingCode() {
+      try {
+        const res = await fetch('/api/open/pairing-code');
+        const data = await res.json();
+        if (data.code) {
+          document.getElementById('pairingCode').textContent = data.code;
+        }
+      } catch (e) {}
+    }
+    loadPairingCode();
+    setInterval(loadPairingCode, 3000);
+  </script>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    });
+
+    // Página de SALUD DEL SISTEMA
+    app.get('/health', (req, res) => {
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salud del Sistema - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 30px; }
+    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
+    .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+    .status-ok { background: #dcfce7; color: #166534; }
+    .status-bad { background: #fee2e2; color: #991b1b; }
+    .metric { margin-top: 10px; font-size: 14px; }
+    .label { color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+    .metric-box { background: #f9fafb; border-radius: 6px; padding: 10px 12px; font-size: 13px; }
+    pre { background: #0b1220; color: #e5e7eb; padding: 10px; border-radius: 6px; font-size: 11px; max-height: 260px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>❤️ Salud del Sistema</h1>
+  </div>
+  <div class="container">
+    <a href="/dashboard" class="back-btn">← Volver</a>
+    <div class="card">
+      <h2>Estado general</h2>
+      <div id="statusBadge" class="status status-bad">Cargando...</div>
+      <div class="metric">
+        <div class="label">Uptime</div>
+        <div id="uptime">-</div>
+      </div>
+      <div class="metric">
+        <div class="label">Última actualización</div>
+        <div id="timestamp">-</div>
+      </div>
+      <div class="metric">
+        <div class="label">Versión</div>
+        <div id="version">-</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Resumen de bots y negocio</h2>
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="label">Bots totales</div>
+          <div class="metric-value" id="hTotalBots">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Bots conectados</div>
+          <div class="metric-value" id="hConnectedBots">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Mensajes (bots)</div>
+          <div class="metric-value" id="hBotMessages">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Errores (bots)</div>
+          <div class="metric-value" id="hBotErrors">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Vendedores activos</div>
+          <div class="metric-value" id="hActiveSellers">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Asignaciones totales</div>
+          <div class="metric-value" id="hTotalAssignments">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Mensajes totales</div>
+          <div class="metric-value" id="hTotalMessages">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="label">Usuarios únicos</div>
+          <div class="metric-value" id="hUniqueUsers">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Respuesta cruda de la API</h2>
+      <pre id="raw"></pre>
+    </div>
+  </div>
+  <script>
+    if (!localStorage.getItem('cocolu_token')) {
+      window.location.href = '/login';
+    }
+
+    function formatSeconds(sec) {
+      sec = Math.floor(sec || 0);
+      var h = Math.floor(sec / 3600);
+      var m = Math.floor((sec % 3600) / 60);
+      var s = sec % 60;
+      return h + 'h ' + m + 'm ' + s + 's';
+    }
+
+    async function loadHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const ok = data && data.status === 'healthy';
+
+        var badge = document.getElementById('statusBadge');
+        badge.textContent = ok ? 'Operativo' : 'Con problemas';
+        badge.className = 'status ' + (ok ? 'status-ok' : 'status-bad');
+
+        document.getElementById('uptime').textContent = formatSeconds(data.uptime);
+        document.getElementById('timestamp').textContent = data.timestamp || '-';
+        document.getElementById('version').textContent = data.version || '-';
+
+        var bots = data.bots || {};
+        var sellers = data.sellers || {};
+        var analytics = data.analytics || {};
+
+        document.getElementById('hTotalBots').textContent = bots.totalBots || 0;
+        document.getElementById('hConnectedBots').textContent = bots.connectedBots || 0;
+        document.getElementById('hBotMessages').textContent = bots.totalMessages || 0;
+        document.getElementById('hBotErrors').textContent = bots.totalErrors || 0;
+
+        document.getElementById('hActiveSellers').textContent = sellers.activeSellers || 0;
+        document.getElementById('hTotalAssignments').textContent = sellers.totalAssignments || 0;
+
+        document.getElementById('hTotalMessages').textContent = analytics.totalMessages || 0;
+        document.getElementById('hUniqueUsers').textContent = analytics.uniqueUsers || 0;
+
+        document.getElementById('raw').textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        console.error('Error cargando salud', e);
+      }
+    }
+
+    loadHealth();
+    setInterval(loadHealth, 5000);
   </script>
 </body>
 </html>`;

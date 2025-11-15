@@ -1,0 +1,104 @@
+# 🚀 Dockerfile Híbrido Optimizado - Rust + Node
+# Tamaño objetivo: ≤700 MB
+
+# ============================================
+# Stage 1: Build Rust API
+# ============================================
+FROM rust:1.75-slim as rust-builder
+
+WORKDIR /app
+
+# Copiar solo archivos Rust necesarios
+COPY src-rs-performance/Cargo.toml src-rs-performance/Cargo.lock ./src-rs-performance/
+COPY src-rs-performance/src ./src-rs-performance/src
+COPY src-rs-performance/bridge ./src-rs-performance/bridge
+
+# Compilar Rust
+RUN cd src-rs-performance && \
+    cargo build --release && \
+    strip target/release/cocolu_rs_perf && \
+    ls -lh target/release/cocolu_rs_perf
+
+# ============================================
+# Stage 2: Build Node.js (solo producción)
+# ============================================
+FROM node:20-alpine as node-builder
+
+WORKDIR /app
+
+# Copiar package files
+COPY package.json package-lock.json ./
+
+# Instalar solo dependencias de producción
+RUN npm ci --omit=dev
+
+# Copiar código fuente Node
+COPY src ./src
+COPY app-integrated.js ./
+
+# ============================================
+# Stage 3: Build Dashboard
+# ============================================
+FROM node:20-alpine as dashboard-builder
+
+WORKDIR /app
+
+# Copiar dashboard
+COPY dashboard/package.json dashboard/package-lock.json ./dashboard/
+
+# Instalar y compilar dashboard
+RUN cd dashboard && \
+    npm ci --omit=dev && \
+    npm run build
+
+# ============================================
+# Stage 4: Runtime Final
+# ============================================
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar runtime de Rust (solo para ejecutar binario)
+RUN apk add --no-cache libgcc
+
+# Copiar binario Rust
+COPY --from=rust-builder /app/src-rs-performance/target/release/cocolu_rs_perf /usr/local/bin/cocolu_rs_perf
+RUN chmod +x /usr/local/bin/cocolu_rs_perf
+
+# Copiar Node (solo producción)
+COPY --from=node-builder /app/node_modules ./node_modules
+COPY --from=node-builder /app/src ./src
+COPY --from=node-builder /app/app-integrated.js ./
+COPY --from=node-builder /app/package.json ./
+
+# Copiar dashboard compilado
+COPY --from=dashboard-builder /app/dashboard/build ./dashboard/build
+
+# Copiar bridge de Rust (necesario para Baileys)
+COPY src-rs-performance/bridge ./src-rs-performance/bridge
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV API_PORT=3009
+ENV PORT=3008
+
+# Exponer puertos
+EXPOSE 3008 3009
+
+# Script de inicio que ejecuta ambos servicios
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'echo "🚀 Iniciando servicios híbridos..."' >> /start.sh && \
+    echo 'echo "📦 Rust API en puerto 3009..."' >> /start.sh && \
+    echo 'cocolu_rs_perf &' >> /start.sh && \
+    echo 'sleep 2' >> /start.sh && \
+    echo 'echo "📦 Node Flows en puerto 3008..."' >> /start.sh && \
+    echo 'node app-integrated.js' >> /start.sh && \
+    chmod +x /start.sh
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3009/health || exit 1
+
+# Iniciar servicios
+CMD ["/start.sh"]
+

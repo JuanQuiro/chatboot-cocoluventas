@@ -1,0 +1,30 @@
+[package]
+name = "cocolu_dashboard"
+version = "0.1.0"
+edition = "2021"
+
+[build]
+# Dirección del servidor en desarrollo
+address = "127.0.0.1"
+port = 3009
+reload_port = 3009
+site_root = "target/site"
+site_pkg_dir = "pkg"
+# Archivos estáticos adicionales
+site_static_dir = "public"
+
+[output]
+# Directorio de salida para archivos compilados
+out_dir = "target/site"
+
+[reload]
+# Archivos a observar para hot-reload
+watch = ["src", "public"]
+
+[env]
+# Variables de entorno
+LEPTOS_OUTPUT_NAME = "cocolu_dashboard"
+LEPTOS_SITE_ROOT = "target/site"
+LEPTOS_SITE_PKG_DIR = "pkg"
+LEPTOS_RELOAD_PORT = "3009"
+

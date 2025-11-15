@@ -6,7 +6,7 @@
 import 'dotenv/config';
 import { createBot, createProvider, createFlow } from '@builderbot/bot';
 import { JsonFileDB as Database } from '@builderbot/database-json';
-import { BaileysProvider as Provider } from '@builderbot/provider-baileys';
+import { BaileysProvider } from '@builderbot/provider-baileys';
 import express from 'express';
 import cors from 'cors';
 
@@ -50,7 +50,38 @@ const BOT_NAME = process.env.BOT_NAME || 'Bot Principal Cocolu';
 const TENANT_ID = process.env.TENANT_ID || 'cocolu';
 const USE_PAIRING_CODE = process.env.USE_PAIRING_CODE === 'true';
 const PHONE_NUMBER = process.env.PHONE_NUMBER || '+584244370180';
-const BOT_ADAPTER = process.env.BOT_ADAPTER || 'baileys';
+const BOT_ADAPTER = (process.env.BOT_ADAPTER || 'meta').toLowerCase();
+
+// Logger de mensajes simple en memoria, accesible desde los flujos y la API
+export const messageLog = {
+    received: [],
+    sent: [],
+    errors: [],
+    maxEntries: 500,
+    addReceived(from, body) {
+        this.received.push({ from, body, timestamp: new Date().toISOString() });
+        if (this.received.length > this.maxEntries) this.received.shift();
+    },
+    addSent(to, body) {
+        this.sent.push({ to, body, timestamp: new Date().toISOString() });
+        if (this.sent.length > this.maxEntries) this.sent.shift();
+    },
+    addError(context, error) {
+        const errMsg = error && (error.message || (typeof error.toString === 'function' ? error.toString() : String(error)));
+        this.errors.push({ context, error: errMsg, timestamp: new Date().toISOString() });
+        if (this.errors.length > this.maxEntries) this.errors.shift();
+    },
+    getAll() {
+        return {
+            received: [...this.received].reverse(),
+            sent: [...this.sent].reverse(),
+            errors: [...this.errors].reverse(),
+        };
+    },
+};
+
+// Último código de emparejamiento generado (para el dashboard)
+export let pairingCode = null;
 
 // Variable global para el bot
 let mainBot = null;
@@ -82,13 +113,80 @@ const main = async () => {
         }));
         
         apiApp.use(express.json());
-        apiApp.use(express.static('dashboard/build'));
         
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
         
-        // Configurar rutas del Dashboard (login, dashboard, adaptadores, logs)
+        // Configurar rutas del Dashboard (login, dashboard, mensajes, conexión, adaptadores, logs)
         setupDashboardRoutes(apiApp);
+        
+        // ============================================
+        // WEBHOOK META (WhatsApp Business API)
+        // ============================================
+        // GET: Verificación del webhook (Meta envía challenge)
+        apiApp.get('/webhooks/whatsapp', (req, res) => {
+            const mode = req.query['hub.mode'];
+            const token = req.query['hub.verify_token'];
+            const challenge = req.query['hub.challenge'];
+            
+            const verifyToken = process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta';
+            
+            if (mode === 'subscribe' && token === verifyToken) {
+                console.log('✅ Webhook verificado por Meta');
+                res.status(200).send(challenge);
+            } else {
+                console.warn('⚠️  Verificación de webhook fallida');
+                res.sendStatus(403);
+            }
+        });
+        
+        // POST: Recibir mensajes de Meta
+        apiApp.post('/webhooks/whatsapp', async (req, res) => {
+            try {
+                const body = req.body;
+                
+                // Verificar que es un webhook válido de Meta
+                if (body.object === 'whatsapp_business_account') {
+                    const entry = body.entry?.[0];
+                    
+                    if (entry?.changes) {
+                        const change = entry.changes[0];
+                        const value = change.value;
+                        
+                        // Procesar mensajes entrantes
+                        if (value.messages && value.messages[0]) {
+                            const message = value.messages[0];
+                            const from = message.from;
+                            const messageText = message.text?.body || message.type;
+                            
+                            console.log(`📨 Mensaje recibido de Meta: ${from} - ${messageText}`);
+                            
+                            // Si el bot ya está inicializado, procesar el mensaje
+                            if (mainBot && mainProvider) {
+                                // El provider de Meta maneja automáticamente los mensajes
+                                // Solo logueamos aquí
+                                messageLog.addReceived(from, messageText);
+                            }
+                        }
+                        
+                        // Procesar estados de mensajes
+                        if (value.statuses) {
+                            const status = value.statuses[0];
+                            console.log(`📊 Estado de mensaje: ${status.status} para ${status.recipient_id}`);
+                        }
+                    }
+                }
+                
+                // Siempre responder 200 OK a Meta
+                res.status(200).send('OK');
+            } catch (error) {
+                console.error('❌ Error procesando webhook de Meta:', error);
+                res.status(200).send('OK'); // Responder OK para evitar reintentos
+            }
+        });
+
+        // Servir archivos estáticos del dashboard como fallback (después de las rutas HTML)
+        apiApp.use(express.static('dashboard/build'));
         
         // Iniciar servidor API
         const apiServer = apiApp.listen(API_PORT, () => {
@@ -144,38 +242,65 @@ const main = async () => {
         console.log('');
 
         // ============================================
-        // 4. CONFIGURAR PROVEEDOR BAILEYS (ROBUSTO)
+        // 4. CONFIGURAR PROVIDER SEGÚN BOT_ADAPTER
         // ============================================
-        const metodoConexion = USE_PAIRING_CODE ? 'NÚMERO TELEFÓNICO' : 'QR CODE';
-        console.log(`🔧 Configurando provider Baileys (${metodoConexion})...`);
-        
-        // Configuración optimizada para evitar errores de sesión
-        const providerConfig = {
-            name: 'bot_principal',
-            gifPlayback: false,
-            headless: true,
-            markOnlineOnConnect: true,
-            syncFullHistory: false,
-            usePairingCode: USE_PAIRING_CODE,
-            phoneNumber: USE_PAIRING_CODE ? PHONE_NUMBER : undefined,
-            useBaileysStore: true,
-            qrTimeout: 60000, // 60 segundos para escanear QR
-            authTimeout: 60000, // 60 segundos para autenticación
-            restartDelay: 2000, // 2 segundos entre reintentos
-            maxRetries: 3, // Máximo 3 reintentos
-            browser: ['Bot Cocolu', 'Chrome', '120.0.0']
-        };
-        
-        console.log('📋 Configuración Baileys:', {
-            metodo: metodoConexion,
-            numero: USE_PAIRING_CODE ? PHONE_NUMBER : 'N/A',
-            qrTimeout: `${providerConfig.qrTimeout/1000}s`,
-            authTimeout: `${providerConfig.authTimeout/1000}s`,
-            maxRetries: providerConfig.maxRetries,
-            browser: providerConfig.browser[0]
-        });
-        
-        mainProvider = createProvider(Provider, providerConfig);
+        let adapterNameForManager = 'builderbot-baileys';
+
+        if (BOT_ADAPTER === 'meta') {
+            console.log('🔧 Configurando provider Meta (WhatsApp Business API)...');
+
+            const metaConfig = {
+                jwtToken: process.env.META_JWT_TOKEN,
+                numberId: process.env.META_NUMBER_ID,
+                verifyToken: process.env.META_VERIFY_TOKEN,
+                version: process.env.META_API_VERSION || 'v18.0',
+            };
+
+            if (!metaConfig.jwtToken || !metaConfig.numberId || !metaConfig.verifyToken) {
+                console.warn('⚠️  Faltan variables META_JWT_TOKEN, META_NUMBER_ID o META_VERIFY_TOKEN.');
+                console.warn('⚠️  Verifica tu archivo .env antes de usar el adaptador Meta.');
+            }
+
+            const { MetaProvider } = await import('@builderbot/provider-meta');
+            mainProvider = createProvider(MetaProvider, metaConfig);
+            adapterNameForManager = 'builderbot-meta';
+
+            console.log('📋 Configuración Meta:', {
+                numberId: metaConfig.numberId,
+                version: metaConfig.version,
+            });
+        } else {
+            const metodoConexion = USE_PAIRING_CODE ? 'NÚMERO TELEFÓNICO' : 'QR CODE';
+            console.log(`🔧 Configurando provider Baileys (${metodoConexion})...`);
+            
+            // Configuración optimizada para evitar errores de sesión
+            const providerConfig = {
+                name: 'bot_principal',
+                gifPlayback: false,
+                headless: true,
+                markOnlineOnConnect: true,
+                syncFullHistory: false,
+                usePairingCode: USE_PAIRING_CODE,
+                phoneNumber: USE_PAIRING_CODE ? PHONE_NUMBER : undefined,
+                useBaileysStore: true,
+                qrTimeout: 60000, // 60 segundos para escanear QR
+                authTimeout: 60000, // 60 segundos para autenticación
+                restartDelay: 2000, // 2 segundos entre reintentos
+                maxRetries: 3, // Máximo 3 reintentos
+                browser: ['Bot Cocolu', 'Chrome', '120.0.0']
+            };
+            
+            console.log('📋 Configuración Baileys:', {
+                metodo: metodoConexion,
+                numero: USE_PAIRING_CODE ? PHONE_NUMBER : 'N/A',
+                qrTimeout: `${providerConfig.qrTimeout/1000}s`,
+                authTimeout: `${providerConfig.authTimeout/1000}s`,
+                maxRetries: providerConfig.maxRetries,
+                browser: providerConfig.browser[0]
+            });
+            
+            mainProvider = createProvider(BaileysProvider, providerConfig);
+        }
 
         // ============================================
         // 5. CREAR BOT DE BUILDERBOT
@@ -206,10 +331,10 @@ const main = async () => {
         // Registrar el bot
         botManager.registerBot(botId, {
             name: BOT_NAME,
-            adapter: 'builderbot-baileys',
+            adapter: adapterNameForManager,
             phoneNumber: process.env.BOT_PHONE,
             tenantId: TENANT_ID,
-            autoReconnect: true,
+            autoReconnect: true, // En Meta normalmente manejas estabilidad vía API externa
             isMainBot: true, // Marcarlo como bot principal
             flows: flows.map(f => f.name || 'unnamed'),
         });
@@ -253,6 +378,8 @@ const main = async () => {
 
         const attachConnUpdate = () => {
             if (connUpdateAttached) return;
+            // Sólo aplica para providers tipo Baileys
+            if (BOT_ADAPTER !== 'baileys') return;
             try {
                 if (typeof mainProvider?.on === 'function') {
                     mainProvider.on('connection.update', onConnUpdate);
@@ -267,7 +394,7 @@ const main = async () => {
             } catch {}
         };
         
-        // Intentar adjuntar connection.update ahora
+        // Intentar adjuntar connection.update ahora (solo Baileys)
         attachConnUpdate();
         
         // Simular que el bot se "inició" para el manager
@@ -276,7 +403,7 @@ const main = async () => {
                 state: 'connecting',
                 startedAt: new Date(),
             });
-            // Reintentar adjuntar connection.update
+            // Reintentar adjuntar connection.update (solo Baileys)
             attachConnUpdate();
         }, 500);
 
@@ -294,40 +421,44 @@ const main = async () => {
             botManager.emit('bot:connected', { botId });
         });
 
-        // Evento moderno del provider: require_action -> contiene QR o pairing code
-        mainProvider.on('require_action', (evt) => {
-            try {
-                const qr = evt?.payload?.qr;
-                const code = evt?.payload?.code;
-                console.log('⚡ require_action recibido', { hasQR: !!qr, hasCode: !!code });
-                if (qr) {
-                    // Refrescar watchdog
-                    if (qrWatchdog) clearTimeout(qrWatchdog);
-                    qrWatchdog = setTimeout(() => {
-                        console.log('⏳ QR no escaneado en 90s. Sugerencias: cerrar sesiones en el teléfono y reintentar.');
-                    }, 90_000);
-                    botManager.qrCodes.set(botId, qr);
-                    botManager.updateBotStatus(botId, { state: 'qr_ready' });
-                    botManager.emit('bot:qr', { botId, qr });
+        // Eventos específicos de Baileys (Meta no usa QR ni pairing code)
+        if (BOT_ADAPTER === 'baileys') {
+            // Evento moderno del provider: require_action -> contiene QR o pairing code
+            mainProvider.on('require_action', (evt) => {
+                try {
+                    const qr = evt?.payload?.qr;
+                    const code = evt?.payload?.code;
+                    console.log('⚡ require_action recibido', { hasQR: !!qr, hasCode: !!code });
+                    if (qr) {
+                        // Refrescar watchdog
+                        if (qrWatchdog) clearTimeout(qrWatchdog);
+                        qrWatchdog = setTimeout(() => {
+                            console.log('⏳ QR no escaneado en 90s. Sugerencias: cerrar sesiones en el teléfono y reintentar.');
+                        }, 90_000);
+                        botManager.qrCodes.set(botId, qr);
+                        botManager.updateBotStatus(botId, { state: 'qr_ready' });
+                        botManager.emit('bot:qr', { botId, qr });
+                    }
+                    if (code) {
+                        botManager.updateBotStatus(botId, { state: 'pairing_code', pairingCode: code });
+                        pairingCode = code;
+                        console.log('🔢 Pairing code disponible:', code);
+                    }
+                } catch (e) {
+                    console.error('Error en require_action:', e);
                 }
-                if (code) {
-                    botManager.updateBotStatus(botId, { state: 'pairing_code', pairingCode: code });
-                    console.log('🔢 Pairing code disponible:', code);
-                }
-            } catch (e) {
-                console.error('Error en require_action:', e);
-            }
-        });
+            });
 
-        // Fallo de autenticación crítico
-        mainProvider.on('auth_failure', (info) => {
-            try {
-                console.error('⚡⚡ AUTH FAILURE ⚡⚡', info);
-                botManager.updateBotStatus(botId, { state: 'error', lastError: Array.isArray(info) ? info.join(' | ') : String(info) });
-            } catch (e) {
-                console.error('Error registrando auth_failure:', e);
-            }
-        });
+            // Fallo de autenticación crítico
+            mainProvider.on('auth_failure', (info) => {
+                try {
+                    console.error('⚡⚡ AUTH FAILURE ⚡⚡', info);
+                    botManager.updateBotStatus(botId, { state: 'error', lastError: Array.isArray(info) ? info.join(' | ') : String(info) });
+                } catch (e) {
+                    console.error('Error registrando auth_failure:', e);
+                }
+            });
+        }
 
         // Evento de Pairing Code (conexión por número)
         mainProvider.on('code', (code) => {
@@ -415,7 +546,7 @@ const main = async () => {
             console.error('🔴 =======================================');
             console.error('❌ ERROR DE CONEXIÓN DETECTADO');
             console.error('🔴 =======================================');
-            const errMsg = (error && (error.message || error.reason || error.toString && error.toString())) || 'unknown';
+            const errMsg = (error && (error.message || error.reason || (error.toString && error.toString()))) || 'unknown';
             console.error('Error:', errMsg);
             if (error && typeof error === 'object') {
                 try { console.error('Detalle:', JSON.stringify(error)); } catch {}
@@ -423,27 +554,33 @@ const main = async () => {
             }
             
             // Errores comunes y soluciones
-            if (error.message.includes('QR')) {
+            if (error.message && error.message.includes('QR')) {
                 console.error('');
                 console.error('🔧 SOLUCIÓN: Problema con QR');
                 console.error('1. Cierra TODAS las sesiones de WhatsApp Web');
                 console.error('2. Espera 30 segundos');
                 console.error('3. Reinicia el bot');
-            } else if (error.message.includes('session') || error.message.includes('auth')) {
+            } else if (error.message && (error.message.includes('session') || error.message.includes('auth'))) {
                 console.error('');
                 console.error('🔧 SOLUCIÓN: Problema de sesión');
                 console.error('1. Elimina carpetas de sesión');
                 console.error('2. Reinicia el bot');
                 console.error('3. Escanea nuevo QR');
-            } else if (error.message.includes('timeout')) {
+            } else if (error.message && error.message.includes('timeout')) {
                 console.error('');
                 console.error('🔧 SOLUCIÓN: Timeout de conexión');
                 console.error('1. Verifica tu conexión a internet');
                 console.error('2. Reinicia el bot');
             }
+
             console.error('🔴 =======================================');
             console.error('');
-            
+
+            // Registrar error en el messageLog para verlo en el dashboard
+            try {
+                messageLog.addError('provider_error', error);
+            } catch {}
+
             const status = botManager.botStatus.get(botId);
             if (status) {
                 botManager.updateBotStatus(botId, {
@@ -452,6 +589,7 @@ const main = async () => {
                     state: 'error'
                 });
             }
+
             botManager.emit('bot:error', { botId, error: error.message });
         });
 
@@ -484,6 +622,9 @@ const main = async () => {
             provider: mainProvider,
             sendMessage: async (to, text) => {
                 await mainProvider.sendMessage(to, text, {});
+                try {
+                    messageLog.addSent(to, text);
+                } catch {}
                 const status = botManager.botStatus.get(botId);
                 if (status) {
                     botManager.updateBotStatus(botId, {

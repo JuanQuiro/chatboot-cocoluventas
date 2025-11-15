@@ -5,6 +5,7 @@
 
 import sellersManager from '../services/sellers.service.js';
 import analyticsService from '../services/analytics.service.js';
+import botManager from '../services/bot-manager.service.js';
 import { getAllOrders, getOrderStatus } from '../services/orders.service.js';
 import { getProducts } from '../services/products.service.js';
 import { getPendingTickets } from '../services/support.service.js';
@@ -393,13 +394,74 @@ export const setupRoutes = (app) => {
     // ============================================
     
     app.get('/api/health', (req, res) => {
-        res.json({
-            success: true,
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            uptime: process.uptime(),
-            version: '1.0.0'
-        });
+        try {
+            const bots = botManager.getGlobalStats();
+            const sellersStats = sellersManager.getStats();
+            const analyticsSummary = analyticsService.getExecutiveSummary();
+
+            res.json({
+                success: true,
+                status: 'healthy',
+                timestamp: new Date().toISOString(),
+                uptime: process.uptime(),
+                version: '1.0.0',
+                bots,
+                sellers: sellersStats,
+                analytics: analyticsSummary,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                status: 'error',
+                timestamp: new Date().toISOString(),
+                uptime: process.uptime(),
+                version: '1.0.0',
+                error: error.message,
+            });
+        }
+    });
+
+    // ============================================
+    // ENDPOINTS ABIERTOS PARA DASHBOARD SIMPLE
+    // ============================================
+
+    // Obtener mensajes recibidos/enviados y errores (para módulo Mensajes/Logs)
+    app.get('/api/open/messages', async (req, res) => {
+        try {
+            const mod = await import('../../app-integrated.js');
+            const log = mod.messageLog;
+            const data = log && typeof log.getAll === 'function'
+                ? log.getAll()
+                : { received: [], sent: [], errors: [] };
+
+            res.json({
+                success: true,
+                data,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
+    });
+
+    // Obtener último código de emparejamiento (pairing code) para la página de conexión
+    app.get('/api/open/pairing-code', async (req, res) => {
+        try {
+            const mod = await import('../../app-integrated.js');
+            const code = mod.pairingCode || null;
+
+            res.json({
+                success: true,
+                code,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
     });
 
     // ============================================

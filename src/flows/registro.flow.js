@@ -11,7 +11,7 @@ export const registroFlow = addKeyword(['registro', 'estado', 'historial', 'mi e
         '📊 *Consultando tu registro...*',
         { delay: 200 },
         async (ctx, { state, flowDynamic }) => {
-            const currentState = state.getMyState();
+            const currentState = state.getMyState() || {};
             const seller = sellersManager.getAssignedSeller(ctx.from);
             
             // Información básica del usuario
