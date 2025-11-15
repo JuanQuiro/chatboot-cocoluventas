@@ -31,7 +31,13 @@ if [ -d "$APP_DIR/.git" ]; then
     if [ -n "$GIT_REPO" ]; then
         echo "   Repositorio: $GIT_REPO"
         git fetch origin
-        git reset --hard origin/main || git reset --hard origin/master
+        # Intentar actualizar desde la rama actual, o main, o master
+        CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+        if [ -n "$CURRENT_BRANCH" ]; then
+            git reset --hard "origin/$CURRENT_BRANCH" || git reset --hard origin/master || git reset --hard origin/main
+        else
+            git reset --hard origin/master || git reset --hard origin/main
+        fi
         echo "   ✅ Código actualizado"
     else
         echo "   ⚠️  No se pudo detectar el repositorio"
@@ -68,7 +74,8 @@ else
     # Clonar repositorio
     if [ -d "$APP_DIR" ] && [ -d "$APP_DIR/.git" ]; then
         cd "$APP_DIR"
-        git pull origin main || git pull origin master
+        CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "master")
+        git pull origin "$CURRENT_BRANCH" || git pull origin master || git pull origin main
     else
         git clone "$GIT_REPO" "$APP_DIR" || {
             echo "❌ Error clonando repositorio"
