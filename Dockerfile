@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias de producción
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copiar código fuente
 COPY . .
@@ -20,12 +20,13 @@ COPY . .
 # Crear directorio de base de datos
 RUN mkdir -p database
 
-# Exponer puerto
-EXPOSE 3008
+# Exponer puertos
+EXPOSE 3008 3010
 
 # Variables de entorno por defecto
 ENV NODE_ENV=production
 ENV PORT=3008
+ENV API_PORT=3010
 
 # Comando para iniciar la aplicación
-CMD ["node", "app.js"]
+CMD ["node", "app-integrated.js"]
