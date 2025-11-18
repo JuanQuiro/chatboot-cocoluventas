@@ -45,8 +45,10 @@ import timerService from './src/services/timer.service.js';
 import productsKeywordsService from './src/services/products-keywords.service.js';
 
 // Configuración
+// IMPORTANTE: El bot (MetaProvider) levanta su propio servidor HTTP en PORT
+// El API REST usa el mismo servidor del bot, por lo que API_PORT = PORT
 const PORT = process.env.PORT || 3008;
-const API_PORT = process.env.API_PORT || 3009;
+const API_PORT = PORT; // El API usa el mismo puerto que el bot
 const BOT_NAME = process.env.BOT_NAME || 'Bot Principal Cocolu';
 const TENANT_ID = process.env.TENANT_ID || 'cocolu';
 const USE_PAIRING_CODE = process.env.USE_PAIRING_CODE === 'true';
@@ -335,14 +337,9 @@ const main = async () => {
             res.redirect('/login');
         });
         
-        // Iniciar servidor API escuchando en todas las interfaces (0.0.0.0)
-        const apiServer = apiApp.listen(API_PORT, '0.0.0.0', () => {
-            console.log(`✅ API REST iniciada en puerto ${API_PORT} (0.0.0.0)`);
-            console.log(`🌐 Dashboard: http://0.0.0.0:${API_PORT}`);
-            console.log(`📊 API Health: http://0.0.0.0:${API_PORT}/api/health`);
-            console.log(`🤖 Bots API: http://0.0.0.0:${API_PORT}/api/bots`);
-            console.log('');
-        });
+        // NO levantar el servidor API aquí - se levantará después del bot
+        // para evitar conflicto de puerto con el servidor del bot
+        let apiServer = null;
 
         // ============================================
         // 2. CREAR BASE DE DATOS
@@ -409,8 +406,6 @@ const main = async () => {
             }
 
             const { MetaProvider } = await import('@builderbot/provider-meta');
-            // Pasar el servidor API existente para evitar conflicto de puerto
-            metaConfig.server = apiApp;
             mainProvider = createProvider(MetaProvider, metaConfig);
             adapterNameForManager = 'builderbot-meta';
 
@@ -487,12 +482,17 @@ const main = async () => {
         alertsService.setProvider(mainProvider);
         console.log('✅ AlertsService configurado con provider');
 
-        // NO levantar servidor HTTP separado del bot - usar el API existente en puerto 3008
-        // El bot de BuilderBot intenta levantar su propio servidor, pero ya tenemos uno en el puerto 3008
-        // Comentar la línea que causa el conflicto de puerto
-        // const httpServerInstance = botInstance.httpServer(+PORT);
+        // Iniciar servidor HTTP del bot escuchando en todas las interfaces (0.0.0.0)
+        // Esto permite que Nginx/Traefik accedan al bot desde otros contenedores/máquinas
+        const httpServerInstance = botInstance.httpServer(+PORT);
         
-        console.log(`✅ Bot HTTP server en puerto ${PORT} (usando servidor API existente)`);
+        // Asegurarse de que el servidor escucha en 0.0.0.0 en lugar de solo localhost
+        if (httpServerInstance && httpServerInstance.listen) {
+            // El servidor ya está escuchando, pero intentamos asegurarnos de que sea en 0.0.0.0
+            console.log(`✅ Bot HTTP server en puerto ${PORT}`);
+        } else {
+            console.log(`✅ Bot HTTP server en puerto ${PORT}`);
+        }
         console.log('');
 
         // ============================================
@@ -947,6 +947,18 @@ const main = async () => {
 
         console.log(`✅ Bot registrado en dashboard con ID: ${botId}`);
         console.log('');
+
+        // ============================================
+        // 7.5 LEVANTAR SERVIDOR API (después del bot)
+        // ============================================
+        // Ahora que el bot está levantado, levantar el API en el mismo puerto
+        apiServer = apiApp.listen(API_PORT, '0.0.0.0', () => {
+            console.log(`✅ API REST iniciada en puerto ${API_PORT} (0.0.0.0)`);
+            console.log(`🌐 Dashboard: http://0.0.0.0:${API_PORT}`);
+            console.log(`📊 API Health: http://0.0.0.0:${API_PORT}/api/health`);
+            console.log(`🤖 Bots API: http://0.0.0.0:${API_PORT}/api/bots`);
+            console.log('');
+        });
 
         // ============================================
         // 8. INFORMACIÓN FINAL
