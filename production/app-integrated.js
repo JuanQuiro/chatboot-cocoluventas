@@ -337,9 +337,16 @@ const main = async () => {
             res.redirect('/login');
         });
         
-        // NO levantar el servidor API aquí - se levantará después del bot
-        // para evitar conflicto de puerto con el servidor del bot
-        let apiServer = null;
+        // Levantar el servidor API ANTES del bot para que el bot pueda usar sus rutas
+        // El bot (MetaProvider) levantará su propio servidor en el mismo puerto
+        // pero Express ya estará escuchando, así que el bot usará el servidor existente
+        const apiServer = apiApp.listen(PORT, '0.0.0.0', () => {
+            console.log(`✅ API REST iniciada en puerto ${PORT} (0.0.0.0)`);
+            console.log(`🌐 Dashboard: http://0.0.0.0:${PORT}`);
+            console.log(`📊 API Health: http://0.0.0.0:${PORT}/api/health`);
+            console.log(`🤖 Bots API: http://0.0.0.0:${PORT}/api/bots`);
+            console.log('');
+        });
 
         // ============================================
         // 2. CREAR BASE DE DATOS
@@ -947,18 +954,6 @@ const main = async () => {
 
         console.log(`✅ Bot registrado en dashboard con ID: ${botId}`);
         console.log('');
-
-        // ============================================
-        // 7.5 LEVANTAR SERVIDOR API (después del bot)
-        // ============================================
-        // Ahora que el bot está levantado, levantar el API en el mismo puerto
-        apiServer = apiApp.listen(API_PORT, '0.0.0.0', () => {
-            console.log(`✅ API REST iniciada en puerto ${API_PORT} (0.0.0.0)`);
-            console.log(`🌐 Dashboard: http://0.0.0.0:${API_PORT}`);
-            console.log(`📊 API Health: http://0.0.0.0:${API_PORT}/api/health`);
-            console.log(`🤖 Bots API: http://0.0.0.0:${API_PORT}/api/bots`);
-            console.log('');
-        });
 
         // ============================================
         // 8. INFORMACIÓN FINAL
