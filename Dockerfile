@@ -11,13 +11,16 @@ WORKDIR /app
 # Instalar git (necesario para algunas dependencias)
 RUN apk add --no-cache git
 
-# Copiar archivos de dependencias
+# Copiar archivos de dependencias del proyecto raíz
 COPY package*.json ./
+
+# Copiar package.json de la app integrada en production (para type: "module")
+COPY production/package*.json ./production/
 
 # Instalar dependencias de producción
 RUN npm install --omit=dev --legacy-peer-deps
 
-# Copiar código fuente
+# Copiar código fuente completo (incluye carpeta production)
 COPY . .
 
 # Crear directorio de base de datos
@@ -31,5 +34,5 @@ ENV NODE_ENV=production
 ENV PORT=3008
 ENV API_PORT=3010
 
-# Comando para iniciar la aplicación
-CMD ["node", "app-integrated.js"]
+# Comando para iniciar la aplicación integrada en carpeta production
+CMD ["node", "production/app-integrated.js"]

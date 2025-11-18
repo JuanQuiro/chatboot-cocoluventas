@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Storage - DashOffice</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #667eea;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+        }
+        p {
+            color: #666;
+            margin: 0 0 2rem 0;
+            line-height: 1.6;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpiar Storage</h1>
+        <p>Esto eliminará todos los logs antiguos y errores guardados en localStorage.</p>
+        <p><strong>Útil cuando ves errores que ya fueron corregidos.</strong></p>
+        <button onclick="clearStorage()">Limpiar y Recargar</button>
+        <div class="success" id="success">✅ Storage limpiado! Redirigiendo...</div>
+    </div>
+
+    <script>
+        function clearStorage() {
+            // Limpiar todos los logs
+            localStorage.removeItem('dashoffice_errors');
+            localStorage.removeItem('dashoffice_warnings');
+            localStorage.removeItem('dashoffice_logs');
+            localStorage.removeItem('dashoffice_backend_queue');
+            
+            // Mostrar mensaje de éxito
+            document.getElementById('success').style.display = 'block';
+            
+            // Redirigir al login después de 1 segundo
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

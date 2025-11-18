@@ -1,0 +1,123 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    ESTRUCTURA DEL PROYECTO - COCOLU VENTAS                 ║
+║                          Organizado para Producción                        ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📦 chatboot-cocoluventas/
+│
+├── 🚀 PRODUCCIÓN (Archivos Activos)
+│   ├── app-integrated.js          ← Aplicación principal del bot
+│   ├── package.json               ← Dependencias npm
+│   ├── package-lock.json          ← Lock de dependencias
+│   ├── Dockerfile                 ← Imagen del contenedor
+│   ├── docker-compose.yml         ← Configuración Podman
+│   ├── .env                       ← Variables de entorno (SECRETO)
+│   ├── .dockerignore              ← Archivos a ignorar en build
+│   ├── .gitignore                 ← Archivos a ignorar en git
+│   ├── LICENSE                    ← Licencia del proyecto
+│   ├── README.md                  ← Documentación principal
+│   └── DEPLOYMENT.md              ← Guía de despliegue
+│
+├── 📁 src/                        ← Código fuente
+│   ├── api/                       ← Rutas REST
+│   │   ├── routes.js              ← Rutas principales
+│   │   ├── bots.routes.js         ← Rutas de bots
+│   │   ├── flows.routes.js        ← Rutas de flujos
+│   │   └── dashboard-routes.js    ← Rutas del dashboard
+│   ├── flows/                     ← Flujos de conversación (10 activos)
+│   │   ├── welcome.flow.js
+│   │   ├── catalogo.flow.js
+│   │   ├── info-pedido.flow.js
+│   │   ├── horarios.flow.js
+│   │   ├── problema.flow.js
+│   │   ├── producto-keyword.flow.js
+│   │   ├── comandos.flow.js
+│   │   ├── registro.flow.js
+│   │   ├── debug.flow.js
+│   │   ├── hablar-asesor.flow.js
+│   │   └── ...
+│   ├── services/                  ← Servicios de negocio
+│   │   ├── bot-manager.service.js
+│   │   ├── flow-manager.service.js
+│   │   ├── alerts.service.js
+│   │   ├── timer.service.js
+│   │   └── ...
+│   └── routes/                    ← Rutas adicionales
+│       └── logs.routes.js
+│
+├── 📊 dashboard/                  ← React compilado
+│   ├── build/                     ← Archivos optimizados para producción
+│   │   ├── index.html
+│   │   ├── static/
+│   │   │   ├── js/
+│   │   │   ├── css/
+│   │   │   └── media/
+│   │   └── ...
+│   ├── src/                       ← Código fuente React (desarrollo)
+│   ├── public/
+│   └── package.json
+│
+├── 📁 scripts/                    ← Scripts útiles
+│   ├── deploy.sh
+│   ├── backup.sh
+│   └── ...
+│
+├── 📁 database/                   ← Base de datos JSON
+│   └── db.json
+│
+├── 📁 logs/                       ← Logs de la aplicación
+│
+├── 📁 legacy/                     ← Archivos antiguos (NO USAR)
+│   ├── dashoffice-rust/           ← Versión antigua en Rust
+│   ├── src-ts/                    ← Código antiguo TypeScript
+│   ├── src-rs-performance/        ← Experimentos de performance
+│   ├── docs/                      ← Documentación antigua
+│   ├── deploy/                    ← Scripts de deploy antiguos
+│   ├── tests/                     ← Tests antiguos
+│   ├── *.md                       ← Documentación antigua
+│   ├── *.sh                       ← Scripts antiguos
+│   └── ... (142 archivos, 1.7GB)
+│
+└── 📁 .git/                       ← Control de versiones
+    └── ...
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 ARCHIVOS CRÍTICOS PARA PRODUCCIÓN:
+
+  ✅ app-integrated.js        - Aplicación principal
+  ✅ package.json             - Dependencias
+  ✅ Dockerfile               - Imagen del contenedor
+  ✅ docker-compose.yml       - Configuración de Podman
+  ✅ .env                     - Variables de entorno (SECRETO)
+  ✅ src/                     - Código fuente
+  ✅ dashboard/build/         - Frontend compilado
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 ESTADÍSTICAS:
+
+  Archivos en raíz:     17 archivos
+  Archivos en legacy:   142 archivos (1.7GB)
+  Carpetas activas:     6 (src, dashboard, scripts, database, logs, .git)
+  
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 DESPLIEGUE:
+
+  VPS:      /opt/cocolu-bot
+  URL:      https://cocolu.emberdrago.com
+  Puerto:   3010 (API) / 3008 (Bot)
+  Estado:   ✅ Activo en Producción
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📝 NOTA: 
+
+  La carpeta 'legacy' contiene toda la documentación, scripts y código antiguo.
+  NO ELIMINES esta carpeta, solo úsala como referencia si es necesario.
+  
+  Para desarrollo, trabaja en 'src/' y 'dashboard/'.
+  Para despliegue, usa 'docker-compose.yml' y 'Dockerfile'.
+
+═══════════════════════════════════════════════════════════════════════════════
