@@ -489,17 +489,10 @@ const main = async () => {
         alertsService.setProvider(mainProvider);
         console.log('✅ AlertsService configurado con provider');
 
-        // Iniciar servidor HTTP del bot escuchando en todas las interfaces (0.0.0.0)
-        // Esto permite que Nginx/Traefik accedan al bot desde otros contenedores/máquinas
-        const httpServerInstance = botInstance.httpServer(+PORT);
-        
-        // Asegurarse de que el servidor escucha en 0.0.0.0 en lugar de solo localhost
-        if (httpServerInstance && httpServerInstance.listen) {
-            // El servidor ya está escuchando, pero intentamos asegurarnos de que sea en 0.0.0.0
-            console.log(`✅ Bot HTTP server en puerto ${PORT}`);
-        } else {
-            console.log(`✅ Bot HTTP server en puerto ${PORT}`);
-        }
+        // El servidor HTTP ya está escuchando en apiApp (línea 343)
+        // El bot usará el servidor Express existente, no crea uno nuevo
+        // Esto evita el error EADDRINUSE
+        console.log(`✅ Bot HTTP server usando Express en puerto ${PORT}`);
         console.log('');
 
         // ============================================
