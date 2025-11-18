@@ -8,6 +8,9 @@ LABEL description="Chatbot WhatsApp para Cocolu Ventas usando BuilderBot"
 # Crear directorio de trabajo
 WORKDIR /app
 
+# Instalar git (necesario para algunas dependencias)
+RUN apk add --no-cache git
+
 # Copiar archivos de dependencias
 COPY package*.json ./
 
