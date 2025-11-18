@@ -66,13 +66,44 @@ const sellerSchema = new mongoose.Schema({
     },
     // Horarios de trabajo
     workSchedule: {
-        monday: { enabled: true, startTime: '09:00', endTime: '18:00' },
-        tuesday: { enabled: true, startTime: '09:00', endTime: '18:00' },
-        wednesday: { enabled: true, startTime: '09:00', endTime: '18:00' },
-        thursday: { enabled: true, startTime: '09:00', endTime: '18:00' },
-        friday: { enabled: true, startTime: '09:00', endTime: '18:00' },
-        saturday: { enabled: false, startTime: '10:00', endTime: '14:00' },
-        sunday: { enabled: false, startTime: '10:00', endTime: '14:00' }
+        type: {
+            monday: {
+                enabled: { type: Boolean, default: true },
+                startTime: { type: String, default: '09:00' },
+                endTime: { type: String, default: '18:00' }
+            },
+            tuesday: {
+                enabled: { type: Boolean, default: true },
+                startTime: { type: String, default: '09:00' },
+                endTime: { type: String, default: '18:00' }
+            },
+            wednesday: {
+                enabled: { type: Boolean, default: true },
+                startTime: { type: String, default: '09:00' },
+                endTime: { type: String, default: '18:00' }
+            },
+            thursday: {
+                enabled: { type: Boolean, default: true },
+                startTime: { type: String, default: '09:00' },
+                endTime: { type: String, default: '18:00' }
+            },
+            friday: {
+                enabled: { type: Boolean, default: true },
+                startTime: { type: String, default: '09:00' },
+                endTime: { type: String, default: '18:00' }
+            },
+            saturday: {
+                enabled: { type: Boolean, default: false },
+                startTime: { type: String, default: '10:00' },
+                endTime: { type: String, default: '14:00' }
+            },
+            sunday: {
+                enabled: { type: Boolean, default: false },
+                startTime: { type: String, default: '10:00' },
+                endTime: { type: String, default: '14:00' }
+            }
+        },
+        default: {}
     },
     // Días de descanso específicos
     daysOff: [{
