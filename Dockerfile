@@ -1,5 +1,5 @@
 # Dockerfile para Chatbot Cocolu Ventas
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Información del maintainer
 LABEL maintainer="contacto@cocoluventas.com"
