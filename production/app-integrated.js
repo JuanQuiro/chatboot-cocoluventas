@@ -409,6 +409,8 @@ const main = async () => {
             }
 
             const { MetaProvider } = await import('@builderbot/provider-meta');
+            // Pasar el servidor API existente para evitar conflicto de puerto
+            metaConfig.server = apiApp;
             mainProvider = createProvider(MetaProvider, metaConfig);
             adapterNameForManager = 'builderbot-meta';
 
