@@ -154,6 +154,14 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
         >
           ⚙️ Configuración
         </Link>
+        <a 
+          href="/meta-settings" 
+          className={activeTab === 'adaptadores' ? 'active' : ''}
+          onClick={() => setActiveTab('adaptadores')}
+          target="_self"
+        >
+          🔌 Adaptadores
+        </a>
       </nav>
 
       {/* Main Content */}
