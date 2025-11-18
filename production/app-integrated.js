@@ -34,6 +34,7 @@ import { debugFlow } from './src/flows/debug.flow.js';
 import { setupRoutes } from './src/api/routes.js';
 import { setupDashboardRoutes } from './src/api/dashboard-routes.js';
 import { setupSettingsRoutes } from './src/api/settings.routes.js';
+import { setupSellerAvailabilityRoutes } from './src/api/seller-availability.routes.js';
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
 import botManager from './src/services/bot-manager.service.js';
@@ -125,6 +126,9 @@ const main = async () => {
         
         // Configurar rutas de Settings (gestión de .env)
         setupSettingsRoutes(apiApp);
+        
+        // Configurar rutas de Disponibilidad de Vendedores
+        setupSellerAvailabilityRoutes(apiApp);
         
         // ============================================
         // WEBHOOK META (WhatsApp Business API)
