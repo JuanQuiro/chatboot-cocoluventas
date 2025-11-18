@@ -25,6 +25,7 @@ import Users from './pages/Users';
 import Roles from './pages/Roles';
 import BotsWrapper from './pages/BotsWrapper';
 import Settings from './pages/Settings';
+import SellerAvailability from './pages/SellerAvailability';
 
 // Componente de layout autenticado
 function AuthenticatedLayout({ activeTab, setActiveTab }) {
@@ -98,6 +99,13 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
           onClick={() => setActiveTab('sellers')}
         >
           👥 Vendedores
+        </Link>
+        <Link 
+          to="/seller-availability" 
+          className={activeTab === 'seller-availability' ? 'active' : ''}
+          onClick={() => setActiveTab('seller-availability')}
+        >
+          ⏰ Disponibilidad
         </Link>
         <Link 
           to="/analytics" 
@@ -194,6 +202,7 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
           <Route path="/roles" element={<Roles />} />
           <Route path="/bots" element={<BotsWrapper />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/seller-availability" element={<SellerAvailability />} />
         </Routes>
       </main>
 
