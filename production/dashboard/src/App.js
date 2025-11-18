@@ -24,6 +24,7 @@ import Products from './pages/Products';
 import Users from './pages/Users';
 import Roles from './pages/Roles';
 import BotsWrapper from './pages/BotsWrapper';
+import Settings from './pages/Settings';
 
 // Componente de layout autenticado
 function AuthenticatedLayout({ activeTab, setActiveTab }) {
@@ -146,6 +147,13 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
             🤖 Bots
           </Link>
         </Can>
+        <Link 
+          to="/settings" 
+          className={activeTab === 'settings' ? 'active' : ''}
+          onClick={() => setActiveTab('settings')}
+        >
+          ⚙️ Configuración
+        </Link>
       </nav>
 
       {/* Main Content */}
@@ -159,6 +167,7 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
           <Route path="/users" element={<Users />} />
           <Route path="/roles" element={<Roles />} />
           <Route path="/bots" element={<BotsWrapper />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
 

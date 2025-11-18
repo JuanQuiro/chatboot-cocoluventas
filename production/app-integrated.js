@@ -33,6 +33,7 @@ import { debugFlow } from './src/flows/debug.flow.js';
 // Importar API routes
 import { setupRoutes } from './src/api/routes.js';
 import { setupDashboardRoutes } from './src/api/dashboard-routes.js';
+import { setupSettingsRoutes } from './src/api/settings.routes.js';
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
 import botManager from './src/services/bot-manager.service.js';
@@ -119,6 +120,9 @@ const main = async () => {
         
         // Configurar rutas del Dashboard (login, dashboard, mensajes, conexión, adaptadores, logs)
         setupDashboardRoutes(apiApp);
+        
+        // Configurar rutas de Settings (gestión de .env)
+        setupSettingsRoutes(apiApp);
         
         // ============================================
         // WEBHOOK META (WhatsApp Business API)
