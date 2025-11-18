@@ -147,6 +147,32 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
             🤖 Bots
           </Link>
         </Can>
+        
+        <h3 style={{marginTop: '20px', marginBottom: '12px', fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase'}}>Meta WhatsApp</h3>
+        <a 
+          href="/meta-settings" 
+          className={activeTab === 'meta-settings' ? 'active' : ''}
+          onClick={() => setActiveTab('meta-settings')}
+          target="_self"
+          style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', color: '#374151', textDecoration: 'none', borderRadius: '8px', fontSize: '14px', transition: 'all 0.2s', marginBottom: '4px', borderLeft: '3px solid transparent'}}
+          onMouseOver={(e) => {e.target.style.background = '#eef2ff'; e.target.style.borderLeftColor = '#818cf8';}}
+          onMouseOut={(e) => {e.target.style.background = 'transparent'; e.target.style.borderLeftColor = 'transparent';}}
+        >
+          ⚙️ Configurar Credenciales
+        </a>
+        <a 
+          href="/meta-diagnostics" 
+          className={activeTab === 'meta-diagnostics' ? 'active' : ''}
+          onClick={() => setActiveTab('meta-diagnostics')}
+          target="_self"
+          style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', color: '#374151', textDecoration: 'none', borderRadius: '8px', fontSize: '14px', transition: 'all 0.2s', marginBottom: '4px', borderLeft: '3px solid transparent'}}
+          onMouseOver={(e) => {e.target.style.background = '#eef2ff'; e.target.style.borderLeftColor = '#818cf8';}}
+          onMouseOut={(e) => {e.target.style.background = 'transparent'; e.target.style.borderLeftColor = 'transparent';}}
+        >
+          🧪 Probar Mensajes
+        </a>
+        
+        <h3 style={{marginTop: '20px', marginBottom: '12px', fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase'}}>Sistema</h3>
         <Link 
           to="/settings" 
           className={activeTab === 'settings' ? 'active' : ''}
@@ -154,14 +180,6 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
         >
           ⚙️ Configuración
         </Link>
-        <a 
-          href="/meta-settings" 
-          className={activeTab === 'adaptadores' ? 'active' : ''}
-          onClick={() => setActiveTab('adaptadores')}
-          target="_self"
-        >
-          🔌 Adaptadores
-        </a>
       </nav>
 
       {/* Main Content */}
