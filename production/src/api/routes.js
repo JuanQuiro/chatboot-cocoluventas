@@ -437,6 +437,8 @@ export const setupRoutes = (app) => {
             const sellersStats = sellersManager.getStats();
             const analyticsSummary = analyticsService.getExecutiveSummary();
 
+            console.log('📊 [HEALTH CHECK] Vendedores en memoria:', JSON.stringify(sellersStats.sellersStats, null, 2));
+
             res.json({
                 success: true,
                 status: 'healthy',
@@ -593,6 +595,12 @@ export const setupRoutes = (app) => {
             
             console.log('📝 Datos DESPUÉS de actualizar:', JSON.stringify(seller, null, 2));
             console.log('✅ Vendedor actualizado exitosamente');
+            
+            // Verificación: Leer nuevamente del manager para confirmar persistencia
+            const verifyAllSellers = sellersManager.getAllSellers();
+            const verifySeller = verifyAllSellers.find(s => s.id === id);
+            console.log('🔍 VERIFICACIÓN DE PERSISTENCIA:');
+            console.log('✅ Vendedor verificado en memoria:', JSON.stringify(verifySeller, null, 2));
             console.log('==========================================\n');
             
             res.json({ success: true, message: `Vendedor ${seller.name} actualizado correctamente`, seller });
