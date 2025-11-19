@@ -479,30 +479,6 @@ export const setupRoutes = (app) => {
             }
             
             // Cambiar el estado
-            if (status === 'active') {
-                seller.active = true;
-                seller.status = 'available';
-            } else if (status === 'inactive') {
-                seller.active = false;
-                seller.status = 'offline';
-            }
-            
-            res.json({
-                success: true,
-                message: `Vendedor ${id} actualizado a ${status}`,
-                seller: {
-                    id: seller.id,
-                    name: seller.name,
-                    active: seller.active,
-                    status: seller.status
-                }
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message
-            });
-        }
     });
 
     // ============================================

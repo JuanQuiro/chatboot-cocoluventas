@@ -252,9 +252,20 @@ class SellersManager {
             sellersStats: this.sellers.map(s => ({
                 id: s.id,
                 name: s.name,
+                email: s.email,
+                phone: s.phone,
+                specialty: s.specialty,
+                maxClients: s.maxClients,
                 currentClients: s.currentClients,
                 status: s.status,
-                rating: s.rating
+                rating: s.rating,
+                active: s.active,
+                workStart: s.workStart,
+                workEnd: s.workEnd,
+                daysOff: s.daysOff,
+                notificationInterval: s.notificationInterval,
+                avgResponse: s.avgResponse,
+                notes: s.notes
             }))
         };
     }
