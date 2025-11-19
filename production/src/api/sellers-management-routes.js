@@ -1,6 +1,6 @@
 export const setupSellersManagementRoutes = (app) => {
-    app.get('/sellers', (req, res) => {
-        res.send(`<!DOCTYPE html>
+  app.get('/sellers', (req, res) => {
+    res.send(`<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -34,72 +34,30 @@ export const setupSellersManagementRoutes = (app) => {
 html, body {
   height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg-dark);
+  color: var(--text-primary);
   overflow: hidden;
 }
 
 .app-container {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 280px 1fr;
   height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
-  background: white;
-  border-right: 1px solid #e0e0e0;
-  padding: 20px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
 }
 
-.sidebar h3 {
-  font-size: 11px;
-  color: #9ca3af;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  margin-top: 18px;
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border-color);
 }
-
-.sidebar h3:first-child {
-  margin-top: 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  color: #374151;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s;
-  margin-bottom: 4px;
-  border-left: 3px solid transparent;
-}
-
-.nav-item:hover {
-  background: #eef2ff;
-  border-left-color: #818cf8;
-}
-
-.nav-item.active {
-  background: #eef2ff;
-  border-left-color: #4f46e5;
-  color: #111827;
-  font-weight: 600;
-}
-
-.nav-icon {
-  width: 20px;
-  text-align: center;
-}
-
-.nav-label {
-  flex: 1;
-}
-
 
 .logo {
   font-size: 20px;
@@ -144,7 +102,7 @@ html, body {
 
 .nav-item:hover {
   background: rgba(255,255,255,0.05);
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .nav-item.active {
@@ -184,7 +142,7 @@ html, body {
   background: rgba(255,255,255,0.1);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #111827;
+  color: var(--text-primary);
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
@@ -301,7 +259,7 @@ html, body {
 .seller-name {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .seller-badge {
@@ -487,7 +445,7 @@ html, body {
 
 .close-btn:hover {
   background: rgba(255,255,255,0.1);
-  color: #111827;
+  color: var(--text-primary);
 }
 
 /* Form */
@@ -530,7 +488,7 @@ html, body {
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 14px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .form-label-optional {
@@ -545,7 +503,7 @@ html, body {
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #111827;
+  color: var(--text-primary);
   font-size: 14px;
   font-family: inherit;
   transition: all 0.2s;
@@ -602,7 +560,7 @@ html, body {
 
 .status-label {
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .checkbox-group {
@@ -717,67 +675,83 @@ html, body {
 <div class="app-container">
   <!-- Sidebar -->
   <aside class="sidebar">
-<div class="sidebar">
-      <h3>📊 Principal</h3>
-      <a href="/dashboard" class="nav-item">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Dashboard</span>
-      </a>
-      
-      <h3>💬 Chatbot</h3>
-      <a href="/messages" class="nav-item">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">Mensajes</span>
-      </a>
-      <a href="/analytics" class="nav-item">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">Análisis</span>
-      </a>
-      <a href="/connection" class="nav-item">
-        <span class="nav-icon">📲</span>
-        <span class="nav-label">Conexión</span>
-      </a>
-      
-      <h3>👥 Vendedores</h3>
-      <a href="/sellers" class="nav-item active">
-        <span class="nav-icon">👥</span>
-        <span class="nav-label">Vendedores</span>
-      </a>
-      <a href="/seller-availability" class="nav-item">
-        <span class="nav-icon">⏰</span>
-        <span class="nav-label">Disponibilidad</span>
-      </a>
-      
-      <h3>⚙️ Configuración</h3>
-      <a href="/adapters" class="nav-item">
-        <span class="nav-icon">🔌</span>
-        <span class="nav-label">Adaptadores</span>
-      </a>
-      <a href="/logs" class="nav-item">
-        <span class="nav-icon">📝</span>
-        <span class="nav-label">Logs</span>
-      </a>
-
-      <h3>🌐 Meta</h3>
-      <a href="/meta-settings" class="nav-item">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Config Meta</span>
-      </a>
-      <a href="/meta-diagnostics" class="nav-item">
-        <span class="nav-icon">🧪</span>
-        <span class="nav-label">Diagnóstico Meta</span>
-      </a>
-      
-      <h3>📈 Monitoreo</h3>
-      <a href="/health" class="nav-item">
-        <span class="nav-icon">❤️</span>
-        <span class="nav-label">Salud</span>
-      </a>
-      <a href="/meta-billing" class="nav-item">
-        <span class="nav-icon">💰</span>
-        <span class="nav-label">Facturación Meta</span>
-      </a>
+    <div class="sidebar-header">
+      <div class="logo">🎯 CocoloVentas</div>
     </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-category">
+        <div class="category-header">📊 Principal</div>
+        <a href="/dashboard" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span>Dashboard</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">💬 Chatbot</div>
+        <a href="/messages" class="nav-item">
+          <span class="nav-icon">💬</span>
+          <span>Mensajes</span>
+        </a>
+        <a href="/analytics" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span>Análisis</span>
+        </a>
+        <a href="/connection" class="nav-item">
+          <span class="nav-icon">📲</span>
+          <span>Conexión</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">👥 Vendedores</div>
+        <a href="/sellers" class="nav-item active">
+          <span class="nav-icon">👥</span>
+          <span>Vendedores</span>
+        </a>
+        <a href="/seller-availability" class="nav-item">
+          <span class="nav-icon">⏰</span>
+          <span>Disponibilidad</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">⚙️ Configuración</div>
+        <a href="/adapters" class="nav-item">
+          <span class="nav-icon">🔌</span>
+          <span>Adaptadores</span>
+        </a>
+        <a href="/logs" class="nav-item">
+          <span class="nav-icon">📝</span>
+          <span>Logs</span>
+        </a>
+      </div>
+
+      <div class="nav-category">
+        <div class="category-header">🌐 Meta</div>
+        <a href="/meta-settings" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>Config Meta</span>
+        </a>
+        <a href="/meta-diagnostics" class="nav-item">
+          <span class="nav-icon">🧪</span>
+          <span>Diagnóstico Meta</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">📈 Monitoreo</div>
+        <a href="/health" class="nav-item">
+          <span class="nav-icon">❤️</span>
+          <span>Salud</span>
+        </a>
+        <a href="/meta-billing" class="nav-item">
+          <span class="nav-icon">💰</span>
+          <span>Facturación Meta</span>
+        </a>
+      </div>
+    </nav>
   </aside>
 
   <!-- Main Content -->
@@ -936,7 +910,7 @@ let currentStatus='active';
 
 function showAlert(msg,type,target='alert'){
   const alertDiv=document.getElementById(target);
-  alertDiv.innerHTML=`<div class="alert alert-${type}">${type==='success'?'✅':'❌'} ${msg}</div>`;
+  alertDiv.innerHTML=`< div class= "alert alert-${type}" > ${ type=== 'success' ? '✅' : '❌'} ${ msg }</div > `;
   setTimeout(()=>{alertDiv.innerHTML=''},4000);
 }
 
@@ -949,7 +923,7 @@ function load(){
     document.getElementById('s3').textContent=d.sellers?.activeConversations||0;
     
     const html=s.map((x,i)=>`
-      <div class="seller-card" style="animation-delay: ${i*0.1}s">
+  < div class= "seller-card" style = "animation-delay: ${i*0.1}s" >
         <div class="seller-header">
           <div class="seller-name">${x.name}</div>
           <span class="seller-badge ${x.status==='available'?'active':'inactive'}">
@@ -976,8 +950,8 @@ function load(){
             ${x.status==='available'?'🔴 Desactivar':'🟢 Activar'}
           </button>
         </div>
-      </div>
-    `).join('');
+      </div >
+  `).join('');
     
     document.getElementById('sellers').innerHTML=html||'<p style="color: var(--text-muted);">No hay vendedores disponibles</p>';
   }).catch(e=>{
@@ -990,7 +964,7 @@ function openEdit(id,name,status){
   currentSeller=id;
   currentStatus=status==='available'?'active':'inactive';
   
-  fetch(`/api/sellers/${id}`).then(r=>r.json()).then(d=>{
+  fetch(`/ api / sellers / ${ id } `).then(r=>r.json()).then(d=>{
     const seller=d.data;
     document.getElementById('sellerName').value=seller.name||name;
     document.getElementById('sellerEmail').value=seller.email||'';
@@ -1074,50 +1048,50 @@ function saveSeller(){
   
   const data={name,email,phone,specialty,maxClients,avgResponse,notes,workStart,workEnd,notificationInterval,daysOff,status:currentStatus};
   
-  fetch(`/api/seller/${currentSeller}/update`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(data)
-  }).then(r=>r.json()).then(d=>{
-    if(d.success){
-      showAlert(`Vendedor ${name} actualizado correctamente`,'success');
-      closeModal();
-      setTimeout(load,500);
-    }else{
-      showAlert(`Error: ${d.error||'Desconocido'}`,'error','modalAlert');
-    }
-  }).catch(e=>{
+  fetch(`/ api / seller / ${ currentSeller }/update`,{
+method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(data)
+  }).then(r => r.json()).then(d => {
+  if (d.success) {
+    showAlert(`Vendedor ${name} actualizado correctamente`, 'success');
+    closeModal();
+    setTimeout(load, 500);
+  } else {
+    showAlert(`Error: ${d.error || 'Desconocido'}`, 'error', 'modalAlert');
+  }
+}).catch(e => {
+  console.error(e);
+  showAlert('Error al guardar cambios', 'error', 'modalAlert');
+});
+}
+
+function toggleSellerStatus(id, status) {
+  const newStatus = status === 'available' ? 'inactive' : 'active';
+  const msg = status === 'available' ? 'desactivado' : 'activado';
+
+  fetch(`/api/seller/${id}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus })
+  }).then(r => r.json()).then(d => {
+    showAlert(`Vendedor ${msg} exitosamente`, d.success ? 'success' : 'error');
+    setTimeout(load, 500);
+  }).catch(e => {
     console.error(e);
-    showAlert('Error al guardar cambios','error','modalAlert');
+    showAlert('Error al cambiar estado', 'error');
   });
 }
 
-function toggleSellerStatus(id,status){
-  const newStatus=status==='available'?'inactive':'active';
-  const msg=status==='available'?'desactivado':'activado';
-  
-  fetch(`/api/seller/${id}/status`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({status:newStatus})
-  }).then(r=>r.json()).then(d=>{
-    showAlert(`Vendedor ${msg} exitosamente`,d.success?'success':'error');
-    setTimeout(load,500);
-  }).catch(e=>{
-    console.error(e);
-    showAlert('Error al cambiar estado','error');
-  });
-}
-
-function logout(){
-  window.location.href='/login';
+function logout() {
+  window.location.href = '/login';
 }
 
 load();
-setInterval(load,30000);
-</script></body></html>`);
+setInterval(load, 30000);
+</script ></body ></html > `);
     });
-        res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Disponibilidad</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}body{font-family:system-ui;background:#f8fafc;display:flex;flex-direction:column}header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;display:flex;justify-content:space-between;flex-shrink:0}.container{display:grid;grid-template-columns:260px 1fr;flex:1;overflow:hidden}.sidebar{background:#fff;border-right:1px solid #e0e0e0;padding:20px;overflow-y:auto;flex-shrink:0}.main{padding:28px;overflow-y:auto}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}.stat-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border-left:4px solid #667eea}.stat-value{font-size:28px;font-weight:700;color:#667eea}.stat-label{font-size:13px;color:#666}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.availability-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:20px}.avail-card{border:1px solid #e0e0e0;border-radius:10px;padding:20px}.avail-card:hover{box-shadow:0 8px 16px rgba(0,0,0,0.1)}.seller-name{font-size:18px;font-weight:700;margin-bottom:12px}.status-badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px}.status-badge.available{background:#dcfce7;color:#166534}.status-badge.busy{background:#fef3c7;color:#92400e}.status-badge.offline{background:#fee2e2;color:#991b1b}.info-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid #f0f0f0}.nav-item{display:block;padding:10px;color:#475569;text-decoration:none;border-radius:6px;margin-bottom:4px}.nav-item.active{background:#eef2ff;color:#667eea;font-weight:600}</style></head><body><header><h1>⏰ Disponibilidad en Tiempo Real</h1><button onclick="logout()" style="background:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer">Cerrar Sesión</button></header><div class="container"><div class="sidebar"><h3>Menú</h3><a href="/dashboard" class="nav-item">🏠 Dashboard</a><a href="/sellers" class="nav-item">👥 Vendedores</a><a href="/seller-availability" class="nav-item active">⏰ Disponibilidad</a></div><div class="main"><div class="stats-grid"><div class="stat-card"><div class="stat-value" id="t0">-</div><div class="stat-label">Total</div></div><div class="stat-card"><div class="stat-value" id="t1">-</div><div class="stat-label">Disponibles</div></div><div class="stat-card"><div class="stat-value" id="t2">-</div><div class="stat-label">Ocupados</div></div><div class="stat-card"><div class="stat-value" id="t3">-</div><div class="stat-label">Offline</div></div></div><div class="card"><h2>📊 Estado de Vendedores</h2><div class="availability-grid" id="availability"><p>Cargando...</p></div></div></div></div><script>function load(){fetch('/api/health').then(r=>r.json()).then(d=>{const s=d.sellers?.sellersStats||[];const avail=s.filter(x=>x.status==='available').length;const busy=s.filter(x=>x.currentClients>0).length;const offline=s.filter(x=>x.status!=='available').length;document.getElementById('t0').textContent=s.length;document.getElementById('t1').textContent=avail;document.getElementById('t2').textContent=busy;document.getElementById('t3').textContent=offline;const html=s.map(x=>{const st=x.status==='available'?'available':x.currentClients>0?'busy':'offline';const txt=st==='available'?'✅ Disponible':st==='busy'?'🔴 Ocupado':'⚫ Offline';return\`<div class="avail-card"><div class="seller-name">\${x.name}</div><span class="status-badge \${st}">\${txt}</span><div class="info-row"><span>ID</span><span>\${x.id}</span></div><div class="info-row"><span>Clientes</span><span>\${x.currentClients}</span></div><div class="info-row"><span>Rating</span><span>⭐\${x.rating.toFixed(1)}</span></div><div class="info-row"><span>Carga</span><span>\${Math.round(x.currentClients*20)}%</span></div></div>\`}).join('');document.getElementById('availability').innerHTML=html}).catch(e=>console.error(e))}function logout(){window.location.href='/login'}load();setInterval(load,30000)</script></body></html>`);
+        res.send(`< !DOCTYPE html > <html><head><meta charset="UTF-8"><title>Disponibilidad</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}body{font - family:system-ui;background:#f8fafc;display:flex;flex-direction:column}header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;display:flex;justify-content:space-between;flex-shrink:0}.container{display:grid;grid-template-columns:260px 1fr;flex:1;overflow:hidden}.sidebar{background:#fff;border-right:1px solid #e0e0e0;padding:20px;overflow-y:auto;flex-shrink:0}.main{padding:28px;overflow-y:auto}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}.stat-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border-left:4px solid #667eea}.stat-value{font - size:28px;font-weight:700;color:#667eea}.stat-label{font - size:13px;color:#666}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.availability-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:20px}.avail-card{border:1px solid #e0e0e0;border-radius:10px;padding:20px}.avail-card:hover{box - shadow:0 8px 16px rgba(0,0,0,0.1)}.seller-name{font - size:18px;font-weight:700;margin-bottom:12px}.status-badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px}.status-badge.available{background:#dcfce7;color:#166534}.status-badge.busy{background:#fef3c7;color:#92400e}.status-badge.offline{background:#fee2e2;color:#991b1b}.info-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid #f0f0f0}.nav-item{display:block;padding:10px;color:#475569;text-decoration:none;border-radius:6px;margin-bottom:4px}.nav-item.active{background:#eef2ff;color:#667eea;font-weight:600}</style></head><body><header><h1>⏰ Disponibilidad en Tiempo Real</h1><button onclick="logout()" style="background:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer">Cerrar Sesión</button></header><div class="container"><div class="sidebar"><h3>Menú</h3><a href="/dashboard" class="nav-item">🏠 Dashboard</a><a href="/sellers" class="nav-item">👥 Vendedores</a><a href="/seller-availability" class="nav-item active">⏰ Disponibilidad</a></div><div class="main"><div class="stats-grid"><div class="stat-card"><div class="stat-value" id="t0">-</div><div class="stat-label">Total</div></div><div class="stat-card"><div class="stat-value" id="t1">-</div><div class="stat-label">Disponibles</div></div><div class="stat-card"><div class="stat-value" id="t2">-</div><div class="stat-label">Ocupados</div></div><div class="stat-card"><div class="stat-value" id="t3">-</div><div class="stat-label">Offline</div></div></div><div class="card"><h2>📊 Estado de Vendedores</h2><div class="availability-grid" id="availability"><p>Cargando...</p></div></div></div></div><script>function load(){fetch('/api/health').then(r => r.json()).then(d => { const s = d.sellers?.sellersStats || []; const avail = s.filter(x => x.status === 'available').length; const busy = s.filter(x => x.currentClients > 0).length; const offline = s.filter(x => x.status !== 'available').length; document.getElementById('t0').textContent = s.length; document.getElementById('t1').textContent = avail; document.getElementById('t2').textContent = busy; document.getElementById('t3').textContent = offline; const html = s.map(x => { const st = x.status === 'available' ? 'available' : x.currentClients > 0 ? 'busy' : 'offline'; const txt = st === 'available' ? '✅ Disponible' : st === 'busy' ? '🔴 Ocupado' : '⚫ Offline'; return \`<div class="avail-card"><div class="seller-name">\${x.name}</div><span class="status-badge \${st}">\${txt}</span><div class="info-row"><span>ID</span><span>\${x.id}</span></div><div class="info-row"><span>Clientes</span><span>\${x.currentClients}</span></div><div class="info-row"><span>Rating</span><span>⭐\${x.rating.toFixed(1)}</span></div><div class="info-row"><span>Carga</span><span>\${Math.round(x.currentClients * 20)}%</span></div></div>\`}).join('');document.getElementById('availability').innerHTML=html}).catch(e=>console.error(e))}function logout(){window.location.href = '/login'}load();setInterval(load,30000)</script></body></html>`);
     });
 };
 
