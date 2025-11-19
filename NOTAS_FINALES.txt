@@ -1,0 +1,210 @@
+================================================================================
+                    NOTAS FINALES - PROYECTO COCOLUVENTAS
+================================================================================
+
+FECHA: 2025-11-19
+ESTADO: Documentación completa para siguiente IA
+
+================================================================================
+                              CREDENCIALES VPS
+================================================================================
+
+Host: 173.249.205.142
+Usuario: root
+Contraseña: a9psHSvLyrKock45yE2F
+Puerto: 22
+
+Directorio: /opt/cocolu-bot
+Contenedor: chatbot-cocolu
+
+================================================================================
+                            PROBLEMA RESUELTO
+================================================================================
+
+PROBLEMA:
+- Modal de edición de vendedores no guardaba email y phone
+- Siempre enviaba "N/A" al backend
+- Los campos estaban vacíos cuando se abría el modal
+
+CAUSA:
+- Función openEdit() no cargaba datos actuales del vendedor
+- Dejaba campos vacíos, causando que se enviara "N/A"
+
+SOLUCIÓN:
+- Modificar openEdit() para hacer fetch a /api/sellers/:id
+- Cargar datos actuales antes de mostrar el modal
+- Ahora envía datos reales en lugar de "N/A"
+
+ARCHIVO MODIFICADO:
+- production/src/api/sellers-management-routes.js
+
+COMMIT:
+- b4084d52: "fix: cargar datos del vendedor al abrir modal (versión correcta)"
+
+================================================================================
+                          ESTADO ACTUAL (19/11/2025)
+================================================================================
+
+✅ COMPLETADO:
+- Código de solución implementado
+- Documentación completa creada
+- Cambios pusheados a GitHub
+
+⚠️ PENDIENTE:
+- Servidor respondiendo con 502 Bad Gateway
+- Necesita debugging para identificar error de sintaxis
+
+================================================================================
+                        DOCUMENTACIÓN CREADA
+================================================================================
+
+1. DOCUMENTACION_VPS.md
+   - Guía completa del VPS
+   - Comandos útiles
+   - Estructura de archivos
+   - Endpoints API
+   - Debugging
+
+2. ESTADO_ACTUAL.md
+   - Estado actual del proyecto
+   - Lo que está hecho
+   - Flujo de actualización
+   - Problema resuelto
+   - Checklist para continuar
+
+3. README_PARA_SIGUIENTE_IA.md
+   - Guía rápida para siguiente IA
+   - Instrucciones de acceso
+   - Cómo desplegar cambios
+   - Cómo probar
+   - Errores comunes
+
+================================================================================
+                        CÓMO CONTINUAR
+================================================================================
+
+PASO 1: Conectarse al VPS
+ssh root@173.249.205.142
+# Contraseña: a9psHSvLyrKock45yE2F
+
+PASO 2: Ver logs
+podman logs chatbot-cocolu -f
+
+PASO 3: Buscar errores
+podman logs chatbot-cocolu | grep -i error
+
+PASO 4: Si hay error de sintaxis
+- Revisar production/src/api/sellers-management-routes.js
+- El archivo es una sola línea muy larga
+- Posible solución: Refactorizar o usar herramienta de formateo
+
+PASO 5: Desplegar cambios
+cd /opt/cocolu-bot
+git pull
+podman-compose down
+podman-compose build
+podman-compose up -d
+
+================================================================================
+                        ARCHIVOS CRÍTICOS
+================================================================================
+
+production/src/api/sellers-management-routes.js
+- Frontend HTML/CSS/JavaScript
+- Función openEdit() - Abre modal y carga datos
+- Función saveSeller() - Guarda cambios
+- TODO en una sola línea (difícil de mantener)
+
+production/src/api/routes.js
+- Backend - Endpoints API
+- POST /api/seller/:id/update - Actualiza vendedor
+- GET /api/sellers/:id - Obtiene datos
+- Tiene logging detallado
+
+production/src/services/sellers.service.js
+- Servicio de vendedores en memoria
+- getStats() - Retorna datos de vendedores
+
+================================================================================
+                        URLS DE ACCESO
+================================================================================
+
+Dashboard: https://cocolu.emberdrago.com/dashboard
+Vendedores: https://cocolu.emberdrago.com/sellers
+Disponibilidad: https://cocolu.emberdrago.com/seller-availability
+API Health: https://cocolu.emberdrago.com/api/health
+
+================================================================================
+                        DATOS IMPORTANTES
+================================================================================
+
+ALMACENAMIENTO:
+- Los datos se guardan EN MEMORIA en sellersManager
+- NO hay base de datos persistente
+- Se pierden cuando se reinicia el contenedor
+- Para persistencia real, se necesita MongoDB o PostgreSQL
+
+LOGGING:
+- Usa console.log() en lugar de logger externo
+- Los logs aparecen en: podman logs chatbot-cocolu
+- Muy útil para debugging
+
+FLUJO DE ACTUALIZACIÓN:
+1. Usuario abre modal → openEdit() hace fetch a /api/sellers/:id
+2. Modal se llena con datos actuales
+3. Usuario modifica campos
+4. Usuario hace clic en "Guardar" → saveSeller()
+5. Frontend envía JSON a /api/seller/:id/update
+6. Backend actualiza en memoria y retorna success
+7. Frontend cierra modal y recarga lista
+
+================================================================================
+                        COMANDOS ÚTILES
+================================================================================
+
+Ver logs en tiempo real:
+ssh root@173.249.205.142 'podman logs chatbot-cocolu -f'
+
+Ver últimos 100 logs:
+ssh root@173.249.205.142 'podman logs chatbot-cocolu | tail -100'
+
+Buscar logs de actualización:
+ssh root@173.249.205.142 'podman logs chatbot-cocolu | grep "SELLER UPDATE"'
+
+Buscar errores:
+ssh root@173.249.205.142 'podman logs chatbot-cocolu | grep -i error'
+
+Ver estado del contenedor:
+ssh root@173.249.205.142 'podman ps'
+
+Reiniciar contenedor:
+ssh root@173.249.205.142 'cd /opt/cocolu-bot && podman-compose down && podman-compose up -d'
+
+Limpiar espacio en disco:
+ssh root@173.249.205.142 'podman system prune -af'
+
+================================================================================
+                        PRÓXIMOS PASOS
+================================================================================
+
+1. Debuggear por qué el servidor está caído (502 Bad Gateway)
+2. Verificar que el modal carga datos correctamente
+3. Probar actualizar email y phone
+4. Verificar en logs que se actualiza correctamente
+5. (Opcional) Refactorizar sellers-management-routes.js para mejor mantenibilidad
+6. (Opcional) Implementar persistencia en base de datos
+
+================================================================================
+                        CONTACTO/REFERENCIAS
+================================================================================
+
+Repositorio: https://github.com/JuanQuiro/chatboot-cocoluventas
+Rama: master
+Última actualización: 2025-11-19
+
+Para más detalles, ver:
+- DOCUMENTACION_VPS.md
+- ESTADO_ACTUAL.md
+- README_PARA_SIGUIENTE_IA.md
+
+================================================================================
