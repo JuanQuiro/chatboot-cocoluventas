@@ -34,72 +34,30 @@ export const setupSellersManagementRoutes = (app) => {
 html, body {
   height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg-dark);
+  color: var(--text-primary);
   overflow: hidden;
 }
 
 .app-container {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 280px 1fr;
   height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
-  background: white;
-  border-right: 1px solid #e0e0e0;
-  padding: 20px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
 }
 
-.sidebar h3 {
-  font-size: 11px;
-  color: #9ca3af;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  margin-top: 18px;
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border-color);
 }
-
-.sidebar h3:first-child {
-  margin-top: 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  color: #374151;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s;
-  margin-bottom: 4px;
-  border-left: 3px solid transparent;
-}
-
-.nav-item:hover {
-  background: #eef2ff;
-  border-left-color: #818cf8;
-}
-
-.nav-item.active {
-  background: #eef2ff;
-  border-left-color: #4f46e5;
-  color: #111827;
-  font-weight: 600;
-}
-
-.nav-icon {
-  width: 20px;
-  text-align: center;
-}
-
-.nav-label {
-  flex: 1;
-}
-
 
 .logo {
   font-size: 20px;
@@ -144,7 +102,7 @@ html, body {
 
 .nav-item:hover {
   background: rgba(255,255,255,0.05);
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .nav-item.active {
@@ -184,7 +142,7 @@ html, body {
   background: rgba(255,255,255,0.1);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #111827;
+  color: var(--text-primary);
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
@@ -301,7 +259,7 @@ html, body {
 .seller-name {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .seller-badge {
@@ -487,7 +445,7 @@ html, body {
 
 .close-btn:hover {
   background: rgba(255,255,255,0.1);
-  color: #111827;
+  color: var(--text-primary);
 }
 
 /* Form */
@@ -530,7 +488,7 @@ html, body {
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 14px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .form-label-optional {
@@ -545,7 +503,7 @@ html, body {
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #111827;
+  color: var(--text-primary);
   font-size: 14px;
   font-family: inherit;
   transition: all 0.2s;
@@ -602,7 +560,7 @@ html, body {
 
 .status-label {
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .checkbox-group {
@@ -717,67 +675,67 @@ html, body {
 <div class="app-container">
   <!-- Sidebar -->
   <aside class="sidebar">
-<div class="sidebar">
-      <h3>📊 Principal</h3>
-      <a href="/dashboard" class="nav-item">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Dashboard</span>
-      </a>
-      
-      <h3>💬 Chatbot</h3>
-      <a href="/messages" class="nav-item">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">Mensajes</span>
-      </a>
-      <a href="/analytics" class="nav-item">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">Análisis</span>
-      </a>
-      <a href="/connection" class="nav-item">
-        <span class="nav-icon">📲</span>
-        <span class="nav-label">Conexión</span>
-      </a>
-      
-      <h3>👥 Vendedores</h3>
-      <a href="/sellers" class="nav-item active">
-        <span class="nav-icon">👥</span>
-        <span class="nav-label">Vendedores</span>
-      </a>
-      <a href="/seller-availability" class="nav-item">
-        <span class="nav-icon">⏰</span>
-        <span class="nav-label">Disponibilidad</span>
-      </a>
-      
-      <h3>⚙️ Configuración</h3>
-      <a href="/adapters" class="nav-item">
-        <span class="nav-icon">🔌</span>
-        <span class="nav-label">Adaptadores</span>
-      </a>
-      <a href="/logs" class="nav-item">
-        <span class="nav-icon">📝</span>
-        <span class="nav-label">Logs</span>
-      </a>
-
-      <h3>🌐 Meta</h3>
-      <a href="/meta-settings" class="nav-item">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Config Meta</span>
-      </a>
-      <a href="/meta-diagnostics" class="nav-item">
-        <span class="nav-icon">🧪</span>
-        <span class="nav-label">Diagnóstico Meta</span>
-      </a>
-      
-      <h3>📈 Monitoreo</h3>
-      <a href="/health" class="nav-item">
-        <span class="nav-icon">❤️</span>
-        <span class="nav-label">Salud</span>
-      </a>
-      <a href="/meta-billing" class="nav-item">
-        <span class="nav-icon">💰</span>
-        <span class="nav-label">Facturación Meta</span>
-      </a>
+    <div class="sidebar-header">
+      <div class="logo">🎯 CocoloVentas</div>
     </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-category">
+        <div class="category-header">Principal</div>
+        <a href="/dashboard" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span>Dashboard</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">GESTIÓN</div>
+        <a href="/sellers" class="nav-item active">
+          <span class="nav-icon">👥</span>
+          <span>Vendedores</span>
+        </a>
+        <a href="/seller-availability" class="nav-item">
+          <span class="nav-icon">⏰</span>
+          <span>Disponibilidad</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">📈</span>
+          <span>Rendimiento</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">CONVERSACIONES</div>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">💬</span>
+          <span>Activas</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">📥</span>
+          <span>Pendientes</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">✅</span>
+          <span>Completadas</span>
+        </a>
+      </div>
+      
+      <div class="nav-category">
+        <div class="category-header">CONFIGURACIÓN</div>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>General</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🔔</span>
+          <span>Notificaciones</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span>Perfil</span>
+        </a>
+      </div>
+    </nav>
   </aside>
 
   <!-- Main Content -->
