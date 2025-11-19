@@ -510,44 +510,96 @@ export const setupRoutes = (app) => {
     // ============================================
     
     app.post('/api/seller/:id/update', (req, res) => {
+        console.log('\n========== SELLER UPDATE REQUEST ==========');
+        console.log('📍 Endpoint: POST /api/seller/:id/update');
+        console.log('⏰ Timestamp:', new Date().toISOString());
+        
         try {
             const { id } = req.params;
             const data = req.body;
             
-            console.log(`[SELLER UPDATE] ID: ${id}, Datos:`, JSON.stringify(data));
+            console.log('📦 ID Recibido:', id);
+            console.log('📦 Datos Recibidos:', JSON.stringify(data, null, 2));
             
-            const seller = sellersManager.getAllSellers().find(s => s.id === id);
+            const allSellers = sellersManager.getAllSellers();
+            console.log('📊 Total de vendedores en sistema:', allSellers.length);
+            console.log('📋 IDs disponibles:', allSellers.map(s => s.id).join(', '));
+            
+            const seller = allSellers.find(s => s.id === id);
             
             if (!seller) {
+                console.log('❌ Vendedor NO encontrado con ID:', id);
                 return res.status(404).json({ success: false, error: 'Vendedor no encontrado' });
             }
             
+            console.log('✅ Vendedor encontrado:', seller.name);
+            console.log('📝 Datos ANTES de actualizar:', JSON.stringify(seller, null, 2));
+            
             // Actualizar cada campo de forma segura
-            if (data.name) seller.name = String(data.name).trim();
-            if (data.email && data.email !== 'N/A') seller.email = String(data.email).trim();
-            if (data.phone && data.phone !== 'N/A') seller.phone = String(data.phone).trim();
-            if (data.specialty && data.specialty !== 'N/A') seller.specialty = String(data.specialty).trim();
-            if (data.maxClients) seller.maxClients = Math.max(1, parseInt(data.maxClients) || 10);
-            if (data.notificationInterval) seller.notificationInterval = Math.max(5, parseInt(data.notificationInterval) || 30);
-            if (data.avgResponse !== undefined) seller.avgResponse = Math.max(0, parseInt(data.avgResponse) || 0);
-            if (data.notes && data.notes !== 'N/A') seller.notes = String(data.notes).trim();
-            if (data.workStart && data.workStart !== 'N/A') seller.workStart = String(data.workStart).trim();
-            if (data.workEnd && data.workEnd !== 'N/A') seller.workEnd = String(data.workEnd).trim();
-            if (data.daysOff && Array.isArray(data.daysOff)) seller.daysOff = data.daysOff;
+            if (data.name) {
+                seller.name = String(data.name).trim();
+                console.log('✏️ Nombre actualizado a:', seller.name);
+            }
+            if (data.email && data.email !== 'N/A') {
+                seller.email = String(data.email).trim();
+                console.log('✏️ Email actualizado a:', seller.email);
+            }
+            if (data.phone && data.phone !== 'N/A') {
+                seller.phone = String(data.phone).trim();
+                console.log('✏️ Teléfono actualizado a:', seller.phone);
+            }
+            if (data.specialty && data.specialty !== 'N/A') {
+                seller.specialty = String(data.specialty).trim();
+                console.log('✏️ Especialidad actualizada a:', seller.specialty);
+            }
+            if (data.maxClients) {
+                seller.maxClients = Math.max(1, parseInt(data.maxClients) || 10);
+                console.log('✏️ Máx clientes actualizado a:', seller.maxClients);
+            }
+            if (data.notificationInterval) {
+                seller.notificationInterval = Math.max(5, parseInt(data.notificationInterval) || 30);
+                console.log('✏️ Intervalo notificación actualizado a:', seller.notificationInterval);
+            }
+            if (data.avgResponse !== undefined) {
+                seller.avgResponse = Math.max(0, parseInt(data.avgResponse) || 0);
+                console.log('✏️ Respuesta promedio actualizada a:', seller.avgResponse);
+            }
+            if (data.notes && data.notes !== 'N/A') {
+                seller.notes = String(data.notes).trim();
+                console.log('✏️ Notas actualizadas');
+            }
+            if (data.workStart && data.workStart !== 'N/A') {
+                seller.workStart = String(data.workStart).trim();
+                console.log('✏️ Hora inicio actualizada a:', seller.workStart);
+            }
+            if (data.workEnd && data.workEnd !== 'N/A') {
+                seller.workEnd = String(data.workEnd).trim();
+                console.log('✏️ Hora fin actualizada a:', seller.workEnd);
+            }
+            if (data.daysOff && Array.isArray(data.daysOff)) {
+                seller.daysOff = data.daysOff;
+                console.log('✏️ Días libres actualizados:', data.daysOff);
+            }
             
             if (data.status === 'active') {
                 seller.active = true;
                 seller.status = 'available';
+                console.log('✏️ Estado actualizado a: ACTIVO');
             } else if (data.status === 'inactive') {
                 seller.active = false;
                 seller.status = 'offline';
+                console.log('✏️ Estado actualizado a: INACTIVO');
             }
             
-            console.log(`[SELLER UPDATE] Vendedor actualizado:`, seller);
+            console.log('📝 Datos DESPUÉS de actualizar:', JSON.stringify(seller, null, 2));
+            console.log('✅ Vendedor actualizado exitosamente');
+            console.log('==========================================\n');
             
             res.json({ success: true, message: `Vendedor ${seller.name} actualizado correctamente`, seller });
         } catch (error) {
-            console.error(`[SELLER UPDATE] Error:`, error);
+            console.error('❌ ERROR en actualización:', error);
+            console.error('Stack:', error.stack);
+            console.log('==========================================\n');
             res.status(500).json({ success: false, error: `Error: ${error.message}` });
         }
     });
