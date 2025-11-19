@@ -313,6 +313,94 @@ export const setupSellersManagementRoutes = (app) => {
 </html>\`;
         res.send(html);
     });
+
+    // GET /seller-availability - Página de disponibilidad
+    app.get('/seller-availability', (req, res) => {
+        const html = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Disponibilidad - Cocolu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f3f4f6; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 24px; display: flex; justify-content: space-between; }
+    .header h1 { font-size: 22px; }
+    .logout-btn { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+    .container { display: grid; grid-template-columns: 250px 1fr; min-height: calc(100vh - 60px); }
+    .sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; max-height: calc(100vh - 60px); }
+    .sidebar h3 { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin-bottom: 12px; margin-top: 18px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #374151; text-decoration: none; border-radius: 8px; font-size: 14px; margin-bottom: 4px; border-left: 3px solid transparent; }
+    .nav-item:hover { background: #eef2ff; border-left-color: #818cf8; }
+    .nav-item.active { background: #eef2ff; border-left-color: #4f46e5; color: #111827; font-weight: 600; }
+    .main { padding: 28px; overflow-y: auto; max-height: calc(100vh - 60px); }
+    .card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 10px 25px rgba(15,23,42,0.06); }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 20px 0; }
+    .summary-item { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; border-radius: 8px; text-align: center; }
+    .summary-value { font-size: 24px; font-weight: 700; }
+    .summary-label { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⏰ Disponibilidad</h1>
+    <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <h3>📊 Principal</h3>
+      <a href="/dashboard" class="nav-item">🏠 Dashboard</a>
+      
+      <h3>👥 Vendedores</h3>
+      <a href="/sellers" class="nav-item">👥 Gestión</a>
+      <a href="/seller-availability" class="nav-item active">⏰ Disponibilidad</a>
+      
+      <h3>🌐 Meta</h3>
+      <a href="/meta-settings" class="nav-item">⚙️ Config Meta</a>
+      <a href="/meta-diagnostics" class="nav-item">🧪 Diagnóstico</a>
+    </div>
+
+    <div class="main">
+      <div class="card">
+        <h2>⏰ Disponibilidad en Tiempo Real</h2>
+        <p style="color: #666; margin: 15px 0;">Estado actual de disponibilidad de vendedores</p>
+        
+        <div class="summary-grid" id="summaryGrid">
+          <div class="summary-item">
+            <div class="summary-value">-</div>
+            <div class="summary-label">Total</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">-</div>
+            <div class="summary-label">Trabajando</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">-</div>
+            <div class="summary-label">Disponibles</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">-</div>
+            <div class="summary-label">Offline</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+    }
+  </script>
+</body>
+</html>\`;
+        res.send(html);
+    });
 };
 
 export default setupSellersManagementRoutes;
