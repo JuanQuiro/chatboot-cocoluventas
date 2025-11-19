@@ -514,7 +514,7 @@ export const setupRoutes = (app) => {
             const { id } = req.params;
             const data = req.body;
             
-            logger.info(`[SELLER UPDATE] ID: ${id}, Datos recibidos:`, data);
+            console.log(`[SELLER UPDATE] ID: ${id}, Datos:`, JSON.stringify(data));
             
             const seller = sellersManager.getAllSellers().find(s => s.id === id);
             
@@ -522,69 +522,32 @@ export const setupRoutes = (app) => {
                 return res.status(404).json({ success: false, error: 'Vendedor no encontrado' });
             }
             
-            logger.info(`[SELLER UPDATE] Vendedor encontrado: ${seller.name}`);
-            
             // Actualizar cada campo de forma segura
-            if (data.name) {
-                seller.name = String(data.name).trim();
-                logger.info(`[SELLER UPDATE] Nombre actualizado a: ${seller.name}`);
-            }
-            if (data.email && data.email !== 'N/A') {
-                seller.email = String(data.email).trim();
-                logger.info(`[SELLER UPDATE] Email actualizado a: ${seller.email}`);
-            }
-            if (data.phone && data.phone !== 'N/A') {
-                seller.phone = String(data.phone).trim();
-                logger.info(`[SELLER UPDATE] Teléfono actualizado a: ${seller.phone}`);
-            }
-            if (data.specialty && data.specialty !== 'N/A') {
-                seller.specialty = String(data.specialty).trim();
-                logger.info(`[SELLER UPDATE] Especialidad actualizada a: ${seller.specialty}`);
-            }
-            if (data.maxClients) {
-                seller.maxClients = Math.max(1, parseInt(data.maxClients) || 10);
-                logger.info(`[SELLER UPDATE] Máx clientes actualizado a: ${seller.maxClients}`);
-            }
-            if (data.notificationInterval) {
-                seller.notificationInterval = Math.max(5, parseInt(data.notificationInterval) || 30);
-                logger.info(`[SELLER UPDATE] Intervalo notificación actualizado a: ${seller.notificationInterval}`);
-            }
-            if (data.avgResponse !== undefined) {
-                seller.avgResponse = Math.max(0, parseInt(data.avgResponse) || 0);
-                logger.info(`[SELLER UPDATE] Respuesta promedio actualizada a: ${seller.avgResponse}`);
-            }
-            if (data.notes && data.notes !== 'N/A') {
-                seller.notes = String(data.notes).trim();
-                logger.info(`[SELLER UPDATE] Notas actualizadas`);
-            }
-            if (data.workStart && data.workStart !== 'N/A') {
-                seller.workStart = String(data.workStart).trim();
-                logger.info(`[SELLER UPDATE] Hora inicio actualizada a: ${seller.workStart}`);
-            }
-            if (data.workEnd && data.workEnd !== 'N/A') {
-                seller.workEnd = String(data.workEnd).trim();
-                logger.info(`[SELLER UPDATE] Hora fin actualizada a: ${seller.workEnd}`);
-            }
-            if (data.daysOff && Array.isArray(data.daysOff)) {
-                seller.daysOff = data.daysOff;
-                logger.info(`[SELLER UPDATE] Días libres actualizados:`, data.daysOff);
-            }
+            if (data.name) seller.name = String(data.name).trim();
+            if (data.email && data.email !== 'N/A') seller.email = String(data.email).trim();
+            if (data.phone && data.phone !== 'N/A') seller.phone = String(data.phone).trim();
+            if (data.specialty && data.specialty !== 'N/A') seller.specialty = String(data.specialty).trim();
+            if (data.maxClients) seller.maxClients = Math.max(1, parseInt(data.maxClients) || 10);
+            if (data.notificationInterval) seller.notificationInterval = Math.max(5, parseInt(data.notificationInterval) || 30);
+            if (data.avgResponse !== undefined) seller.avgResponse = Math.max(0, parseInt(data.avgResponse) || 0);
+            if (data.notes && data.notes !== 'N/A') seller.notes = String(data.notes).trim();
+            if (data.workStart && data.workStart !== 'N/A') seller.workStart = String(data.workStart).trim();
+            if (data.workEnd && data.workEnd !== 'N/A') seller.workEnd = String(data.workEnd).trim();
+            if (data.daysOff && Array.isArray(data.daysOff)) seller.daysOff = data.daysOff;
             
             if (data.status === 'active') {
                 seller.active = true;
                 seller.status = 'available';
-                logger.info(`[SELLER UPDATE] Estado actualizado a: ACTIVO`);
             } else if (data.status === 'inactive') {
                 seller.active = false;
                 seller.status = 'offline';
-                logger.info(`[SELLER UPDATE] Estado actualizado a: INACTIVO`);
             }
             
-            logger.info(`[SELLER UPDATE] Vendedor actualizado completamente:`, seller);
+            console.log(`[SELLER UPDATE] Vendedor actualizado:`, seller);
             
             res.json({ success: true, message: `Vendedor ${seller.name} actualizado correctamente`, seller });
         } catch (error) {
-            logger.error(`[SELLER UPDATE] Error:`, error);
+            console.error(`[SELLER UPDATE] Error:`, error);
             res.status(500).json({ success: false, error: `Error: ${error.message}` });
         }
     });
