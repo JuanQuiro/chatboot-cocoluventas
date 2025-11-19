@@ -316,7 +316,7 @@ export const setupSellersManagementRoutes = (app) => {
 
     // GET /seller-availability - Página de disponibilidad
     app.get('/seller-availability', (req, res) => {
-        const html = `<!doctype html>
+        const html = '<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -398,7 +398,7 @@ export const setupSellersManagementRoutes = (app) => {
     }
   </script>
 </body>
-</html>\`;
+</html>';
         res.send(html);
     });
 };
