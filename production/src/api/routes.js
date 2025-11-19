@@ -506,6 +506,69 @@ export const setupRoutes = (app) => {
     });
 
     // ============================================
+    // GUARDAR EDICIÓN DE VENDEDOR
+    // ============================================
+    
+    app.post('/api/seller/:id/update', (req, res) => {
+        try {
+            const { id } = req.params;
+            const { name, email, phone, specialty, maxClients, notes, workStart, workEnd, daysOff, notificationInterval, avgResponse, status } = req.body;
+            
+            // Obtener el vendedor
+            const seller = sellersManager.getAllSellers().find(s => s.id === id);
+            
+            if (!seller) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Vendedor no encontrado'
+                });
+            }
+            
+            // Actualizar campos
+            if (name) seller.name = name;
+            if (email && email !== 'N/A') seller.email = email;
+            if (phone && phone !== 'N/A') seller.phone = phone;
+            if (specialty && specialty !== 'N/A') seller.specialty = specialty;
+            if (maxClients) seller.maxClients = parseInt(maxClients);
+            if (notificationInterval) seller.notificationInterval = parseInt(notificationInterval);
+            if (avgResponse !== undefined) seller.avgResponse = parseInt(avgResponse);
+            if (notes && notes !== 'N/A') seller.notes = notes;
+            if (workStart && workStart !== 'N/A') seller.workStart = workStart;
+            if (workEnd && workEnd !== 'N/A') seller.workEnd = workEnd;
+            if (daysOff && Array.isArray(daysOff)) seller.daysOff = daysOff;
+            
+            // Cambiar estado si se proporciona
+            if (status === 'active') {
+                seller.active = true;
+                seller.status = 'available';
+            } else if (status === 'inactive') {
+                seller.active = false;
+                seller.status = 'offline';
+            }
+            
+            res.json({
+                success: true,
+                message: `Vendedor ${name} actualizado correctamente`,
+                seller: {
+                    id: seller.id,
+                    name: seller.name,
+                    email: seller.email,
+                    phone: seller.phone,
+                    specialty: seller.specialty,
+                    maxClients: seller.maxClients,
+                    status: seller.status,
+                    active: seller.active
+                }
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
+    // ============================================
     // ENDPOINTS ABIERTOS PARA DASHBOARD SIMPLE
     // ============================================
 
