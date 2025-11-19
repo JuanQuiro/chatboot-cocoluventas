@@ -9,6 +9,8 @@ import { JsonFileDB as Database } from '@builderbot/database-json';
 import { BaileysProvider } from '@builderbot/provider-baileys';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Importar flujos de negocio
 import welcomeFlow from './src/flows/welcome.flow.js';
@@ -119,11 +121,11 @@ const main = async () => {
         apiApp.use(express.json());
         
         // Servir archivos estáticos del dashboard React
-        import('path').then(({ resolve }) => {
-            const dashboardBuildPath = resolve(process.cwd(), 'production/dashboard/build');
-            apiApp.use(express.static(dashboardBuildPath));
-            console.log(`✅ Dashboard React servido desde: ${dashboardBuildPath}`);
-        });
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const dashboardBuildPath = path.join(__dirname, '../production/dashboard/build');
+        apiApp.use(express.static(dashboardBuildPath));
+        console.log(`✅ Dashboard React servido desde: ${dashboardBuildPath}`);
         
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
