@@ -512,59 +512,37 @@ export const setupRoutes = (app) => {
     app.post('/api/seller/:id/update', (req, res) => {
         try {
             const { id } = req.params;
-            const { name, email, phone, specialty, maxClients, notes, workStart, workEnd, daysOff, notificationInterval, avgResponse, status } = req.body;
-            
-            // Obtener el vendedor
+            const data = req.body;
             const seller = sellersManager.getAllSellers().find(s => s.id === id);
             
             if (!seller) {
-                return res.status(404).json({
-                    success: false,
-                    error: 'Vendedor no encontrado'
-                });
+                return res.status(404).json({ success: false, error: 'Vendedor no encontrado' });
             }
             
-            // Actualizar campos
-            if (name) seller.name = name;
-            if (email && email !== 'N/A') seller.email = email;
-            if (phone && phone !== 'N/A') seller.phone = phone;
-            if (specialty && specialty !== 'N/A') seller.specialty = specialty;
-            if (maxClients) seller.maxClients = parseInt(maxClients);
-            if (notificationInterval) seller.notificationInterval = parseInt(notificationInterval);
-            if (avgResponse !== undefined) seller.avgResponse = parseInt(avgResponse);
-            if (notes && notes !== 'N/A') seller.notes = notes;
-            if (workStart && workStart !== 'N/A') seller.workStart = workStart;
-            if (workEnd && workEnd !== 'N/A') seller.workEnd = workEnd;
-            if (daysOff && Array.isArray(daysOff)) seller.daysOff = daysOff;
+            // Actualizar cada campo de forma segura
+            if (data.name) seller.name = String(data.name).trim();
+            if (data.email && data.email !== 'N/A') seller.email = String(data.email).trim();
+            if (data.phone && data.phone !== 'N/A') seller.phone = String(data.phone).trim();
+            if (data.specialty && data.specialty !== 'N/A') seller.specialty = String(data.specialty).trim();
+            if (data.maxClients) seller.maxClients = Math.max(1, parseInt(data.maxClients) || 10);
+            if (data.notificationInterval) seller.notificationInterval = Math.max(5, parseInt(data.notificationInterval) || 30);
+            if (data.avgResponse !== undefined) seller.avgResponse = Math.max(0, parseInt(data.avgResponse) || 0);
+            if (data.notes && data.notes !== 'N/A') seller.notes = String(data.notes).trim();
+            if (data.workStart && data.workStart !== 'N/A') seller.workStart = String(data.workStart).trim();
+            if (data.workEnd && data.workEnd !== 'N/A') seller.workEnd = String(data.workEnd).trim();
+            if (data.daysOff && Array.isArray(data.daysOff)) seller.daysOff = data.daysOff;
             
-            // Cambiar estado si se proporciona
-            if (status === 'active') {
+            if (data.status === 'active') {
                 seller.active = true;
                 seller.status = 'available';
-            } else if (status === 'inactive') {
+            } else if (data.status === 'inactive') {
                 seller.active = false;
                 seller.status = 'offline';
             }
             
-            res.json({
-                success: true,
-                message: `Vendedor ${name} actualizado correctamente`,
-                seller: {
-                    id: seller.id,
-                    name: seller.name,
-                    email: seller.email,
-                    phone: seller.phone,
-                    specialty: seller.specialty,
-                    maxClients: seller.maxClients,
-                    status: seller.status,
-                    active: seller.active
-                }
-            });
+            res.json({ success: true, message: `Vendedor ${seller.name} actualizado correctamente`, seller });
         } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message
-            });
+            res.status(500).json({ success: false, error: `Error: ${error.message}` });
         }
     });
 
