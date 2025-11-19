@@ -460,6 +460,52 @@ export const setupRoutes = (app) => {
     });
 
     // ============================================
+    // CAMBIAR ESTADO DE VENDEDOR
+    // ============================================
+    
+    app.post('/api/seller/:id/status', (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            
+            // Obtener el vendedor
+            const seller = sellersManager.getAllSellers().find(s => s.id === id);
+            
+            if (!seller) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Vendedor no encontrado'
+                });
+            }
+            
+            // Cambiar el estado
+            if (status === 'active') {
+                seller.active = true;
+                seller.status = 'available';
+            } else if (status === 'inactive') {
+                seller.active = false;
+                seller.status = 'offline';
+            }
+            
+            res.json({
+                success: true,
+                message: `Vendedor ${id} actualizado a ${status}`,
+                seller: {
+                    id: seller.id,
+                    name: seller.name,
+                    active: seller.active,
+                    status: seller.status
+                }
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
+    // ============================================
     // ENDPOINTS ABIERTOS PARA DASHBOARD SIMPLE
     // ============================================
 
