@@ -118,6 +118,10 @@ const main = async () => {
         
         apiApp.use(express.json());
         
+        // Servir archivos estáticos del dashboard React
+        const dashboardBuildPath = new URL('../dashboard/build', import.meta.url).pathname;
+        apiApp.use(express.static(dashboardBuildPath));
+        
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
         
