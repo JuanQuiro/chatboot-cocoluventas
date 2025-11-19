@@ -681,7 +681,7 @@ html, body {
     
     <nav class="sidebar-nav">
       <div class="nav-category">
-        <div class="category-header">📊 Principal</div>
+        <div class="category-header">Principal</div>
         <a href="/dashboard" class="nav-item">
           <span class="nav-icon">🏠</span>
           <span>Dashboard</span>
@@ -715,6 +715,8 @@ html, body {
           <span>Disponibilidad</span>
         </a>
       </div>
+      
+
       
       <div class="nav-category">
         <div class="category-header">⚙️ Configuración</div>
