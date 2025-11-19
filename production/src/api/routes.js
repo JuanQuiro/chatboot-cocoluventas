@@ -543,12 +543,16 @@ export const setupRoutes = (app) => {
                 console.log('✏️ Nombre actualizado a:', seller.name);
             }
             if (data.email && data.email !== 'N/A') {
+                console.log('🔧 ANTES de asignar email - seller.email:', seller.email);
                 seller.email = String(data.email).trim();
                 console.log('✏️ Email actualizado a:', seller.email);
+                console.log('🔧 DESPUÉS de asignar email - seller.email:', seller.email);
             }
             if (data.phone && data.phone !== 'N/A') {
+                console.log('🔧 ANTES de asignar phone - seller.phone:', seller.phone);
                 seller.phone = String(data.phone).trim();
                 console.log('✏️ Teléfono actualizado a:', seller.phone);
+                console.log('🔧 DESPUÉS de asignar phone - seller.phone:', seller.phone);
             }
             if (data.specialty && data.specialty !== 'N/A') {
                 seller.specialty = String(data.specialty).trim();
