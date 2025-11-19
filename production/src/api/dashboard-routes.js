@@ -546,6 +546,16 @@ export const setupDashboardRoutes = (app) => {
         <span class="nav-label">Conexión</span>
       </a>
       
+      <h3>👥 Vendedores</h3>
+      <a href="/sellers" class="nav-item">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">Vendedores</span>
+      </a>
+      <a href="/seller-availability" class="nav-item">
+        <span class="nav-icon">⏰</span>
+        <span class="nav-label">Disponibilidad</span>
+      </a>
+      
       <h3>⚙️ Configuración</h3>
       <a href="/adapters" class="nav-item">
         <span class="nav-icon">🔌</span>
