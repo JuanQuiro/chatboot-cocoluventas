@@ -242,6 +242,32 @@ class SellersManager {
     }
 
     /**
+     * Eliminar vendedor
+     * @param {string} sellerId - ID del vendedor a eliminar
+     */
+    deleteSeller(sellerId) {
+        const index = this.sellers.findIndex(s => s.id === sellerId);
+
+        if (index === -1) {
+            throw new Error(`Vendedor con ID ${sellerId} no encontrado`);
+        }
+
+        const seller = this.sellers[index];
+
+        // Verificar si tiene clientes asignados
+        if (seller.currentClients > 0) {
+            throw new Error(`No se puede eliminar vendedor ${seller.name} porque tiene ${seller.currentClients} cliente(s) asignado(s)`);
+        }
+
+        // Eliminar del array
+        this.sellers.splice(index, 1);
+
+        console.log(`✅ Vendedor ${seller.name} (${sellerId}) eliminado correctamente`);
+
+        return { success: true, deletedSeller: seller };
+    }
+
+    /**
      * Obtener estadísticas globales
      */
     getStats() {
@@ -308,7 +334,7 @@ class SellersManager {
             if (state.currentIndex !== undefined) this.currentIndex = state.currentIndex;
             if (state.assignments) this.assignments = new Map(state.assignments);
             if (state.stats) this.stats = state.stats;
-            
+
             console.log(`✅ Estado de vendedores restaurado (${state.timestamp})`);
         } catch (error) {
             console.error('❌ Error restaurando estado de vendedores:', error);

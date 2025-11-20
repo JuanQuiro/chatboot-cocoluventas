@@ -56,22 +56,22 @@ const updateEnvVariables = (updates = {}) => {
 };
 
 export const setupRoutes = (app) => {
-    
+
     // ============================================
     // BOTS - Gestión de Chatbots
     // ============================================
     app.use('/api/bots', botsRouter);
-    
+
     // ============================================
     // FLOWS - Gestión de Flujos
     // ============================================
     app.use('/api/flows', flowsRouter);
-    
+
     // ============================================
     // LOGS - Sistema de logs persistente
     // ============================================
     // app.use('/api/logs', logsRouter);
-    
+
     // ============================================
     // COMANDOS - Listado de comandos del bot
     // ============================================
@@ -159,18 +159,18 @@ export const setupRoutes = (app) => {
                 'Las keywords de productos funcionan en mayúsculas o minúsculas'
             ]
         };
-        
+
         res.json({
             success: true,
             comandos,
             timestamp: new Date().toISOString()
         });
     });
-    
+
     // ============================================
     // DASHBOARD - Información general
     // ============================================
-    
+
     app.get('/api/dashboard', (req, res) => {
         try {
             const summary = {
@@ -179,7 +179,7 @@ export const setupRoutes = (app) => {
                 workload: sellersManager.getWorkload(),
                 timestamp: new Date().toISOString()
             };
-            
+
             res.json({
                 success: true,
                 data: summary
@@ -195,7 +195,7 @@ export const setupRoutes = (app) => {
     // ============================================
     // VENDEDORES
     // ============================================
-    
+
     // Obtener todos los vendedores
     app.get('/api/sellers', (req, res) => {
         try {
@@ -217,14 +217,14 @@ export const setupRoutes = (app) => {
         try {
             const seller = sellersManager.getAllSellers()
                 .find(s => s.id === req.params.id);
-            
+
             if (!seller) {
                 return res.status(404).json({
                     success: false,
                     error: 'Vendedor no encontrado'
                 });
             }
-            
+
             res.json({
                 success: true,
                 data: seller
@@ -258,13 +258,29 @@ export const setupRoutes = (app) => {
         try {
             const { status } = req.body;
             sellersManager.updateSellerStatus(req.params.id, status);
-            
+
             res.json({
                 success: true,
                 message: 'Estado actualizado'
             });
         } catch (error) {
             res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
+    // Eliminar vendedor
+    app.delete('/api/sellers/:id', (req, res) => {
+        try {
+            const result = sellersManager.deleteSeller(req.params.id);
+            res.json({
+                success: true,
+                message: `Vendedor ${result.deletedSeller.name} eliminado correctamente`
+            });
+        } catch (error) {
+            res.status(400).json({
                 success: false,
                 error: error.message
             });
@@ -290,7 +306,7 @@ export const setupRoutes = (app) => {
     // ============================================
     // ANALYTICS
     // ============================================
-    
+
     // Obtener métricas completas
     app.get('/api/analytics/metrics', (req, res) => {
         try {
@@ -328,7 +344,7 @@ export const setupRoutes = (app) => {
         try {
             const limit = parseInt(req.query.limit) || 50;
             const events = analyticsService.getRecentEvents(limit);
-            
+
             res.json({
                 success: true,
                 data: events
@@ -344,7 +360,7 @@ export const setupRoutes = (app) => {
     // ============================================
     // PEDIDOS
     // ============================================
-    
+
     // Obtener todos los pedidos
     app.get('/api/orders', async (req, res) => {
         try {
@@ -365,14 +381,14 @@ export const setupRoutes = (app) => {
     app.get('/api/orders/:id', async (req, res) => {
         try {
             const order = await getOrderStatus(req.params.id);
-            
+
             if (!order) {
                 return res.status(404).json({
                     success: false,
                     error: 'Pedido no encontrado'
                 });
             }
-            
+
             res.json({
                 success: true,
                 data: order
@@ -388,13 +404,13 @@ export const setupRoutes = (app) => {
     // ============================================
     // PRODUCTOS
     // ============================================
-    
+
     // Obtener todos los productos
     app.get('/api/products', async (req, res) => {
         try {
             const searchTerm = req.query.search;
             const products = await getProducts(searchTerm);
-            
+
             res.json({
                 success: true,
                 data: products
@@ -410,7 +426,7 @@ export const setupRoutes = (app) => {
     // ============================================
     // SOPORTE
     // ============================================
-    
+
     // Obtener tickets pendientes
     app.get('/api/support/pending', async (req, res) => {
         try {
@@ -430,7 +446,7 @@ export const setupRoutes = (app) => {
     // ============================================
     // HEALTH CHECK
     // ============================================
-    
+
     app.get('/api/health', (req, res) => {
         try {
             const bots = botManager.getGlobalStats();
@@ -464,22 +480,22 @@ export const setupRoutes = (app) => {
     // ============================================
     // CAMBIAR ESTADO DE VENDEDOR
     // ============================================
-    
+
     app.post('/api/seller/:id/status', (req, res) => {
         try {
             const { id } = req.params;
             const { status } = req.body;
-            
+
             // Obtener el vendedor
             const seller = sellersManager.getAllSellers().find(s => s.id === id);
-            
+
             if (!seller) {
                 return res.status(404).json({
                     success: false,
                     error: 'Vendedor no encontrado'
                 });
             }
-            
+
             // Cambiar el estado
             if (status === 'active') {
                 seller.active = true;
@@ -488,7 +504,7 @@ export const setupRoutes = (app) => {
                 seller.active = false;
                 seller.status = 'offline';
             }
-            
+
             res.json({
                 success: true,
                 message: `Vendedor ${id} actualizado a ${status}`,
@@ -510,33 +526,33 @@ export const setupRoutes = (app) => {
     // ============================================
     // GUARDAR EDICIÓN DE VENDEDOR
     // ============================================
-    
+
     app.post('/api/seller/:id/update', (req, res) => {
         console.log('\n========== SELLER UPDATE REQUEST ==========');
         console.log('📍 Endpoint: POST /api/seller/:id/update');
         console.log('⏰ Timestamp:', new Date().toISOString());
-        
+
         try {
             const { id } = req.params;
             const data = req.body;
-            
+
             console.log('📦 ID Recibido:', id);
             console.log('📦 Datos Recibidos:', JSON.stringify(data, null, 2));
-            
+
             const allSellers = sellersManager.getAllSellers();
             console.log('📊 Total de vendedores en sistema:', allSellers.length);
             console.log('📋 IDs disponibles:', allSellers.map(s => s.id).join(', '));
-            
+
             const seller = allSellers.find(s => s.id === id);
-            
+
             if (!seller) {
                 console.log('❌ Vendedor NO encontrado con ID:', id);
                 return res.status(404).json({ success: false, error: 'Vendedor no encontrado' });
             }
-            
+
             console.log('✅ Vendedor encontrado:', seller.name);
             console.log('📝 Datos ANTES de actualizar:', JSON.stringify(seller, null, 2));
-            
+
             // Actualizar cada campo de forma segura
             if (data.name) {
                 seller.name = String(data.name).trim();
@@ -586,7 +602,7 @@ export const setupRoutes = (app) => {
                 seller.daysOff = data.daysOff;
                 console.log('✏️ Días libres actualizados:', data.daysOff);
             }
-            
+
             if (data.status === 'active') {
                 seller.active = true;
                 seller.status = 'available';
@@ -596,17 +612,17 @@ export const setupRoutes = (app) => {
                 seller.status = 'offline';
                 console.log('✏️ Estado actualizado a: INACTIVO');
             }
-            
+
             console.log('📝 Datos DESPUÉS de actualizar:', JSON.stringify(seller, null, 2));
             console.log('✅ Vendedor actualizado exitosamente');
-            
+
             // Verificación: Leer nuevamente del manager para confirmar persistencia
             const verifyAllSellers = sellersManager.getAllSellers();
             const verifySeller = verifyAllSellers.find(s => s.id === id);
             console.log('🔍 VERIFICACIÓN DE PERSISTENCIA:');
             console.log('✅ Vendedor verificado en memoria:', JSON.stringify(verifySeller, null, 2));
             console.log('==========================================\n');
-            
+
             res.json({ success: true, message: `Vendedor ${seller.name} actualizado correctamente`, seller });
         } catch (error) {
             console.error('❌ ERROR en actualización:', error);
@@ -662,25 +678,25 @@ export const setupRoutes = (app) => {
     // ============================================
     // SERVER-SENT EVENTS (SSE) - Tiempo real
     // ============================================
-    
+
     app.get('/api/events', (req, res) => {
         // Configurar SSE
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        
+
         // Enviar heartbeat cada 30 segundos
         const heartbeat = setInterval(() => {
             res.write(': heartbeat\n\n');
         }, 30000);
-        
+
         // Función para enviar eventos
         const sendEvent = (event, data) => {
             res.write(`event: ${event}\n`);
             res.write(`data: ${JSON.stringify(data)}\n\n`);
         };
-        
+
         // Enviar datos iniciales
         (async () => {
             try {
@@ -690,14 +706,14 @@ export const setupRoutes = (app) => {
                 const messages = log && typeof log.getAll === 'function'
                     ? log.getAll()
                     : { received: [], sent: [], errors: [] };
-                
+
                 sendEvent('messages', messages);
-                
+
                 // Logs recientes
                 const logsService = (await import('../../services/logs.service.js')).default;
                 const recentLogs = await logsService.getRecentLogs({ limit: 50 });
                 sendEvent('logs', recentLogs);
-                
+
                 // Métricas
                 const metrics = analyticsService.getMetrics();
                 sendEvent('metrics', metrics);
@@ -705,7 +721,7 @@ export const setupRoutes = (app) => {
                 console.error('Error en SSE inicial:', error);
             }
         })();
-        
+
         // Polling para actualizar datos cada 2 segundos
         const pollInterval = setInterval(async () => {
             try {
@@ -715,14 +731,14 @@ export const setupRoutes = (app) => {
                 const messages = log && typeof log.getAll === 'function'
                     ? log.getAll()
                     : { received: [], sent: [], errors: [] };
-                
+
                 sendEvent('messages', messages);
-                
+
                 // Logs recientes (solo los últimos 20)
                 const logsService = (await import('../../services/logs.service.js')).default;
                 const recentLogs = await logsService.getRecentLogs({ limit: 20 });
                 sendEvent('logs', recentLogs);
-                
+
                 // Métricas
                 const metrics = analyticsService.getMetrics();
                 sendEvent('metrics', metrics);
@@ -730,7 +746,7 @@ export const setupRoutes = (app) => {
                 console.error('Error en SSE polling:', error);
             }
         }, 2000);
-        
+
         // Limpiar al cerrar conexión
         req.on('close', () => {
             clearInterval(heartbeat);
@@ -738,7 +754,7 @@ export const setupRoutes = (app) => {
             res.end();
         });
     });
-    
+
     // ============================================
     // META BILLING - Facturación de Meta
     // ============================================
@@ -747,10 +763,10 @@ export const setupRoutes = (app) => {
             const { startDate, endDate } = req.query;
             const start = startDate ? new Date(startDate) : null;
             const end = endDate ? new Date(endDate) : null;
-            
+
             const metaBillingService = (await import('../services/meta-billing.service.js')).default;
             const summary = metaBillingService.getBillingSummary(start, end);
-            
+
             res.json({
                 success: true,
                 data: summary,
@@ -763,15 +779,15 @@ export const setupRoutes = (app) => {
             });
         }
     });
-    
+
     app.get('/api/meta/billing/history', async (req, res) => {
         try {
             const limit = parseInt(req.query.limit) || 100;
             const offset = parseInt(req.query.offset) || 0;
-            
+
             const metaBillingService = (await import('../services/meta-billing.service.js')).default;
             const history = metaBillingService.getMessageHistory(limit, offset);
-            
+
             res.json({
                 success: true,
                 data: history,
@@ -784,14 +800,14 @@ export const setupRoutes = (app) => {
             });
         }
     });
-    
+
     app.get('/api/meta/billing/monthly', async (req, res) => {
         try {
             const months = parseInt(req.query.months) || 6;
-            
+
             const metaBillingService = (await import('../services/meta-billing.service.js')).default;
             const stats = metaBillingService.getMonthlyStats(months);
-            
+
             res.json({
                 success: true,
                 data: stats,
@@ -804,12 +820,12 @@ export const setupRoutes = (app) => {
             });
         }
     });
-    
+
     app.get('/api/meta/billing/pricing', async (req, res) => {
         try {
             const metaBillingService = (await import('../services/meta-billing.service.js')).default;
             const pricing = metaBillingService.getPricing();
-            
+
             res.json({
                 success: true,
                 data: pricing,

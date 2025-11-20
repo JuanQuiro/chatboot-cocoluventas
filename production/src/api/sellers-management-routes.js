@@ -539,33 +539,40 @@ function saveSeller() {
   }
   
   if (isCreating) {
-    // CREAR NUEVO VENDEDOR
-    const newId = 'SELLER' + String(allSellers.length + 1).padStart(3, '0');
+    // CREAR NUEVO VENDEDOR - USAR ENDPOINT REAL
     const newSeller = {
-      id: newId,
       name: name,
-      email: email || 'N/A',
-      phone: phone || 'N/A',
+      email: email || '',
+      phone: phone || '',
       specialty: specialty,
       maxClients: maxClients,
       notes: notes,
-      workStart: workStart,
-      workEnd: workEnd,
-      status: 'available',
-      rating: 5.0,
-      currentClients: 0
+     workStart: workStart,
+      workEnd: workEnd
     };
     
-    // Agregar al array local
-    allSellers.push(newSeller);
-    
-    // Simular guardado exitoso
-    showAlert('✅ Vendedor creado correctamente', 'success', 'modalAlert');
-    setTimeout(function() {
-      closeModal();
-      applyFiltersAndRender();
-      showToast('Vendedor ' + name + ' creado exitosamente', 'success');
-    }, 1000);
+    fetch('/api/sellers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSeller)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.success) {
+        showAlert('✅ Vendedor creado correctamente', 'success', 'modalAlert');
+        setTimeout(function() {
+          closeModal();
+          load(); // Recargar desde el servidor
+          showToast('Vendedor ' + name + ' creado exitosamente', 'success');
+        }, 1000);
+      } else {
+        showAlert('Error: ' + (d.error || 'No se pudo crear el vendedor'), 'error', 'modalAlert');
+      }
+    })
+    .catch(function(e) {
+      console.error(e);
+      showAlert('Error al crear vendedor', 'error', 'modalAlert');
+    });
     
   } else {
     // EDITAR VENDEDOR EXISTENTE
@@ -701,16 +708,28 @@ function confirmDelete() {
   btn.disabled = true;
   btn.innerHTML = '<span class="loading-spinner"></span>Eliminando...';
   
-  // Eliminar del array local (simulación)
-  allSellers = allSellers.filter(function(s) { return s.id !== sellerToDelete; });
-  
-  setTimeout(function() {
-    closeConfirmModal();
-    applyFiltersAndRender();
-    showToast('Vendedor eliminado correctamente', 'success');
+  // USAR ENDPOINT REAL
+  fetch('/api/sellers/' + sellerToDelete, {
+    method: 'DELETE'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      closeConfirmModal();
+      load(); // Recargar desde servidor
+      showToast(d.message || 'Vendedor eliminado correctamente', 'success');
+    } else {
+      showToast(d.error || 'Error al eliminar vendedor', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Eliminar';
+    }
+  })
+  .catch(function(e) {
+    console.error(e);
+    showToast('Error al eliminar vendedor', 'error');
     btn.disabled = false;
     btn.textContent = 'Eliminar';
-  }, 800);
+  });
 }
 
 function closeConfirmModal() {
