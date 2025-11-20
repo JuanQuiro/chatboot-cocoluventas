@@ -1,83 +1,25 @@
 /**
  * Servicio de gestión de vendedores con rotación Round-Robin
- * Sistema inteligente de asignación de clientes
+ * Sistema inteligente de asignación de clientes con persistencia SQLite
  */
+
+import Database from 'better-sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class SellersManager {
     constructor() {
-        // Lista de vendedores activos
-        this.sellers = [
-            {
-                id: 'SELLER001',
-                name: 'Ana García',
-                phone: '+573001234567',
-                email: 'ana@emberdrago.com',
-                active: true,
-                specialty: 'premium',
-                maxClients: 10,
-                currentClients: 0,
-                totalSales: 0,
-                rating: 4.8,
-                status: 'available', // available, busy, offline
-                assignedAt: null
-            },
-            {
-                id: 'SELLER002',
-                name: 'Carlos Méndez',
-                phone: '+573009876543',
-                email: 'carlos@emberdrago.com',
-                active: true,
-                specialty: 'general',
-                maxClients: 10,
-                currentClients: 0,
-                totalSales: 0,
-                rating: 4.9,
-                status: 'available',
-                assignedAt: null
-            },
-            {
-                id: 'SELLER003',
-                name: 'María López',
-                phone: '+573005555555',
-                email: 'maria@emberdrago.com',
-                active: true,
-                specialty: 'technical',
-                maxClients: 8,
-                currentClients: 0,
-                totalSales: 0,
-                rating: 4.7,
-                status: 'available',
-                assignedAt: null
-            },
-            {
-                id: 'SELLER004',
-                name: 'Juan Rodríguez',
-                phone: '+573007777777',
-                email: 'juan@emberdrago.com',
-                active: true,
-                specialty: 'general',
-                maxClients: 10,
-                currentClients: 0,
-                totalSales: 0,
-                rating: 4.6,
-                status: 'available',
-                assignedAt: null
-            },
-            {
-                id: 'SELLER005',
-                name: 'Laura Martínez',
-                phone: '+573008888888',
-                email: 'laura@emberdrago.com',
-                active: true,
-                specialty: 'vip',
-                maxClients: 5,
-                currentClients: 0,
-                totalSales: 0,
-                rating: 5.0,
-                status: 'available',
-                assignedAt: null
-            }
-        ];
+        // Inicializar base de datos SQLite
+        const dbPath = path.join(process.cwd(), 'database', 'sellers.db');
+        this.db = new Database(dbPath);
+
+        console.log(`📦 SQLite database initialized at: ${dbPath}`);
+
+        // Crear tabla si no existe
+        this.initializeDatabase();
 
         // Índice actual para rotación Round-Robin
         this.currentIndex = 0;
@@ -95,17 +37,116 @@ class SellersManager {
     }
 
     /**
+     * Inicializar esquema de base de datos
+     */
+    initializeDatabase() {
+        // Crear tabla de vendedores
+        this.db.exec(`
+            CREATE TABLE IF NOT EXISTS sellers (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                phone TEXT,
+                email TEXT,
+                active INTEGER DEFAULT 1,
+                specialty TEXT DEFAULT 'general',
+                maxClients INTEGER DEFAULT 10,
+                currentClients INTEGER DEFAULT 0,
+                totalSales INTEGER DEFAULT 0,
+                rating REAL DEFAULT 5.0,
+                status TEXT DEFAULT 'available',
+                notes TEXT,
+                workStart TEXT,
+                workEnd TEXT,
+                daysOff TEXT,
+                notificationInterval INTEGER DEFAULT 30,
+                avgResponse INTEGER DEFAULT 0,
+                assignedAt TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Verificar si hay datos, sino insertar vendedores por defecto
+        const count = this.db.prepare('SELECT COUNT(*) as count FROM sellers').get();
+
+        if (count.count === 0) {
+            console.log('📥 Insertando vendedores por defecto...');
+            this.seedDefaultSellers();
+        } else {
+            console.log(`✅ Base de datos tiene ${count.count} vendedor(es)`);
+        }
+    }
+
+    /**
+     * Insertar vendedores por defecto
+     */
+    seedDefaultSellers() {
+        const defaults = [
+            { id: 'SELLER001', name: 'Ana García', phone: '+573001234567', email: 'ana@emberdrago.com', specialty: 'premium', rating: 4.8 },
+            { id: 'SELLER002', name: 'Carlos Méndez', phone: '+573009876543', email: 'carlos@emberdrago.com', specialty: 'general', rating: 4.9 },
+            { id: 'SELLER003', name: 'María López', phone: '+573005555555', email: 'maria@emberdrago.com', specialty: 'technical', rating: 4.7, maxClients: 8 },
+            { id: 'SELLER004', name: 'Juan Rodríguez', phone: '+573007777777', email: 'juan@emberdrago.com', specialty: 'general', rating: 4.6 },
+            { id: 'SELLER005', name: 'Laura Martínez', phone: '+573008888888', email: 'laura@emberdrago.com', specialty: 'vip', rating: 5.0, maxClients: 5 }
+        ];
+
+        const insert = this.db.prepare(`
+            INSERT INTO sellers (id, name, phone, email, specialty, maxClients, rating, status, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'available', 1)
+        `);
+
+        for (const seller of defaults) {
+            insert.run(
+                seller.id,
+                seller.name,
+                seller.phone,
+                seller.email,
+                seller.specialty,
+                seller.maxClients || 10,
+                seller.rating
+            );
+        }
+
+        console.log(`✅ ${defaults.length} vendedores por defecto insertados`);
+    }
+
+    /**
      * Obtener todos los vendedores
      */
     getAllSellers() {
-        return this.sellers;
+        const stmt = this.db.prepare('SELECT * FROM sellers');
+        return stmt.all().map(s => ({
+            ...s,
+            active: Boolean(s.active),
+            daysOff: s.daysOff ? JSON.parse(s.daysOff) : []
+        }));
     }
 
     /**
      * Obtener vendedores activos
      */
     getActiveSellers() {
-        return this.sellers.filter(s => s.active && s.status !== 'offline');
+        const stmt = this.db.prepare('SELECT * FROM sellers WHERE active = 1 AND status != ?');
+        return stmt.all('offline').map(s => ({
+            ...s,
+            active: Boolean(s.active),
+            daysOff: s.daysOff ? JSON.parse(s.daysOff) : []
+        }));
+    }
+
+    /**
+     * Obtener vendedor por ID
+     */
+    getSeller(id) {
+        const stmt = this.db.prepare('SELECT * FROM sellers WHERE id = ?');
+        const seller = stmt.get(id);
+
+        if (!seller) return null;
+
+        return {
+            ...seller,
+            active: Boolean(seller.active),
+            daysOff: seller.daysOff ? JSON.parse(seller.daysOff) : []
+        };
     }
 
     /**
@@ -117,8 +158,8 @@ class SellersManager {
     assignSeller(userId, specialty = null) {
         // Si ya tiene vendedor asignado, retornar el mismo
         if (this.assignments.has(userId)) {
-            const sellerId = this.assignments.get(userId).sellerId;
-            const seller = this.sellers.find(s => s.id === sellerId);
+            const assignment = this.assignments.get(userId);
+            const seller = this.getSeller(assignment.sellerId);
             if (seller && seller.active) {
                 return seller;
             }
@@ -140,7 +181,6 @@ class SellersManager {
         }
 
         if (availableSellers.length === 0) {
-            // Si no hay vendedores disponibles, asignar al con menos clientes
             availableSellers = this.getActiveSellers();
             availableSellers.sort((a, b) => a.currentClients - b.currentClients);
         }
@@ -156,9 +196,15 @@ class SellersManager {
             status: 'active'
         });
 
-        // Actualizar contador de clientes
-        seller.currentClients++;
-        seller.assignedAt = new Date().toISOString();
+        // Actualizar contador de clientes en BD
+        const updateStmt = this.db.prepare(`
+            UPDATE sellers 
+            SET currentClients = currentClients + 1, 
+                assignedAt = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        updateStmt.run(new Date().toISOString(), seller.id);
 
         // Actualizar estadísticas
         this.stats.totalAssignments++;
@@ -166,7 +212,7 @@ class SellersManager {
 
         console.log(`✅ Cliente ${userId} asignado a ${seller.name} (${seller.id})`);
 
-        return seller;
+        return this.getSeller(seller.id);
     }
 
     /**
@@ -177,18 +223,23 @@ class SellersManager {
         const assignment = this.assignments.get(userId);
         if (!assignment) return;
 
-        const seller = this.sellers.find(s => s.id === assignment.sellerId);
-        if (seller) {
-            seller.currentClients = Math.max(0, seller.currentClients - 1);
-            this.stats.activeConversations = Math.max(0, this.stats.activeConversations - 1);
-            this.stats.completedConversations++;
-        }
+        // Decrementar currentClients en BD
+        const updateStmt = this.db.prepare(`
+            UPDATE sellers 
+            SET currentClients = MAX(0, currentClients - 1),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        updateStmt.run(assignment.sellerId);
 
-        // Marcar como completada pero mantener historial
+        this.stats.activeConversations = Math.max(0, this.stats.activeConversations - 1);
+        this.stats.completedConversations++;
+
+        // Marcar como completada
         assignment.status = 'completed';
         assignment.completedAt = new Date().toISOString();
 
-        console.log(`✅ Cliente ${userId} liberado de ${seller?.name}`);
+        console.log(`✅ Cliente ${userId} liberado`);
     }
 
     /**
@@ -200,7 +251,7 @@ class SellersManager {
         const assignment = this.assignments.get(userId);
         if (!assignment || assignment.status !== 'active') return null;
 
-        return this.sellers.find(s => s.id === assignment.sellerId);
+        return this.getSeller(assignment.sellerId);
     }
 
     /**
@@ -209,9 +260,16 @@ class SellersManager {
      * @param {string} status - Nuevo estado
      */
     updateSellerStatus(sellerId, status) {
-        const seller = this.sellers.find(s => s.id === sellerId);
-        if (seller) {
-            seller.status = status;
+        const stmt = this.db.prepare(`
+            UPDATE sellers 
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+
+        const info = stmt.run(status, sellerId);
+
+        if (info.changes > 0) {
+            const seller = this.getSeller(sellerId);
             console.log(`✅ Vendedor ${seller.name} cambió a estado: ${status}`);
         }
     }
@@ -221,24 +279,42 @@ class SellersManager {
      * @param {Object} sellerData - Datos del vendedor
      */
     addSeller(sellerData) {
-        const newSeller = {
-            id: `SELLER${String(this.sellers.length + 1).padStart(3, '0')}`,
-            name: sellerData.name,
-            phone: sellerData.phone,
-            email: sellerData.email,
-            active: true,
-            specialty: sellerData.specialty || 'general',
-            maxClients: sellerData.maxClients || 10,
-            currentClients: 0,
-            totalSales: 0,
-            rating: 5.0,
-            status: 'available',
-            assignedAt: null
-        };
+        // Generar ID automático
+        const maxIdStmt = this.db.prepare(`
+            SELECT id FROM sellers 
+            ORDER BY id DESC LIMIT 1
+        `);
+        const lastSeller = maxIdStmt.get();
+        const nextNum = lastSeller ? parseInt(lastSeller.id.replace('SELLER', '')) + 1 : 1;
+        const newId = `SELLER${String(nextNum).padStart(3, '0')}`;
 
-        this.sellers.push(newSeller);
-        console.log(`✅ Vendedor ${newSeller.name} agregado con ID: ${newSeller.id}`);
-        return newSeller;
+        const insertStmt = this.db.prepare(`
+            INSERT INTO sellers (
+                id, name, phone, email, specialty, maxClients,
+                notes, workStart, workEnd, daysOff,
+                notificationInterval, avgResponse,
+                status, active, rating
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', 1, 5.0)
+        `);
+
+        insertStmt.run(
+            newId,
+            sellerData.name,
+            sellerData.phone || '',
+            sellerData.email || '',
+            sellerData.specialty || 'general',
+            sellerData.maxClients || 10,
+            sellerData.notes || '',
+            sellerData.workStart || '',
+            sellerData.workEnd || '',
+            sellerData.daysOff ? JSON.stringify(sellerData.daysOff) : '',
+            sellerData.notificationInterval || 30,
+            sellerData.avgResponse || 0
+        );
+
+        console.log(`✅ Vendedor ${sellerData.name} agregado con ID: ${newId}`);
+
+        return this.getSeller(newId);
     }
 
     /**
@@ -246,21 +322,20 @@ class SellersManager {
      * @param {string} sellerId - ID del vendedor a eliminar
      */
     deleteSeller(sellerId) {
-        const index = this.sellers.findIndex(s => s.id === sellerId);
+        const seller = this.getSeller(sellerId);
 
-        if (index === -1) {
+        if (!seller) {
             throw new Error(`Vendedor con ID ${sellerId} no encontrado`);
         }
-
-        const seller = this.sellers[index];
 
         // Verificar si tiene clientes asignados
         if (seller.currentClients > 0) {
             throw new Error(`No se puede eliminar vendedor ${seller.name} porque tiene ${seller.currentClients} cliente(s) asignado(s)`);
         }
 
-        // Eliminar del array
-        this.sellers.splice(index, 1);
+        // Eliminar de BD
+        const deleteStmt = this.db.prepare('DELETE FROM sellers WHERE id = ?');
+        deleteStmt.run(sellerId);
 
         console.log(`✅ Vendedor ${seller.name} (${sellerId}) eliminado correctamente`);
 
@@ -271,11 +346,13 @@ class SellersManager {
      * Obtener estadísticas globales
      */
     getStats() {
+        const allSellers = this.getAllSellers();
+
         return {
             ...this.stats,
-            totalSellers: this.sellers.length,
-            activeSellers: this.getActiveSellers().length,
-            sellersStats: this.sellers.map(s => ({
+            totalSellers: allSellers.length,
+            activeSellers: allSellers.filter(s => s.active && s.status !== 'offline').length,
+            sellersStats: allSellers.map(s => ({
                 id: s.id,
                 name: s.name,
                 email: s.email,
@@ -300,7 +377,7 @@ class SellersManager {
      * Obtener carga de trabajo (load balancing info)
      */
     getWorkload() {
-        return this.sellers.map(s => ({
+        return this.getAllSellers().map(s => ({
             id: s.id,
             name: s.name,
             load: (s.currentClients / s.maxClients * 100).toFixed(1),
@@ -315,7 +392,6 @@ class SellersManager {
      */
     getState() {
         return {
-            sellers: this.sellers,
             currentIndex: this.currentIndex,
             assignments: Array.from(this.assignments.entries()),
             stats: this.stats,
@@ -330,7 +406,6 @@ class SellersManager {
         if (!state) return;
 
         try {
-            if (state.sellers) this.sellers = state.sellers;
             if (state.currentIndex !== undefined) this.currentIndex = state.currentIndex;
             if (state.assignments) this.assignments = new Map(state.assignments);
             if (state.stats) this.stats = state.stats;
