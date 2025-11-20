@@ -38,6 +38,7 @@ import { setupDashboardRoutes } from './src/api/dashboard-routes.js';
 import { setupSettingsRoutes } from './src/api/settings.routes.js';
 import { setupSellerAvailabilityRoutes } from './src/api/seller-availability.routes.js';
 import setupSellersManagementRoutes from './src/api/sellers-management-routes.js';
+import setupMetaRoutes from './src/api/meta-setup-routes.js';
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
 import botManager from './src/services/bot-manager.service.js';
@@ -110,7 +111,7 @@ const main = async () => {
         // 1. CREAR SERVIDOR API PRIMERO
         // Crear servidor API REST para Dashboard
         const apiApp = express();
-        
+
         // CORS configurado correctamente para desarrollo y producción
         apiApp.use(cors({
             origin: ['http://localhost:3000', 'http://localhost:3009', 'http://127.0.0.1:3000', 'http://127.0.0.1:3009'],
@@ -118,31 +119,33 @@ const main = async () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID']
         }));
-        
+
         apiApp.use(express.json());
-        
+
         // Servir archivos estáticos del dashboard React
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const dashboardBuildPath = path.join(__dirname, '../production/dashboard/build');
         apiApp.use(express.static(dashboardBuildPath));
         console.log(`✅ Dashboard React servido desde: ${dashboardBuildPath}`);
-        
+
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
-        
+
         // Configurar rutas del Dashboard (login, dashboard, mensajes, conexión, adaptadores, logs)
         setupDashboardRoutes(apiApp);
-        
+
         // Configurar rutas de Settings (gestión de .env)
         setupSettingsRoutes(apiApp);
-        
+
         // Configurar rutas de Disponibilidad de Vendedores
         setupSellerAvailabilityRoutes(apiApp);
-        
+
         // Configurar rutas de Gestión de Vendedores
         setupSellersManagementRoutes(apiApp);
-        
+
+        // Configurar rutas de Meta WhatsApp Setup
+        setupMetaRoutes(apiApp);
         // ============================================
         // WEBHOOK META (WhatsApp Business API)
         // ============================================
@@ -151,9 +154,9 @@ const main = async () => {
             const mode = req.query['hub.mode'];
             const token = req.query['hub.verify_token'];
             const challenge = req.query['hub.challenge'];
-            
+
             const verifyToken = process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta';
-            
+
             if (mode === 'subscribe' && token === verifyToken) {
                 console.log('✅ Webhook verificado por Meta');
                 res.status(200).send(challenge);
@@ -162,15 +165,15 @@ const main = async () => {
                 res.sendStatus(403);
             }
         });
-        
+
         // POST: Recibir mensajes de Meta
         // El provider de Meta también escucha en /webhook, pero mantenemos /webhooks/whatsapp para compatibilidad
         apiApp.post('/webhooks/whatsapp', async (req, res) => {
             try {
                 const body = req.body;
-                
+
                 console.log('🔔 Webhook recibido:', JSON.stringify(body, null, 2).substring(0, 500));
-                
+
                 // Si el provider de Meta está inicializado, intentar pasar el webhook directamente al provider
                 // El provider de Meta tiene su propio método para procesar webhooks
                 if (mainProvider && mainProvider.vendor && typeof mainProvider.vendor.incomingMsg === 'function') {
@@ -186,38 +189,38 @@ const main = async () => {
                         // Continuar con el procesamiento manual como fallback
                     }
                 }
-                
+
                 // Procesamiento manual como fallback (solo si el provider no procesó el webhook)
                 console.log('🔄 Procesando webhook manualmente (fallback)...');
-                
+
                 // Verificar que es un webhook válido de Meta
                 if (body.object === 'whatsapp_business_account') {
                     const entry = body.entry?.[0];
                     console.log('📥 Entry recibida:', entry ? 'Sí' : 'No');
-                    
+
                     if (entry?.changes) {
                         const change = entry.changes[0];
                         const value = change.value;
                         console.log('📦 Value recibido:', value ? 'Sí' : 'No');
                         console.log('📦 Value tiene messages:', value?.messages ? `Sí (${value.messages.length})` : 'No');
-                        
+
                         // Procesar mensajes entrantes
                         if (value.messages && value.messages[0]) {
                             const message = value.messages[0];
                             const from = message.from;
                             const messageText = message.text?.body || message.type || JSON.stringify(message);
-                            
+
                             console.log(`📨 =======================================`);
                             console.log(`📨 MENSAJE RECIBIDO DE META (procesamiento manual)`);
                             console.log(`📨 De: ${from}`);
                             console.log(`📨 Texto: ${messageText}`);
                             console.log(`📨 Tipo: ${message.type || 'text'}`);
                             console.log(`📨 =======================================`);
-                            
+
                             // Registrar mensaje solo en el procesamiento manual (fallback)
                             messageLog.addReceived(from, messageText);
                             console.log(`✅ Mensaje registrado en messageLog`);
-                            
+
                             // Si el bot ya está inicializado, pasar el mensaje al bot
                             if (mainBot && mainProvider) {
                                 try {
@@ -225,8 +228,8 @@ const main = async () => {
                                     const providerMessage = {
                                         from: from,
                                         body: messageText,
-                                        key: { 
-                                            remoteJid: from, 
+                                        key: {
+                                            remoteJid: from,
                                             id: message.id || `wamid.${Date.now()}`,
                                             fromMe: false
                                         },
@@ -236,17 +239,17 @@ const main = async () => {
                                             conversation: messageText
                                         }
                                     };
-                                    
+
                                     console.log(`🔄 Emitiendo mensaje al provider: ${from} - ${messageText}`);
                                     console.log(`🔍 Formato del mensaje:`, JSON.stringify(providerMessage, null, 2).substring(0, 200));
-                                    
+
                                     // El bot de BuilderBot procesa mensajes cuando el provider emite el evento 'message'
                                     // Emitir al provider - esto debería activar el procesamiento del flujo
                                     if (mainProvider && typeof mainProvider.emit === 'function') {
                                         console.log(`📤 Emitiendo evento 'message' al provider...`);
                                         mainProvider.emit('message', providerMessage);
                                         console.log(`✅ Mensaje emitido al provider`);
-                                        
+
                                         // Verificar si el bot está escuchando el evento
                                         try {
                                             if (typeof mainProvider.listenerCount === 'function') {
@@ -257,7 +260,7 @@ const main = async () => {
                                         } catch (err) {
                                             console.log(`🔍 Error verificando listeners: ${err.message}`);
                                         }
-                                        
+
                                         // Procesar el mensaje directamente a través del bot también
                                         // El bot de BuilderBot internamente escucha el evento 'message' del provider
                                         // pero para asegurarnos, también procesamos directamente
@@ -283,7 +286,7 @@ const main = async () => {
                                                     console.log(`🔍 Buscando método interno del bot...`);
                                                     const botKeys = Object.keys(mainBot).slice(0, 15);
                                                     console.log(`   - mainBot keys (primeros 15):`, botKeys);
-                                                    
+
                                                     // El bot de BuilderBot internamente tiene un handler para mensajes
                                                     // Intentamos llamar directamente al handler interno
                                                     if (mainBot.handler && typeof mainBot.handler === 'function') {
@@ -325,7 +328,7 @@ const main = async () => {
                         } else {
                             console.log('ℹ️  No hay mensajes en este webhook');
                         }
-                        
+
                         // Procesar estados de mensajes
                         if (value.statuses) {
                             const status = value.statuses[0];
@@ -337,7 +340,7 @@ const main = async () => {
                 } else {
                     console.log(`⚠️  Webhook no es de tipo whatsapp_business_account. Object: ${body.object}`);
                 }
-                
+
                 // Siempre responder 200 OK a Meta
                 res.status(200).send('OK');
             } catch (error) {
@@ -353,7 +356,7 @@ const main = async () => {
         apiApp.get('/', (req, res) => {
             res.redirect('/login');
         });
-        
+
         // Levantar el servidor API ANTES del bot para que el bot pueda usar sus rutas
         // El bot (MetaProvider) levantará su propio servidor en el mismo puerto
         // pero Express ya estará escuchando, así que el bot usará el servidor existente
@@ -390,10 +393,10 @@ const main = async () => {
             { flow: horariosFlow, name: 'Horarios', description: 'Horarios de atención', category: 'info', keywords: ['horario', 'horarios', 'hora'], priority: 86 },
             { flow: productoKeywordFlow, name: 'Keywords Productos', description: 'Búsqueda por palabra clave', category: 'sales', keywords: ['relicario', 'dije', 'cadena', 'pulsera', 'anillo'], priority: 85 },
         ];
-        
+
         const adapterFlow = createFlow(flows.map(f => f.flow));
         console.log(`✅ ${flows.length} flujos PREMIUM cargados (flujos viejos eliminados)`);
-        
+
         // Registrar flujos en el flowManager
         flows.forEach((flowConfig, index) => {
             const flowId = `flow_${flowConfig.name.toLowerCase().replace(/\s/g, '_')}`;
@@ -440,7 +443,7 @@ const main = async () => {
         } else {
             const metodoConexion = USE_PAIRING_CODE ? 'NÚMERO TELEFÓNICO' : 'QR CODE';
             console.log(`🔧 Configurando provider Baileys (${metodoConexion})...`);
-            
+
             // Configuración optimizada para evitar errores de sesión
             const providerConfig = {
                 name: 'bot_principal',
@@ -457,16 +460,16 @@ const main = async () => {
                 maxRetries: 3, // Máximo 3 reintentos
                 browser: ['Bot Cocolu', 'Chrome', '120.0.0']
             };
-            
+
             console.log('📋 Configuración Baileys:', {
                 metodo: metodoConexion,
                 numero: USE_PAIRING_CODE ? PHONE_NUMBER : 'N/A',
-                qrTimeout: `${providerConfig.qrTimeout/1000}s`,
-                authTimeout: `${providerConfig.authTimeout/1000}s`,
+                qrTimeout: `${providerConfig.qrTimeout / 1000}s`,
+                authTimeout: `${providerConfig.authTimeout / 1000}s`,
                 maxRetries: providerConfig.maxRetries,
                 browser: providerConfig.browser[0]
             });
-            
+
             mainProvider = createProvider(BaileysProvider, providerConfig);
         }
 
@@ -481,7 +484,7 @@ const main = async () => {
         });
 
         mainBot = botInstance;
-        
+
         // Verificar que el bot esté escuchando el evento 'message' del provider
         console.log(`🔍 Verificando listeners del provider después de crear bot:`);
         try {
@@ -498,7 +501,7 @@ const main = async () => {
         } catch (err) {
             console.log(`   - Error verificando listeners: ${err.message}`);
         }
-        
+
         // El bot de BuilderBot debería estar escuchando automáticamente el evento 'message' del provider
         // Si no lo está, hay un problema con la configuración
 
@@ -516,7 +519,7 @@ const main = async () => {
         // 6. REGISTRAR BOT EN EL BOT-MANAGER
         // ============================================
         console.log('🎯 Registrando bot en el dashboard...');
-        
+
         // Registrar el bot
         botManager.registerBot(botId, {
             name: BOT_NAME,
@@ -532,7 +535,7 @@ const main = async () => {
         // 7. CONECTAR EVENTOS DEL BOT CON BOT-MANAGER
         // ============================================
         console.log('🔗 Conectando eventos con bot-manager...');
-        
+
         // Listener para connection.update (Baileys moderno) -> captura QR y estados
         const onConnUpdate = (update = {}) => {
             try {
@@ -574,18 +577,18 @@ const main = async () => {
                     mainProvider.on('connection.update', onConnUpdate);
                     connUpdateAttached = true;
                 }
-            } catch {}
+            } catch { }
             try {
                 if (!connUpdateAttached && mainProvider?.vendor?.ev?.on) {
                     mainProvider.vendor.ev.on('connection.update', onConnUpdate);
                     connUpdateAttached = true;
                 }
-            } catch {}
+            } catch { }
         };
-        
+
         // Intentar adjuntar connection.update ahora (solo Baileys)
         attachConnUpdate();
-        
+
         // Simular que el bot se "inició" para el manager
         setTimeout(() => {
             botManager.updateBotStatus(botId, {
@@ -601,12 +604,12 @@ const main = async () => {
             console.log('');
             console.log('✅ ¡BOT CONECTADO Y LISTO!');
             console.log('');
-            
+
             botManager.updateBotStatus(botId, {
                 state: 'connected',
                 connectedAt: new Date(),
             });
-            
+
             botManager.emit('bot:connected', { botId });
         });
 
@@ -673,7 +676,7 @@ const main = async () => {
             console.log('⏰ El código expira en 60 segundos');
             console.log('🔥 =======================================');
             console.log('');
-            
+
             botManager.updateBotStatus(botId, {
                 state: 'pairing_code_ready',
                 pairingCode: code
@@ -697,7 +700,7 @@ const main = async () => {
             console.log('⚠️  IMPORTANTE: NO abrir WhatsApp Web en navegador');
             console.log('⏰ Tienes 60 segundos para escanear');
             console.log('');
-            
+
             // Watchdog: si no escanean en 90s, avisar y regenerar QR automáticamente
             if (qrWatchdog) {
                 clearTimeout(qrWatchdog);
@@ -709,7 +712,7 @@ const main = async () => {
                 console.log('   • Reabre WhatsApp y vuelve a intentar');
                 console.log('   • Ejecuta ./clean-restart.sh para limpieza completa');
             }, 90_000);
-            
+
             botManager.qrCodes.set(botId, qr);
             botManager.updateBotStatus(botId, {
                 state: 'qr_ready',
@@ -720,7 +723,7 @@ const main = async () => {
         // Mensajes recibidos
         mainProvider.on('message', async (message) => {
             console.log(`🔔 EVENTO 'message' RECIBIDO DEL PROVIDER:`, JSON.stringify(message, null, 2).substring(0, 300));
-            
+
             // Registrar mensaje en messageLog (solo si no fue registrado ya por el webhook handler)
             try {
                 const from = message.from || message.key?.remoteJid || message.remoteJid || 'unknown';
@@ -729,12 +732,12 @@ const main = async () => {
                     // Verificar si el mensaje ya fue registrado (evitar duplicados)
                     const messageId = message.key?.id || message.id || `${from}_${body}_${Date.now()}`;
                     const recentMessages = messageLog.received.slice(-10); // Últimos 10 mensajes
-                    const alreadyRegistered = recentMessages.some(m => 
-                        m.from === from && 
-                        m.body === body && 
+                    const alreadyRegistered = recentMessages.some(m =>
+                        m.from === from &&
+                        m.body === body &&
                         (new Date() - new Date(m.timestamp)) < 2000 // Dentro de 2 segundos
                     );
-                    
+
                     if (!alreadyRegistered) {
                         messageLog.addReceived(from, body);
                         console.log(`📨 Mensaje registrado desde provider: ${from} - ${body.substring(0, 50)}${body.length > 50 ? '...' : ''}`);
@@ -745,7 +748,7 @@ const main = async () => {
             } catch (err) {
                 console.error('Error registrando mensaje desde provider:', err);
             }
-            
+
             const status = botManager.botStatus.get(botId);
             if (status) {
                 botManager.updateBotStatus(botId, {
@@ -754,7 +757,7 @@ const main = async () => {
                 });
             }
             botManager.emit('bot:message', { botId, message });
-            
+
             // El bot de BuilderBot debería procesar automáticamente el mensaje cuando el provider emite 'message'
             // pero verificamos que el bot esté procesando el flujo
             console.log(`🔄 Bot debería procesar mensaje: ${message.from || 'unknown'} - ${message.body || message.message?.conversation || 'sin texto'}`);
@@ -765,12 +768,12 @@ const main = async () => {
             console.log(`   - mainBot.flow: ${mainBot && mainBot.flow ? 'Sí' : 'No'}`);
             console.log(`   - mainBot.handleMsg: ${mainBot && typeof mainBot.handleMsg === 'function' ? 'Sí' : 'No'}`);
             console.log(`   - mainBot.dispatch: ${mainBot && typeof mainBot.dispatch === 'function' ? 'Sí' : 'No'}`);
-            
+
             // BuilderBot procesa automáticamente cuando el provider emite 'message'
             // PERO parece que no está funcionando, así que intentamos procesar directamente
             if (mainBot) {
                 console.log(`✅ Bot está inicializado`);
-                
+
                 // Intentar procesar el mensaje directamente a través del bot
                 // El bot de BuilderBot internamente tiene un método para procesar mensajes
                 try {
@@ -809,17 +812,17 @@ const main = async () => {
             const errorCode = error?.code || '';
             const errorConfig = error?.config || {};
             const errorUrl = errorConfig?.url || '';
-            
+
             // Filtrar errores no críticos de conexión durante la inicialización
             // Estos errores ocurren cuando Meta intenta obtener el perfil y la conexión se resetea
             // No son críticos y no deberían detener el servidor
             const isNonCriticalConnectionError = (
                 (errorCode === 'ECONNRESET' || errMsg.includes('ECONNRESET')) &&
-                (errorStack.includes('getProfile') || 
-                 errorStack.includes('afterHttpServerInit') ||
-                 errorUrl.includes('graph.facebook.com'))
+                (errorStack.includes('getProfile') ||
+                    errorStack.includes('afterHttpServerInit') ||
+                    errorUrl.includes('graph.facebook.com'))
             );
-            
+
             if (isNonCriticalConnectionError) {
                 // Solo registrar de forma silenciosa, no cambiar el estado del bot
                 console.warn(`⚠️  Error de conexión no crítico durante inicialización (se ignorará): ${errMsg.substring(0, 100)}`);
@@ -827,18 +830,18 @@ const main = async () => {
                 console.warn(`   El bot continuará funcionando normalmente`);
                 return; // No procesar este error como crítico
             }
-            
+
             // Para otros errores, mostrar información completa
             console.error('');
             console.error('🔴 =======================================');
             console.error('❌ ERROR DE CONEXIÓN DETECTADO');
             console.error('🔴 =======================================');
             console.error('Error:', errMsg);
-            
+
             // Solo mostrar detalles si no es un error de conexión repetitivo
             if (!errMsg.includes('ECONNRESET') && !errMsg.includes('ETIMEDOUT')) {
                 if (error && typeof error === 'object') {
-                    try { 
+                    try {
                         const errorSummary = {
                             message: error.message,
                             code: error.code,
@@ -846,10 +849,10 @@ const main = async () => {
                             url: errorConfig?.url
                         };
                         console.error('Detalle:', JSON.stringify(errorSummary, null, 2));
-                    } catch {}
+                    } catch { }
                 }
             }
-            
+
             // Errores comunes y soluciones
             if (error.message && error.message.includes('QR')) {
                 console.error('');
@@ -876,7 +879,7 @@ const main = async () => {
             // Registrar error en el messageLog para verlo en el dashboard (solo errores críticos)
             try {
                 messageLog.addError('provider_error', error);
-            } catch {}
+            } catch { }
 
             const status = botManager.botStatus.get(botId);
             if (status) {
@@ -902,7 +905,7 @@ const main = async () => {
             console.log('⚠️  CONEXIÓN CERRADA:', reason);
             console.log('🔄 El bot intentará reconectarse automáticamente...');
             console.log('');
-            
+
             botManager.updateBotStatus(botId, {
                 state: 'disconnected',
                 disconnectedAt: new Date(),
@@ -927,7 +930,7 @@ const main = async () => {
                 await mainProvider.sendMessage(to, text, options);
                 try {
                     messageLog.addSent(to, text);
-                    
+
                     // Registrar mensaje en el servicio de facturación de Meta (solo si es adaptador Meta)
                     if (BOT_ADAPTER === 'meta') {
                         try {
@@ -936,14 +939,14 @@ const main = async () => {
                             const messageType = options?.type || (typeof text === 'object' ? text.type || 'text' : 'text');
                             const isTemplate = options?.isTemplate || false;
                             const isService = options?.isService || false;
-                            
+
                             metaBillingService.recordMessage(to, messageType, isTemplate, isService);
                         } catch (err) {
                             // No fallar si el servicio de facturación no está disponible
                             console.warn('No se pudo registrar mensaje en facturación:', err.message);
                         }
                     }
-                } catch {}
+                } catch { }
                 const status = botManager.botStatus.get(botId);
                 if (status) {
                     botManager.updateBotStatus(botId, {
@@ -995,12 +998,12 @@ const main = async () => {
 process.on('SIGINT', async () => {
     console.log('');
     console.log('🛑 Deteniendo sistema...');
-    
+
     try {
         // Detener todos los bots registrados
         await botManager.stopAll();
         console.log('✅ Bots detenidos');
-        
+
         console.log('👋 Sistema detenido correctamente');
         process.exit(0);
     } catch (error) {
@@ -1028,22 +1031,22 @@ process.on('unhandledRejection', (reason) => {
     const errorMsg = reason?.message || String(reason);
     const errorStack = reason?.stack || '';
     const errorCode = reason?.code || '';
-    
+
     // Filtrar errores no críticos de conexión durante la inicialización
     const isNonCriticalConnectionError = (
         (errorCode === 'ECONNRESET' || errorMsg.includes('ECONNRESET')) &&
-        (errorStack.includes('getProfile') || 
-         errorStack.includes('afterHttpServerInit') ||
-         errorStack.includes('graph.facebook.com'))
+        (errorStack.includes('getProfile') ||
+            errorStack.includes('afterHttpServerInit') ||
+            errorStack.includes('graph.facebook.com'))
     );
-    
+
     if (isNonCriticalConnectionError) {
         // Solo registrar de forma silenciosa
         console.warn(`⚠️  Promesa rechazada no crítica (se ignorará): ${errorMsg.substring(0, 100)}`);
         console.warn(`   Error de conexión durante inicialización - el bot continuará funcionando`);
         return;
     }
-    
+
     // Para otros errores, mostrar información completa
     console.error('🔴 Unhandled Rejection:', reason);
     if (reason && typeof reason === 'object') {
@@ -1053,7 +1056,7 @@ process.on('unhandledRejection', (reason) => {
                 code: reason.code,
                 stack: reason.stack?.substring(0, 500)
             });
-        } catch {}
+        } catch { }
     }
 });
 process.on('uncaughtException', (err) => {
