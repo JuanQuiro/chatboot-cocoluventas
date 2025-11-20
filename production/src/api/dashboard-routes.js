@@ -3,10 +3,10 @@
  */
 
 export const setupDashboardRoutes = (app) => {
-    console.log('✅ Dashboard routes cargadas');
-    // Página de LOGIN
-    app.get('/login', (req, res) => {
-        const html = `<!doctype html>
+  console.log('✅ Dashboard routes cargadas');
+  // Página de LOGIN
+  app.get('/login', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -79,148 +79,20 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de CONFIGURACIÓN META
-    app.get('/meta-settings', (req, res) => {
-        const html = `<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Config Meta - Cocolu</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
-    .back-btn { display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: #667eea; color: white; border-radius: 4px; text-decoration: none; font-size: 13px; }
-    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-    label { font-size: 13px; font-weight: 600; color: #4b5563; display: block; margin-bottom: 6px; }
-    input, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px; }
-    textarea { min-height: 80px; resize: vertical; }
-    .actions { margin-top: 20px; display: flex; gap: 12px; }
-    button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
-    .primary { background: #4f46e5; color: white; }
-    .secondary { background: #e0e7ff; color: #3730a3; }
-    .status { margin-top: 15px; font-size: 14px; }
-    .status.ok { color: #059669; }
-    .status.error { color: #dc2626; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>⚙️ Configuración Meta</h1>
-  </div>
-  <div class="container">
-    <a href="/dashboard" class="back-btn">← Volver</a>
-    <div class="card">
-      <h2>Variables críticas</h2>
-      <p style="margin-top:6px;color:#6b7280;font-size:14px;">Edita los valores del archivo .env sin salir del dashboard. Recuerda reiniciar el backend después de guardar.</p>
-      <form id="metaForm" class="form-grid">
-        <div>
-          <label>Meta JWT Token</label>
-          <textarea id="META_JWT_TOKEN" name="META_JWT_TOKEN" placeholder="EAAB..." required></textarea>
-          <small style="color:#9ca3af;">Access Token largo</small>
-        </div>
-        <div>
-          <label>Phone Number ID (META_NUMBER_ID)</label>
-          <input id="META_NUMBER_ID" name="META_NUMBER_ID" required />
-        </div>
-        <div>
-          <label>Business Account ID</label>
-          <input id="META_BUSINESS_ACCOUNT_ID" name="META_BUSINESS_ACCOUNT_ID" />
-        </div>
-        <div>
-          <label>Verify Token</label>
-          <input id="META_VERIFY_TOKEN" name="META_VERIFY_TOKEN" />
-        </div>
-        <div>
-          <label>API Version</label>
-          <input id="META_API_VERSION" name="META_API_VERSION" placeholder="v22.0" />
-        </div>
-        <div>
-          <label>Teléfono de pruebas (PHONE_NUMBER)</label>
-          <input id="PHONE_NUMBER" name="PHONE_NUMBER" placeholder="+58424..." />
-        </div>
-      </form>
-      <div class="actions">
-        <button type="button" class="primary" onclick="saveMetaConfig()">Guardar cambios</button>
-        <button type="button" class="secondary" onclick="loadMetaConfig()">Recargar</button>
-      </div>
-      <div id="status" class="status"></div>
-      <div style="margin-top:20px;padding:15px;background:#f9fafb;border-radius:10px;color:#374151;font-size:14px;">
-        <strong>Reinicio necesario:</strong> después de guardar, ejecuta <code>./START.sh</code> o usa la opción de reinicio del servidor para aplicar las nuevas credenciales.
-      </div>
-    </div>
-  </div>
-  <script>
-    if (!localStorage.getItem('cocolu_token')) {
-      window.location.href = '/login';
-    }
 
-    async function loadMetaConfig() {
-      setStatus('Cargando configuración...', '');
-      try {
-        const res = await fetch('/api/meta/config');
-        const json = await res.json();
-        if (json.success && json.data) {
-          Object.entries(json.data).forEach(([key, value]) => {
-            const el = document.getElementById(key);
-            if (el) el.value = value;
-          });
-          setStatus('Configuración cargada.', 'ok');
-        } else {
-          throw new Error(json.error || 'Respuesta inválida');
-        }
-      } catch (err) {
-        setStatus('Error al cargar: ' + err.message, 'error');
-      }
-    }
+  // Redirect /meta-settings → /meta-setup (nueva UI premium)
+  app.get('/meta-settings', (req, res) => {
+    res.redirect(301, '/meta-setup');
+  });
 
-    async function saveMetaConfig() {
-      const form = document.getElementById('metaForm');
-      const formData = new FormData(form);
-      const payload = {};
-      formData.forEach((value, key) => payload[key] = value.trim());
-      setStatus('Guardando...', '');
-      try {
-        const res = await fetch('/api/meta/config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        if (json.success) {
-          setStatus('Cambios guardados. Reinicia el backend para aplicarlos.', 'ok');
-        } else {
-          throw new Error(json.error || 'No se pudo guardar');
-        }
-      } catch (err) {
-        setStatus('Error al guardar: ' + err.message, 'error');
-      }
-    }
 
-    function setStatus(msg, type) {
-      const el = document.getElementById('status');
-      el.textContent = msg;
-      el.className = 'status ' + (type || '');
-    }
-
-    loadMetaConfig();
-  </script>
-</body>
-</html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
-
-    // Página de DIAGNÓSTICO META
-    app.get('/meta-diagnostics', (req, res) => {
-        const html = `<!doctype html>
+  // Página de DIAGNÓSTICO META
+  app.get('/meta-diagnostics', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -468,13 +340,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de DASHBOARD
-    app.get('/dashboard', (req, res) => {
-        const html = `<!doctype html>
+  // Página de DASHBOARD
+  app.get('/dashboard', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -705,14 +577,14 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de MENSAJES
-    app.get('/messages', (req, res) => {
-        console.log('📨 GET /messages recibido');
-        const html = `<!doctype html>
+  // Página de MENSAJES
+  app.get('/messages', (req, res) => {
+    console.log('📨 GET /messages recibido');
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -953,13 +825,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de ADAPTADORES
-    app.get('/adapters', (req, res) => {
-        const html = `<!doctype html>
+  // Página de ADAPTADORES
+  app.get('/adapters', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1013,13 +885,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de LOGS
-    app.get('/logs', (req, res) => {
-        const html = `<!doctype html>
+  // Página de LOGS
+  app.get('/logs', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1078,13 +950,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de ANÁLISIS
-    app.get('/analytics', (req, res) => {
-        const html = `<!doctype html>
+  // Página de ANÁLISIS
+  app.get('/analytics', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1205,13 +1077,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de CONEXIÓN
-    app.get('/connection', (req, res) => {
-        const html = `<!doctype html>
+  // Página de CONEXIÓN
+  app.get('/connection', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1270,13 +1142,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de FACTURACIÓN META
-    app.get('/meta-billing', (req, res) => {
-        const html = `<!doctype html>
+  // Página de FACTURACIÓN META
+  app.get('/meta-billing', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1715,13 +1587,13 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 
-    // Página de SALUD DEL SISTEMA
-    app.get('/health', (req, res) => {
-        const html = `<!doctype html>
+  // Página de SALUD DEL SISTEMA
+  app.get('/health', (req, res) => {
+    const html = `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -1861,7 +1733,7 @@ export const setupDashboardRoutes = (app) => {
   </script>
 </body>
 </html>`;
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.send(html);
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  });
 };
