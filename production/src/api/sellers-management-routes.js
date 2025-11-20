@@ -11,7 +11,7 @@ export const setupSellersManagementRoutes = (app) => {
 html, body { height: 100%; }
 body { font-family: system-ui, -apple-system, sans-serif; background: #f3f4f6; display: flex; flex-direction: column; }
 header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; position: relative; z-index: 1000; }
-.hamburger-btn { display: none; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; padding: 10px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+.hamburger-btn { display: flex; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; padding: 10px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
 .hamburger-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
 .hamburger-btn:active { transform: scale(0.95); }
 .hamburger-icon { display: flex; flex-direction: column; gap: 4px; width: 24px; }
@@ -19,8 +19,13 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 .hamburger-btn.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translateY(10px); }
 .hamburger-btn.active .hamburger-line:nth-child(2) { opacity: 0; }
 .hamburger-btn.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translateY(-10px); }
-.container { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; position: relative; }
-.sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.container { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; position: relative; transition: grid-template-columns 0.3s; }
+.container.sidebar-collapsed { grid-template-columns: 70px 1fr; }
+.sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; overflow-x: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 250px; }
+.sidebar.collapsed { width: 70px; padding: 20px 10px; }
+.sidebar.collapsed h3 { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+.sidebar.collapsed .nav-item span:not(.nav-icon) { opacity: 0; width: 0; overflow: hidden; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s; }
 .sidebar-overlay.active { opacity: 1; }
 @media (max-width: 1200px) {
@@ -28,10 +33,11 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
   .sellers-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
-  .hamburger-btn { display: flex !important; }
-  .container { grid-template-columns: 1fr; }
+  .container { grid-template-columns: 1fr !important; }
+  .container.sidebar-collapsed { grid-template-columns: 1fr !important; }
   .sidebar { position: fixed; left: 0; top: 68px; bottom: 0; width: 280px; transform: translateX(-100%); z-index: 999; box-shadow: 4px 0 12px rgba(0,0,0,0.15); }
-  .sidebar.active { transform: translateX(0); }
+  .sidebar.active { transform: translateX(0); width: 280px; }
+  .sidebar.collapsed { width: 280px; }
   .sidebar-overlay { display: block; }
   .main { padding: 16px; }
   header { padding: 16px; }
@@ -429,10 +435,20 @@ function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
   const hamburger = document.getElementById('hamburgerBtn');
+  const container = document.querySelector('.container');
+  const isMobile = window.innerWidth <= 768;
   
-  sidebar.classList.toggle('active');
-  overlay.classList.toggle('active');
-  hamburger.classList.toggle('active');
+  if (isMobile) {
+    // En móvil: toggle sidebar deslizable
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    hamburger.classList.toggle('active');
+  } else {
+    // En desktop: collapse/expand sidebar
+    sidebar.classList.toggle('collapsed');
+    container.classList.toggle('sidebar-collapsed');
+    hamburger.classList.toggle('active');
+  }
 }
 
 function logout() {
