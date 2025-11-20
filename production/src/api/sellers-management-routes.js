@@ -23,14 +23,35 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 .sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s; }
 .sidebar-overlay.active { opacity: 1; }
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .sellers-grid { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 768px) {
   .hamburger-btn { display: flex !important; }
   .container { grid-template-columns: 1fr; }
   .sidebar { position: fixed; left: 0; top: 68px; bottom: 0; width: 280px; transform: translateX(-100%); z-index: 999; box-shadow: 4px 0 12px rgba(0,0,0,0.15); }
   .sidebar.active { transform: translateX(0); }
   .sidebar-overlay { display: block; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 16px; }
+  header { padding: 16px; }
+  header h1 { font-size: 18px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .stat-card { padding: 16px; }
+  .stat-value { font-size: 24px; }
+  .card { padding: 16px; }
   .sellers-grid { grid-template-columns: 1fr; }
+  .modal-content { width: 95%; max-width: none; margin: 10px; padding: 16px; max-height: 90vh; overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  header h1 { font-size: 16px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+  .stat-value { font-size: 20px; }
+  .seller-card { padding: 16px; }
+  .seller-name { font-size: 16px; }
+  .btn { padding: 8px 12px; font-size: 13px; }
+  .modal-content { width: 100%; margin: 0; border-radius: 0; height: 100vh; max-height: 100vh; }
+  .form-section-title { font-size: 12px; }
 }
 .sidebar h3 { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin-bottom: 12px; margin-top: 18px; }
 .sidebar h3:first-child { margin-top: 0; }
