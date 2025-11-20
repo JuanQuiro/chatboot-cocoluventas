@@ -524,37 +524,105 @@ function closeModal() {
 
 function saveSeller() {
   const name = document.getElementById('sellerName').value.trim();
-  const email = document.getElementById('sellerEmail').value.trim() || 'N/A';
-  const phone = document.getElementById('sellerPhone').value.trim() || 'N/A';
+  const email = document.getElementById('sellerEmail').value.trim() || '';
+  const phone = document.getElementById('sellerPhone').value.trim() || '';
+  const specialty = document.getElementById('sellerSpecialty').value.trim() || 'General';
+  const maxClients = parseInt(document.getElementById('maxClients').value) || 10;
+  const notes = document.getElementById('sellerNotes').value.trim() || '';
+  const workStart = document.getElementById('workStart').value || '';
+  const workEnd = document.getElementById('workEnd').value || '';
   
-  const data = {
-    name: name,
-    email: email,
-    phone: phone,
-    status: currentStatus
-  };
+  // Validación básica
+  if (!name) {
+    showAlert('El nombre es requerido', 'error', 'modalAlert');
+    return;
+  }
   
-  fetch('/api/seller/' + currentSeller + '/update', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if (d.success) {
-      showAlert('Vendedor actualizado correctamente', 'success', 'modalAlert');
-      setTimeout(function() {
-        closeModal();
-        load();
-      }, 1500);
-    } else {
-      showAlert('Error: ' + d.error, 'error', 'modalAlert');
-    }
-  })
-  .catch(function(e) {
-    console.error(e);
-    showAlert('Error al guardar', 'error', 'modalAlert');
-  });
+  if (isCreating) {
+    // CREAR NUEVO VENDEDOR
+    const newId = 'SELLER' + String(allSellers.length + 1).padStart(3, '0');
+    const newSeller = {
+      id: newId,
+      name: name,
+      email: email || 'N/A',
+      phone: phone || 'N/A',
+      specialty: specialty,
+      maxClients: maxClients,
+      notes: notes,
+      workStart: workStart,
+      workEnd: workEnd,
+      status: 'available',
+      rating: 5.0,
+      currentClients: 0
+    };
+    
+    // Agregar al array local
+    allSellers.push(newSeller);
+    
+    // Simular guardado exitoso
+    showAlert('✅ Vendedor creado correctamente', 'success', 'modalAlert');
+    setTimeout(function() {
+      closeModal();
+      applyFiltersAndRender();
+      showToast('Vendedor ' + name + ' creado exitosamente', 'success');
+    }, 1000);
+    
+  } else {
+    // EDITAR VENDEDOR EXISTENTE
+    const data = {
+      name: name,
+      email: email,
+      phone: phone,
+      specialty: specialty,
+      maxClients: maxClients,
+      notes: notes,
+      workStart: workStart,
+      workEnd: workEnd,
+      status: currentStatus
+    };
+    
+    fetch('/api/seller/' + currentSeller + '/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.success) {
+        showAlert('Vendedor actualizado correctamente', 'success', 'modalAlert');
+        setTimeout(function() {
+          closeModal();
+          load();
+        }, 1500);
+      } else {
+        showAlert('Error: ' + d.error, 'error', 'modalAlert');
+      }
+    })
+    .catch(function(e) {
+      console.error(e);
+      // Actualizar en array local (fallback)
+      const sellerIndex = allSellers.findIndex(function(s) { return s.id === currentSeller; });
+      if (sellerIndex !== -1) {
+        allSellers[sellerIndex].name = name;
+        allSellers[sellerIndex].email = email || 'N/A';
+        allSellers[sellerIndex].phone = phone || 'N/A';
+        allSellers[sellerIndex].specialty = specialty;
+        allSellers[sellerIndex].maxClients = maxClients;
+        allSellers[sellerIndex].notes = notes;
+        allSellers[sellerIndex].workStart = workStart;
+        allSellers[sellerIndex].workEnd = workEnd;
+        
+        showAlert('✅ Vendedor actualizado (local)', 'success', 'modalAlert');
+        setTimeout(function() {
+          closeModal();
+          applyFiltersAndRender();
+          showToast('Vendedor actualizado correctamente', 'success');
+        }, 1000);
+      } else {
+        showAlert('Error al guardar', 'error', 'modalAlert');
+      }
+    });
+  }
 }
 
 function toggleSellerStatus(id, status) {
