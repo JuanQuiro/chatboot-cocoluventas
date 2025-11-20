@@ -105,6 +105,53 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
 .form-section { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
 .form-section-title { font-size: 14px; font-weight: 700; color: #667eea; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
+.fab-button { position: fixed; bottom: 32px; right: 32px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 8px 20px rgba(102,126,234,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; z-index: 100; border: none; color: white; font-size: 32px; }
+.fab-button:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 12px 28px rgba(102,126,234,0.6); }
+.fab-button:active { transform: scale(0.95); }
+.search-filter-bar { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.search-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input { flex: 2; min-width: 250px; padding: 12px 16px 12px 44px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: all 0.2s; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>') no-repeat 12px center; }
+.search-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+.filter-select { flex: 1; min-width: 180px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; background: white; }
+.filter-select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+.btn-clear-filters { padding: 12px 20px; background: #f3f4f6; color: #374151; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+.btn-clear-filters:hover { background: #e5e7eb; }
+.results-count { font-size: 14px; color: #6b7280; font-weight: 500; }
+.confirm-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
+.confirm-modal.active { display: flex; opacity: 1; }
+.confirm-content { background: white; border-radius: 16px; padding: 32px; max-width: 450px; width: 90%; box-shadow: 0 24px 48px rgba(0,0,0,0.2); border-top: 4px solid #ef4444; animation: slideDown 0.3s ease; }
+@keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.confirm-icon { width: 64px; height: 64px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; }
+.confirm-title { font-size: 22px; font-weight: 700; color: #111827; text-align: center; margin-bottom: 12px; }
+.confirm-message { font-size: 15px; color: #6b7280; text-align: center; margin-bottom: 28px; line-height: 1.6; }
+.confirm-actions { display: flex; gap: 12px; }
+.btn-cancel { flex: 1; padding: 12px; border: 2px solid #e5e7eb; background: white; color: #374151; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+.btn-cancel:hover { background: #f3f4f6; border-color: #d1d5db; }
+.btn-delete { flex: 1; padding: 12px; border: none; background: #ef4444; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+.btn-delete:hover { background: #dc2626; }
+.btn-delete:disabled { opacity: 0.6; cursor: not-allowed; }
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; }
+.toast { background: white; padding: 16px 20px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid #10b981; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { border-left-color: #10b981; }
+.toast.error { border-left-color: #ef4444; }
+.toast.warning { border-left-color: #f59e0b; }
+.toast-icon { font-size: 20px; }
+.toast-message { flex: 1; font-size: 14px; font-weight: 500; color: #111827; }
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+.empty-title { font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+.empty-text { font-size: 14px; color: #6b7280; }
+.skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+@keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.form-error { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; }
+.form-error.active { display: block; }
+.form-input.error { border-color: #ef4444; }
+.btn-success { background: #10b981; color: white; }
+.btn-success:hover { background: #059669; }
+.loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 768px) { .fab-button { bottom: 24px; right: 24px; width: 56px; height: 56px; font-size: 28px; } .search-row { flex-direction: column; } .search-input, .filter-select { min-width: 100%; } }
 </style>
 </head>
 <body>
@@ -210,6 +257,28 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 
     <div class="card">
       <h2>📋 Lista de Vendedores</h2>
+      
+      <!-- Barra de Búsqueda y Filtros -->
+      <div class="search-filter-bar">
+        <div class="search-row">
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre, email o ID...">
+          <select id="filterStatus" class="filter-select">
+            <option value="all">Todos los estados</option>
+            <option value="available">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+          <select id="filterSpecialty" class="filter-select">
+            <option value="all">Todas las especialidades</option>
+            <option value="Premium">Premium</option>
+            <option value="General">General</option>
+            <option value="Technical">Technical</option>
+            <option value="VIP">VIP</option>
+          </select>
+          <button class="btn-clear-filters" onclick="clearFilters()">Limpiar Filtros</button>
+        </div>
+        <div class="results-count" id="resultsCount">Cargando...</div>
+      </div>
+      
       <div class="sellers-grid" id="sellers">
         <p>Cargando...</p>
       </div>
@@ -282,9 +351,34 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
   </div>
 </div>
 
+<!-- Modal de Confirmación Eliminación -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-content">
+    <div class="confirm-icon">⚠️</div>
+    <h3 class="confirm-title">¿Eliminar Vendedor?</h3>
+    <p class="confirm-message">Esta acción no se puede deshacer. El vendedor será eliminado permanentemente del sistema.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirmModal()">Cancelar</button>
+      <button class="btn-delete" id="confirmDeleteBtn" onclick="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Botón Flotante Agregar -->
+<button class="fab-button" onclick="addNewSeller()" title="Agregar nuevo vendedor">+</button>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
+let allSellers = [];
 let currentSeller = null;
-let currentStatus = 'active';
+let currentStatus = '';
+let searchQuery = '';
+let filterStatus = 'all';
+let filterSpecialty = 'all';
+let sellerToDelete = null;
+let isCreating = false;
 
 function showAlert(msg, type, target) {
   const alertDiv = document.getElementById(target || 'alert');
@@ -297,45 +391,99 @@ function load() {
     .then(function(r) { return r.json(); })
     .then(function(d) {
       const s = d.sellers?.sellersStats || [];
+      allSellers = s; // Guardar todos los vendedores
+      
+      // Actualizar stats
       document.getElementById('s0').textContent = s.length;
       document.getElementById('s1').textContent = s.filter(function(x) { return x.status === 'available'; }).length;
       document.getElementById('s2').textContent = d.sellers?.totalAssignments || 0;
       document.getElementById('s3').textContent = d.sellers?.activeConversations || 0;
       
-      const html = s.map(function(x) {
-        var statusIcon = x.status === 'available' ? '&#x2705;' : '&#x274C;';
-        var statusText = x.status === 'available' ? 'Activo' : 'Inactivo';
-        var editIcon = '&#x270F;&#xFE0F;';
-        var deactivateIcon = '&#x1F534;';
-        var activateIcon = '&#x1F7E2;';
-        var starIcon = '&#x2B50;';
-        
-        return '<div class="seller-card">' +
-          '<div class="seller-name">' + x.name + '</div>' +
-          '<span class="seller-badge ' + (x.status === 'available' ? 'active' : 'inactive') + '">' +
-            statusIcon + ' ' + statusText +
-          '</span>' +
-          '<div class="seller-info">ID: ' + x.id + '</div>' +
-          '<div class="seller-info">Rating: ' + starIcon + x.rating.toFixed(1) + '</div>' +
-          '<div class="seller-metrics">' +
-            '<div class="metric"><div class="metric-value">' + x.currentClients + '</div>Clientes</div>' +
-            '<div class="metric"><div class="metric-value">' + Math.round(x.currentClients * 20) + '%</div>Carga</div>' +
-          '</div>' +
-          '<div class="seller-actions">' +
-            '<button class="btn btn-primary" onclick="openEdit(&apos;' + x.id + '&apos;,&apos;' + x.name + '&apos;,&apos;' + x.status + '&apos;)">' + editIcon + ' Editar</button>' +
-            '<button class="btn ' + (x.status === 'available' ? 'btn-danger' : 'btn-success') + '" onclick="toggleSellerStatus(&apos;' + x.id + '&apos;,&apos;' + x.status + '&apos;)">' +
-              (x.status === 'available' ? deactivateIcon + ' Desactivar' : activateIcon + ' Activar') +
-            '</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-      
-      document.getElementById('sellers').innerHTML = html;
+      // Aplicar filtros y renderizar
+      applyFiltersAndRender();
     })
     .catch(function(e) {
       console.error(e);
-      showAlert('Error cargando vendedores', 'error');
+      showToast('Error cargando vendedores', 'error');
     });
+}
+
+function applyFiltersAndRender() {
+  let filtered = allSellers;
+  
+  // Aplicar búsqueda
+  if (searchQuery) {
+    filtered = filtered.filter(function(x) {
+      return x.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             (x.email && x.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+             x.id.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }
+  
+  // Aplicar filtro de estado
+  if (filterStatus !== 'all') {
+    filtered = filtered.filter(function(x) {
+      return x.status === filterStatus;
+    });
+  }
+  
+  // Aplicar filtro de especialidad
+  if (filterSpecialty !== 'all') {
+    filtered = filtered.filter(function(x) {
+      return x.specialty === filterSpecialty;
+    });
+  }
+  
+  // Actualizar contador
+  document.getElementById('resultsCount').textContent = filtered.length + ' vendedor' + (filtered.length !== 1 ? 'es' : '') + ' encontrado' + (filtered.length !== 1 ? 's' : '');
+  
+  // Renderizar
+  renderSellers(filtered);
+}
+
+function renderSellers(sellers) {
+  const container = document.getElementById('sellers');
+  if (sellers.length === 0) {
+    container.innerHTML =  
+      '<div class="empty-state">' +
+        '<div class="empty-icon">📭</div>' +
+        '<div class="empty-title">No se encontraron vendedores</div>' +
+        '<div class="empty-text">Intenta ajustar los filtros o agregar un nuevo vendedor</div>' +
+      '</div>';
+    return;
+  }
+  
+  const html = sellers.map(function(x) {
+    var statusIcon = x.status === 'available' ? '&#x2705;' : '&#x274C;';
+    var statusText = x.status === 'available' ? 'Activo' : 'Inactivo';
+    var editIcon = '&#x270F;&#xFE0F;';
+    var deleteIcon = '&#x1F5D1;&#xFE0F;';
+    var deactivateIcon = '&#x1F534;';
+    var activateIcon = '&#x1F7E2;';
+    var starIcon = '&#x2B50;';
+    
+    return '<div class="seller-card">' +
+      '<div class="seller-name">' + x.name + '</div>' +
+      '<span class="seller-badge ' + (x.status === 'available' ? 'active' : 'inactive') + '">' +
+        statusIcon + ' ' + statusText +
+      '</span>' +
+      '<div class="seller-info">ID: ' + x.id + '</div>' +
+      '<div class="seller-info">Rating: ' + starIcon + x.rating.toFixed(1) + '</div>' +
+      '<div class="seller-metrics">' +
+        '<div class="metric"><div class="metric-value">' + x.currentClients + '</div>Clientes</div>' +
+        '<div class="metric"><div class="metric-value">' + Math.round(x.currentClients * 20) + '%</div>Carga</div>' +
+      '</div>' +
+      '<div class="seller-actions">' +
+        '<button class="btn btn-primary" onclick="openEdit(&apos;' + x.id + '&apos;,&apos;' + x.name + '&apos;,&apos;' + x.status + '&apos;)">' + editIcon + ' Editar</button>' +
+        '<button class="btn ' + (x.status === 'available' ? 'btn-danger' : 'btn-success') + '" onclick="toggleSellerStatus(&apos;' + x.id + '&apos;,&apos;' + x.status + '&apos;)">' +
+          (x.status === 'available' ? deactivateIcon + ' Desactivar' : activateIcon + ' Activar') +
+        '</button>' +
+        '<button class="btn btn-danger" onclick="deleteSeller(&apos;' + x.id + '&apos;,&apos;' + x.name + '&apos;)">' + deleteIcon + ' Eliminar</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  
+  container.innerHTML = html;
 }
 
 function openEdit(id, name, status) {
@@ -429,6 +577,116 @@ function toggleSellerStatus(id, status) {
     load();
   });
 }
+
+// Funciones de Búsqueda y Filtros
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  searchQuery = e.target.value;
+  applyFiltersAndRender();
+});
+
+document.getElementById('filterStatus').addEventListener('change', function(e) {
+  filterStatus = e.target.value;
+  applyFiltersAndRender();
+});
+
+document.getElementById('filterSpecialty').addEventListener('change', function(e) {
+  filterSpecialty = e.target.value;
+  applyFiltersAndRender();
+});
+
+function clearFilters() {
+  searchQuery = '';
+  filterStatus = 'all';
+  filterSpecialty = 'all';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterStatus').value = 'all';
+  document.getElementById('filterSpecialty').value = 'all';
+  applyFiltersAndRender();
+}
+
+// Funciones CRUD
+function addNewSeller() {
+  isCreating = true;
+  currentSeller = null;
+  document.querySelector('#editModal h2').textContent = '➕ Agregar Nuevo Vendedor';
+  document.getElementById('sellerName').value = '';
+  document.getElementById('sellerEmail').value = '';
+  document.getElementById('sellerPhone').value = '';
+  document.getElementById('sellerSpecialty').value = '';
+  document.getElementById('maxClients').value = '10';
+  document.getElementById('sellerNotes').value = '';
+  document.getElementById('workStart').value = '';
+  document.getElementById('workEnd').value = '';
+  document.getElementById('editModal').classList.add('active');
+  setTimeout(function() { document.getElementById('sellerName').focus(); }, 100);
+}
+
+function deleteSeller(id, name) {
+  sellerToDelete = id;
+  document.querySelector('.confirm-message').textContent = '¿Estás seguro de eliminar a ' + name + '? Esta acción no se puede deshacer.';
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+function confirmDelete() {
+  if (!sellerToDelete) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Eliminando...';
+  
+  // Eliminar del array local (simulación)
+  allSellers = allSellers.filter(function(s) { return s.id !== sellerToDelete; });
+  
+  setTimeout(function() {
+    closeConfirmModal();
+    applyFiltersAndRender();
+    showToast('Vendedor eliminado correctamente', 'success');
+    btn.disabled = false;
+    btn.textContent = 'Eliminar';
+  }, 800);
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('active');
+  sellerToDelete = null;
+}
+
+// Toast Notifications
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || 'success');
+  
+  const icons = { success: '✅', error: ' ❌', warning: '⚠️' };
+  toast.innerHTML = '<span class="toast-icon">' + (icons[type] || icons.success) + '</span>' +
+                    '<span class="toast-message">' + message + '</span>';
+  
+  container.appendChild(toast);
+  
+  setTimeout(function() {
+    toast.style.animation = 'slideIn 0.3s ease reverse';
+    setTimeout(function() { container.removeChild(toast); }, 300);
+  }, 3000);
+}
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('editModal').classList.contains('active')) {
+      closeModal();
+    }
+    if (document.getElementById('confirmModal').classList.contains('active')) {
+      closeConfirmModal();
+    }
+  }
+  if (e.ctrlKey && e.key === 'n') {
+    e.preventDefault();
+    addNewSeller();
+  }
+  if (e.ctrlKey && e.key === 'f') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
 
 
 function toggleSidebar() {
