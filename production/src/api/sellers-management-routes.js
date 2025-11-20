@@ -10,9 +10,28 @@ export const setupSellersManagementRoutes = (app) => {
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { height: 100%; }
 body { font-family: system-ui, -apple-system, sans-serif; background: #f3f4f6; display: flex; flex-direction: column; }
-header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-.container { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; }
-.sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; }
+header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; position: relative; z-index: 1000; }
+.hamburger-btn { display: none; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; padding: 10px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+.hamburger-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+.hamburger-btn:active { transform: scale(0.95); }
+.hamburger-icon { display: flex; flex-direction: column; gap: 4px; width: 24px; }
+.hamburger-line { width: 100%; height: 3px; background: white; border-radius: 2px; transition: all 0.3s; }
+.hamburger-btn.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translateY(10px); }
+.hamburger-btn.active .hamburger-line:nth-child(2) { opacity: 0; }
+.hamburger-btn.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translateY(-10px); }
+.container { display: grid; grid-template-columns: 250px 1fr; flex: 1; overflow: hidden; position: relative; }
+.sidebar { background: white; border-right: 1px solid #e0e0e0; padding: 20px; overflow-y: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s; }
+.sidebar-overlay.active { opacity: 1; }
+@media (max-width: 768px) {
+  .hamburger-btn { display: flex !important; }
+  .container { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: 0; top: 68px; bottom: 0; width: 280px; transform: translateX(-100%); z-index: 999; box-shadow: 4px 0 12px rgba(0,0,0,0.15); }
+  .sidebar.active { transform: translateX(0); }
+  .sidebar-overlay { display: block; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .sellers-grid { grid-template-columns: 1fr; }
+}
 .sidebar h3 { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin-bottom: 12px; margin-top: 18px; }
 .sidebar h3:first-child { margin-top: 0; }
 .nav-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #374151; text-decoration: none; border-radius: 8px; font-size: 14px; transition: all 0.2s; margin-bottom: 4px; border-left: 3px solid transparent; }
@@ -63,12 +82,22 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 </head>
 <body>
 <header>
-  <h1>👥 Gestión de Vendedores</h1>
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">
+      <div class="hamburger-icon">
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+      </div>
+    </button>
+    <h1>👥 Gestión de Vendedores</h1>
+  </div>
   <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
 </header>
 
 <div class="container">
-  <div class="sidebar">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
     <h3>📊 Principal</h3>
     <a href="/dashboard" class="nav-item">
       <span class="nav-icon">🏠</span>
@@ -372,6 +401,17 @@ function toggleSellerStatus(id, status) {
     showAlert('Error al cambiar estado', 'error');
     load();
   });
+}
+
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const hamburger = document.getElementById('hamburgerBtn');
+  
+  sidebar.classList.toggle('active');
+  overlay.classList.toggle('active');
+  hamburger.classList.toggle('active');
 }
 
 function logout() {
