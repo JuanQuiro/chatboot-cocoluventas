@@ -318,6 +318,95 @@ class SellersManager {
     }
 
     /**
+     * Actualizar vendedor existente
+     * @param {string} sellerId - ID del vendedor
+     * @param {Object} updates - Campos a actualizar
+     */
+    updateSeller(sellerId, updates) {
+        const seller = this.getSeller(sellerId);
+
+        if (!seller) {
+            throw new Error(`Vendedor con ID ${sellerId} no encontrado`);
+        }
+
+        // Construir UPDATE dinámicamente solo con campos presentes
+        const fields = [];
+        const values = [];
+
+        if (updates.name !== undefined) {
+            fields.push('name = ?');
+            values.push(String(updates.name).trim());
+        }
+        if (updates.email !== undefined && updates.email !== 'N/A') {
+            fields.push('email = ?');
+            values.push(String(updates.email).trim());
+        }
+        if (updates.phone !== undefined && updates.phone !== 'N/A') {
+            fields.push('phone = ?');
+            values.push(String(updates.phone).trim());
+        }
+        if (updates.specialty !== undefined && updates.specialty !== 'N/A') {
+            fields.push('specialty = ?');
+            values.push(String(updates.specialty).trim());
+        }
+        if (updates.maxClients !== undefined) {
+            fields.push('maxClients = ?');
+            values.push(Math.max(1, parseInt(updates.maxClients) || 10));
+        }
+        if (updates.notificationInterval !== undefined) {
+            fields.push('notificationInterval = ?');
+            values.push(Math.max(5, parseInt(updates.notificationInterval) || 30));
+        }
+        if (updates.avgResponse !== undefined) {
+            fields.push('avgResponse = ?');
+            values.push(Math.max(0, parseInt(updates.avgResponse) || 0));
+        }
+        if (updates.notes !== undefined && updates.notes !== 'N/A') {
+            fields.push('notes = ?');
+            values.push(String(updates.notes).trim());
+        }
+        if (updates.workStart !== undefined && updates.workStart !== 'N/A') {
+            fields.push('workStart = ?');
+            values.push(String(updates.workStart).trim());
+        }
+        if (updates.workEnd !== undefined && updates.workEnd !== 'N/A') {
+            fields.push('workEnd = ?');
+            values.push(String(updates.workEnd).trim());
+        }
+        if (updates.daysOff !== undefined && Array.isArray(updates.daysOff)) {
+            fields.push('daysOff = ?');
+            values.push(JSON.stringify(updates.daysOff));
+        }
+        if (updates.active !== undefined) {
+            fields.push('active = ?');
+            values.push(updates.active ? 1 : 0);
+        }
+        if (updates.status !== undefined) {
+            fields.push('status = ?');
+            values.push(String(updates.status));
+        }
+
+        // Siempre actualizar updated_at
+        fields.push('updated_at = CURRENT_TIMESTAMP');
+
+        if (fields.length === 1) {
+            // Solo updated_at, nada que actualizar
+            return this.getSeller(sellerId);
+        }
+
+        // Agregar ID al final del array values
+        values.push(sellerId);
+
+        const sql = `UPDATE sellers SET ${fields.join(', ')} WHERE id = ?`;
+        const stmt = this.db.prepare(sql);
+        stmt.run(...values);
+
+        console.log(`✅ Vendedor ${sellerId} actualizado en BD`);
+
+        return this.getSeller(sellerId);
+    }
+
+    /**
      * Eliminar vendedor
      * @param {string} sellerId - ID del vendedor a eliminar
      */
