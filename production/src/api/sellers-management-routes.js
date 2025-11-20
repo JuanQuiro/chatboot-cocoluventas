@@ -57,6 +57,8 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
 .alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; font-weight: 600; }
 .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #10b981; }
 .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+.form-section { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
+.form-section-title { font-size: 14px; font-weight: 700; color: #667eea; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 0.5px; }
 </style>
 </head>
 <body>
@@ -166,19 +168,58 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
       <button class="close-btn" onclick="closeModal()">×</button>
     </div>
     <div id="modalAlert"></div>
-    <div class="form-group">
-      <label class="form-label">Nombre</label>
-      <input type="text" id="sellerName" class="form-input" required>
+    
+    <div class="form-section">
+      <div class="form-section-title">📋 Información Básica</div>
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" id="sellerName" class="form-input" required>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="sellerEmail" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" id="sellerPhone" class="form-input">
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input type="email" id="sellerEmail" class="form-input">
+
+    <div class="form-section">
+      <div class="form-section-title">💼 Información Profesional</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Especialidad</label>
+          <input type="text" id="sellerSpecialty" class="form-input" placeholder="ej: Premium, General">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Máx. Clientes</label>
+          <input type="number" id="maxClients" class="form-input" value="10" min="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas</label>
+        <textarea id="sellerNotes" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;min-height:60px;"></textarea>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Teléfono</label>
-      <input type="tel" id="sellerPhone" class="form-input">
+
+    <div class="form-section">
+      <div class="form-section-title">⏰ Horario</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Hora Inicio</label>
+          <input type="time" id="workStart" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora Fin</label>
+          <input type="time" id="workEnd" class="form-input">
+        </div>
+      </div>
     </div>
-    <div style="display: flex; gap: 12px; margin-top: 24px;">
+
+    <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
       <button type="button" class="btn btn-primary" onclick="saveSeller()">✅ Guardar</button>
       <button type="button" class="btn btn-danger" onclick="closeModal()">❌ Cancelar</button>
     </div>
@@ -206,12 +247,12 @@ function load() {
       document.getElementById('s3').textContent = d.sellers?.activeConversations || 0;
       
       const html = s.map(function(x) {
-        var statusIcon = x.status === 'available' ? '&amp;#x2705;' : '&amp;#x274C;';
+        var statusIcon = x.status === 'available' ? '&#x2705;' : '&#x274C;';
         var statusText = x.status === 'available' ? 'Activo' : 'Inactivo';
-        var editIcon = '&amp;#x270F;&amp;#xFE0F;';
-        var deactivateIcon = '&amp;#x1F534;';
-        var activateIcon = '&amp;#x1F7E2;';
-        var starIcon = '&amp;#x2B50;';
+        var editIcon = '&#x270F;&#xFE0F;';
+        var deactivateIcon = '&#x1F534;';
+        var activateIcon = '&#x1F7E2;';
+        var starIcon = '&#x2B50;';
         
         return '<div class="seller-card">' +
           '<div class="seller-name">' + x.name + '</div>' +
@@ -252,6 +293,11 @@ function openEdit(id, name, status) {
       document.getElementById('sellerName').value = seller.name || name;
       document.getElementById('sellerEmail').value = seller.email || '';
       document.getElementById('sellerPhone').value = seller.phone || '';
+      document.getElementById('sellerSpecialty').value = seller.specialty || '';
+      document.getElementById('maxClients').value = seller.maxClients || '10';
+      document.getElementById('sellerNotes').value = seller.notes || '';
+      document.getElementById('workStart').value = seller.workStart || '';
+      document.getElementById('workEnd').value = seller.workEnd || '';
       document.getElementById('editModal').classList.add('active');
     })
     .catch(function(e) {
@@ -259,6 +305,11 @@ function openEdit(id, name, status) {
       document.getElementById('sellerName').value = name;
       document.getElementById('sellerEmail').value = '';
       document.getElementById('sellerPhone').value = '';
+      document.getElementById('sellerSpecialty').value = '';
+      document.getElementById('maxClients').value = '10';
+      document.getElementById('sellerNotes').value = '';
+      document.getElementById('workStart').value = '';
+      document.getElementById('workEnd').value = '';
       document.getElementById('editModal').classList.add('active');
     });
 }
