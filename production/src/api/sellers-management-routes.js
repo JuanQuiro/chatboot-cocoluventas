@@ -225,8 +225,8 @@ function load() {
             '<div class="metric"><div class="metric-value">' + Math.round(x.currentClients * 20) + '%</div>Carga</div>' +
           '</div>' +
           '<div class="seller-actions">' +
-            '<button class="btn btn-primary" onclick="openEdit(\'' + x.id + '\',\'' + x.name + '\',\'' + x.status + '\')">' + editIcon + ' Editar</button>' +
-            '<button class="btn ' + (x.status === 'available' ? 'btn-danger' : 'btn-success') + '" onclick="toggleSellerStatus(\'' + x.id + '\',\'' + x.status + '\')">' +
+            '<button class="btn btn-primary" onclick="openEdit(&apos;' + x.id + '&apos;,&apos;' + x.name + '&apos;,&apos;' + x.status + '&apos;)">' + editIcon + ' Editar</button>' +
+            '<button class="btn ' + (x.status === 'available' ? 'btn-danger' : 'btn-success') + '" onclick="toggleSellerStatus(&apos;' + x.id + '&apos;,&apos;' + x.status + '&apos;)">' +
               (x.status === 'available' ? deactivateIcon + ' Desactivar' : activateIcon + ' Activar') +
             '</button>' +
           '</div>' +
