@@ -11,14 +11,15 @@ WORKDIR /app
 # Instalar git y build tools necesarios para better-sqlite3
 RUN apk add --no-cache git python3 make g++
 
-# Copiar archivos de dependencias del proyecto raíz
-COPY package*.json ./
-
-# Copiar package.json de la app integrada en production (para type: "module")
+# Copiar package.json de la app integrada en production (donde están TODAS las dependencias)
 COPY production/package*.json ./production/
 
-# Instalar dependencias de producción
+# Instalar dependencias de producción DESDE /app/production
+WORKDIR /app/production
 RUN npm install --omit=dev --legacy-peer-deps
+
+# Volver al directorio principal
+WORKDIR /app
 
 # Copiar código fuente completo (incluye carpeta production)
 COPY . .
