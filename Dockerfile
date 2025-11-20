@@ -8,8 +8,8 @@ LABEL description="Chatbot WhatsApp para Cocolu Ventas usando BuilderBot"
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Instalar git (necesario para algunas dependencias)
-RUN apk add --no-cache git
+# Instalar git y build tools necesarios para better-sqlite3
+RUN apk add --no-cache git python3 make g++
 
 # Copiar archivos de dependencias del proyecto raíz
 COPY package*.json ./
