@@ -735,6 +735,13 @@ function confirmDelete() {
 function closeConfirmModal() {
   document.getElementById('confirmModal').classList.remove('active');
   sellerToDelete = null;
+  
+  // ✅ Resetear el botón de eliminar
+  const btn = document.getElementById('confirmDeleteBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'Eliminar';
+  }
 }
 
 // Toast Notifications

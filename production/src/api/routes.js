@@ -486,36 +486,49 @@ export const setupRoutes = (app) => {
             const { id } = req.params;
             const { status } = req.body;
 
-            // Obtener el vendedor
-            const seller = sellersManager.getAllSellers().find(s => s.id === id);
+            console.log('\n========== SELLER STATUS CHANGE ==========');
+            console.log('📍 Endpoint: POST /api/seller/:id/status');
+            console.log('📦 ID:', id);
+            console.log('📦 New Status:', status);
 
-            if (!seller) {
-                return res.status(404).json({
+            // Determinar el estado y active
+            let newActive, newStatus;
+            if (status === 'active') {
+                newActive = true;
+                newStatus = 'available';
+            } else if (status === 'inactive') {
+                newActive = false;
+                newStatus = 'offline';
+            } else {
+                return res.status(400).json({
                     success: false,
-                    error: 'Vendedor no encontrado'
+                    error: 'Estado inválido. Use "active" o "inactive"'
                 });
             }
 
-            // Cambiar el estado
-            if (status === 'active') {
-                seller.active = true;
-                seller.status = 'available';
-            } else if (status === 'inactive') {
-                seller.active = false;
-                seller.status = 'offline';
-            }
+            // ✅ PERSISTIR EN SQLITE usando updateSeller()
+            const updated = sellersManager.updateSeller(id, {
+                active: newActive,
+                status: newStatus
+            });
+
+            console.log('✅ Estado actualizado en BD');
+            console.log('📝 Nuevo estado:', updated.status, '| Active:', updated.active);
+            console.log('==========================================\n');
 
             res.json({
                 success: true,
-                message: `Vendedor ${id} actualizado a ${status}`,
+                message: `Vendedor ${updated.name} actualizado a ${status}`,
                 seller: {
-                    id: seller.id,
-                    name: seller.name,
-                    active: seller.active,
-                    status: seller.status
+                    id: updated.id,
+                    name: updated.name,
+                    active: updated.active,
+                    status: updated.status
                 }
             });
         } catch (error) {
+            console.error('❌ ERROR en cambio de estado:', error);
+            console.log('==========================================\n');
             res.status(500).json({
                 success: false,
                 error: error.message
