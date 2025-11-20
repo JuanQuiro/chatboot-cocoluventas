@@ -1,6 +1,6 @@
 export const setupSellersManagementRoutes = (app) => {
-    app.get('/sellers', (req, res) => {
-        res.send(`<!DOCTYPE html>
+  app.get('/sellers', (req, res) => {
+    res.send(`<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -206,21 +206,28 @@ function load() {
       document.getElementById('s3').textContent = d.sellers?.activeConversations || 0;
       
       const html = s.map(function(x) {
+        var statusIcon = x.status === 'available' ? '&amp;#x2705;' : '&amp;#x274C;';
+        var statusText = x.status === 'available' ? 'Activo' : 'Inactivo';
+        var editIcon = '&amp;#x270F;&amp;#xFE0F;';
+        var deactivateIcon = '&amp;#x1F534;';
+        var activateIcon = '&amp;#x1F7E2;';
+        var starIcon = '&amp;#x2B50;';
+        
         return '<div class="seller-card">' +
           '<div class="seller-name">' + x.name + '</div>' +
           '<span class="seller-badge ' + (x.status === 'available' ? 'active' : 'inactive') + '">' +
-            (x.status === 'available' ? '✅ Activo' : '❌ Inactivo') +
+            statusIcon + ' ' + statusText +
           '</span>' +
           '<div class="seller-info">ID: ' + x.id + '</div>' +
-          '<div class="seller-info">Rating: ⭐' + x.rating.toFixed(1) + '</div>' +
+          '<div class="seller-info">Rating: ' + starIcon + x.rating.toFixed(1) + '</div>' +
           '<div class="seller-metrics">' +
             '<div class="metric"><div class="metric-value">' + x.currentClients + '</div>Clientes</div>' +
             '<div class="metric"><div class="metric-value">' + Math.round(x.currentClients * 20) + '%</div>Carga</div>' +
           '</div>' +
           '<div class="seller-actions">' +
-            '<button class="btn btn-primary" onclick="openEdit(\'' + x.id + '\',\'' + x.name + '\',\'' + x.status + '\')">✏️ Editar</button>' +
+            '<button class="btn btn-primary" onclick="openEdit(\'' + x.id + '\',\'' + x.name + '\',\'' + x.status + '\')">' + editIcon + ' Editar</button>' +
             '<button class="btn ' + (x.status === 'available' ? 'btn-danger' : 'btn-success') + '" onclick="toggleSellerStatus(\'' + x.id + '\',\'' + x.status + '\')">' +
-              (x.status === 'available' ? '🔴 Desactivar' : '🟢 Activar') +
+              (x.status === 'available' ? deactivateIcon + ' Desactivar' : activateIcon + ' Activar') +
             '</button>' +
           '</div>' +
         '</div>';
@@ -280,13 +287,13 @@ function saveSeller() {
   .then(function(r) { return r.json(); })
   .then(function(d) {
     if (d.success) {
-      showAlert('✅ Vendedor actualizado correctamente', 'success', 'modalAlert');
+      showAlert('Vendedor actualizado correctamente', 'success', 'modalAlert');
       setTimeout(function() {
         closeModal();
         load();
       }, 1500);
     } else {
-      showAlert('❌ Error: ' + d.error, 'error', 'modalAlert');
+      showAlert('Error: ' + d.error, 'error', 'modalAlert');
     }
   })
   .catch(function(e) {
@@ -306,7 +313,7 @@ function toggleSellerStatus(id, status) {
   })
   .then(function(r) { return r.json(); })
   .then(function(d) {
-    showAlert('✅ Vendedor ' + msg, d.success ? 'success' : 'error');
+    showAlert('Vendedor ' + msg, d.success ? 'success' : 'error');
     load();
   })
   .catch(function(e) {
@@ -325,10 +332,10 @@ setInterval(load, 30000);
 </script>
 </body>
 </html>`);
-    });
+  });
 
-    app.get('/seller-availability', (req, res) => {
-        res.send(`<!DOCTYPE html>
+  app.get('/seller-availability', (req, res) => {
+    res.send(`<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -508,7 +515,7 @@ setInterval(load, 30000);
 </script>
 </body>
 </html>`);
-    });
+  });
 };
 
 export default setupSellersManagementRoutes;
