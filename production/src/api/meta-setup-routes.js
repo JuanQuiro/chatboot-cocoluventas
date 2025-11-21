@@ -453,51 +453,131 @@ body {
 /* Badges */
 .badge {
     padding: 6px 12px;
-    border-radius: 12px;
+    border-radius: 50px;
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .badge-warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
 }
 
 .badge-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #dcfce7;
 }
 
 /* Steps Guide */
 .steps-guide {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f8fafc;
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.steps-guide h3 {
+    color: #334155;
+    margin-bottom: 16px;
+}
+
+.steps-guide ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.steps-guide li {
+    margin-bottom: 10px;
+    color: #475569;
+}
+
+/* Input Area Premium */
+.registration-area {
+    background: white;
     padding: 20px;
     border-radius: 12px;
-    margin-bottom: 20px;
-    border: 1px solid #dee2e6;
+    margin-top: 20px;
 }
 
-/* Input with Action Button */
-.input-with-action {
+.input-group-premium {
     display: flex;
-    gap: 12px;
-    align-items: flex-start;
+    gap: 16px;
+    align-items: stretch;
+    max-width: 600px;
 }
 
-.input-with-action input {
+#registrationPin {
+    font-size: 24px;
+    letter-spacing: 8px;
+    text-align: center;
+    padding: 12px 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    width: 200px;
+    transition: all 0.2s;
+    font-family: monospace;
+    font-weight: 600;
+}
+
+#registrationPin:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+
+#registrationPin.valid {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+#registerPhoneBtn {
     flex: 1;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
 }
 
-@media (max-width: 768px) {
-    .input-with-action {
+#registerPhoneBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.3);
+}
+
+#registerPhoneBtn:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+@media (max-width: 640px) {
+    .input-group-premium {
         flex-direction: column;
     }
     
-    .input-with-action button {
+    #registrationPin {
         width: 100%;
+    }
+    
+    #registerPhoneBtn {
+        padding: 16px;
     }
 }
 </style>
@@ -741,33 +821,26 @@ body {
                 </ol>
             </div>
 
-            <div class="form-group" style="margin-top: 20px;">
-                <label for="registrationPin">
-                    PIN de Verificación (6 dígitos)
-                    <span class="required">*</span>
+            <div class="registration-area">
+                <label for="registrationPin" style="display: block; margin-bottom: 12px; font-weight: 600; color: #1e293b;">
+                    PIN de Verificación (6 dígitos) <span style="color: #ef4444">*</span>
                 </label>
-                <div class="input-with-action">
+                
+                <div class="input-group-premium">
                     <input
                         type="tel"
                         id="registrationPin"
                         name="registrationPin"
-                        placeholder="123456"
+                        placeholder="000000"
                         maxlength="6"
-                        pattern="[0-9]{6}"
-                        required
                         autocomplete="off"
-                        style="font-size: 18px; text-align: center; letter-spacing: 4px;"
-                    />
-                    <button
-                        type="button"
-                        id="registerPhoneBtn"
-                        class="btn btn-primary"
-                        disabled
-                        style="min-width: 200px;"
+                        pattern="[0-9]*"
                     >
+                    
+                    <button type="button" id="registerPhoneBtn" disabled>
                         <span class="btn-text">📱 Registrar Número</span>
                         <span class="btn-loading" style="display: none; align-items: center; gap: 8px;">
-                            <div class="spinner"></div>
+                            <span class="spinner" style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></span>
                             Registrando...
                         </span>
                     </button>
