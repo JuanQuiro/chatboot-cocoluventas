@@ -1,9 +1,6 @@
-/**
- * Authentication Service
- * IMPLEMENTACIÓN: Login, Register, Password Management
- */
-
-import bcrypt from 'bcrypt';
+import Database from 'better-sqlite3';
+import path from 'path';
+import bcrypt from 'bcryptjs';
 import { generateToken, generateRefreshToken } from '../middleware/auth.middleware.js';
 import logger from '../utils/logger.js';
 import auditLogger from '../core/audit/AuditLogger.js';
@@ -12,31 +9,57 @@ const SALT_ROUNDS = 12;
 
 class AuthService {
     constructor() {
-        // Simular base de datos de usuarios (en producción sería MongoDB)
-        this.users = new Map();
-        
+        // Inicializar base de datos SQLite
+        const dbPath = path.join(process.cwd(), 'database', 'sellers.db');
+        this.db = new Database(dbPath);
+
+        console.log(`📦 AuthService initialized with database: ${dbPath}`);
+
+        // Crear tabla si no existe
+        this.initializeDatabase();
+
         // Crear admin por defecto
         this.createDefaultAdmin();
+    }
+
+    /**
+     * Inicializar tabla users
+     */
+    initializeDatabase() {
+        this.db.exec(`
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                name TEXT NOT NULL,
+                role TEXT DEFAULT 'user',
+                active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
     }
 
     /**
      * Crear admin por defecto
      */
     async createDefaultAdmin() {
-        const adminExists = Array.from(this.users.values())
-            .some(u => u.role === 'admin');
+        const admin = this.getUserByEmail('admin@cocolu.com');
 
-        if (!adminExists) {
-            await this.register({
-                email: 'admin@cocolu.com',
-                password: 'Admin123!',
-                name: 'Administrator',
-                role: 'admin'
-            });
-            
-            logger.info('Default admin created', {
-                email: 'admin@cocolu.com'
-            });
+        if (!admin) {
+            try {
+                await this.register({
+                    email: 'admin@cocolu.com',
+                    password: 'Admin123!',
+                    name: 'Administrator',
+                    role: 'admin'
+                });
+
+                logger.info('Default admin created', {
+                    email: 'admin@cocolu.com'
+                });
+            } catch (error) {
+                logger.error('Error creating default admin', error);
+            }
         }
     }
 
@@ -86,18 +109,23 @@ class AuthService {
         // Hash password
         const passwordHash = await this.hashPassword(password);
 
-        // Crear usuario
-        const user = {
-            id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            email,
-            passwordHash,
-            name,
-            role,
-            createdAt: new Date().toISOString(),
-            active: true
-        };
+        // ID único
+        const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        this.users.set(user.id, user);
+        // Insertar en DB
+        const stmt = this.db.prepare(`
+            INSERT INTO users (id, email, password_hash, name, role, active)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `);
+
+        try {
+            stmt.run(id, email, passwordHash, name, role, 1);
+        } catch (error) {
+            logger.error('Error registering user', error);
+            throw new Error('Error registering user');
+        }
+
+        const user = this.getUserById(id);
 
         // Auditar
         await auditLogger.logAction({
@@ -116,7 +144,7 @@ class AuthService {
         });
 
         // Retornar sin password
-        const { passwordHash: _, ...userWithoutPassword } = user;
+        const { password_hash: _, ...userWithoutPassword } = user;
         return userWithoutPassword;
     }
 
@@ -142,7 +170,7 @@ class AuthService {
         }
 
         // Verificar password
-        const valid = await this.verifyPassword(password, user.passwordHash);
+        const valid = await this.verifyPassword(password, user.password_hash);
 
         if (!valid) {
             // Auditar intento fallido
@@ -183,8 +211,8 @@ class AuthService {
         });
 
         // Retornar
-        const { passwordHash: _, ...userWithoutPassword } = user;
-        
+        const { password_hash: _, ...userWithoutPassword } = user;
+
         return {
             user: userWithoutPassword,
             token,
@@ -209,14 +237,14 @@ class AuthService {
      * Change password
      */
     async changePassword(userId, oldPassword, newPassword) {
-        const user = this.users.get(userId);
+        const user = this.getUserById(userId);
 
         if (!user) {
             throw new Error('User not found');
         }
 
         // Verificar password actual
-        const valid = await this.verifyPassword(oldPassword, user.passwordHash);
+        const valid = await this.verifyPassword(oldPassword, user.password_hash);
 
         if (!valid) {
             throw new Error('Current password is incorrect');
@@ -228,7 +256,11 @@ class AuthService {
         }
 
         // Hash nueva contraseña
-        user.passwordHash = await this.hashPassword(newPassword);
+        const newPasswordHash = await this.hashPassword(newPassword);
+
+        // Actualizar DB
+        const stmt = this.db.prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+        stmt.run(newPasswordHash, userId);
 
         // Auditar
         await auditLogger.logAction({
@@ -247,23 +279,27 @@ class AuthService {
      * Get user by email
      */
     getUserByEmail(email) {
-        return Array.from(this.users.values())
-            .find(u => u.email === email);
+        const stmt = this.db.prepare('SELECT * FROM users WHERE email = ?');
+        return stmt.get(email);
     }
 
     /**
      * Get user by ID
      */
     getUserById(id) {
-        return this.users.get(id);
+        const stmt = this.db.prepare('SELECT * FROM users WHERE id = ?');
+        return stmt.get(id);
     }
 
     /**
      * Get all users (sin passwords)
      */
     getAllUsers() {
-        return Array.from(this.users.values()).map(user => {
-            const { passwordHash: _, ...userWithoutPassword } = user;
+        const stmt = this.db.prepare('SELECT * FROM users');
+        const users = stmt.all();
+
+        return users.map(user => {
+            const { password_hash: _, ...userWithoutPassword } = user;
             return userWithoutPassword;
         });
     }
@@ -272,7 +308,7 @@ class AuthService {
      * Update user
      */
     async updateUser(userId, data) {
-        const user = this.users.get(userId);
+        const user = this.getUserById(userId);
 
         if (!user) {
             throw new Error('User not found');
@@ -280,11 +316,36 @@ class AuthService {
 
         const oldData = { ...user };
 
-        // Actualizar campos permitidos
-        if (data.name) user.name = data.name;
-        if (data.email) user.email = data.email;
-        if (data.role) user.role = data.role;
-        if (data.active !== undefined) user.active = data.active;
+        // Construir query dinámica
+        const updates = [];
+        const values = [];
+
+        if (data.name) {
+            updates.push('name = ?');
+            values.push(data.name);
+        }
+        if (data.email) {
+            updates.push('email = ?');
+            values.push(data.email);
+        }
+        if (data.role) {
+            updates.push('role = ?');
+            values.push(data.role);
+        }
+        if (data.active !== undefined) {
+            updates.push('active = ?');
+            values.push(data.active ? 1 : 0);
+        }
+
+        if (updates.length === 0) return user;
+
+        values.push(userId);
+
+        const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+        const stmt = this.db.prepare(sql);
+        stmt.run(...values);
+
+        const updatedUser = this.getUserById(userId);
 
         // Auditar
         await auditLogger.logDataChange({
@@ -293,12 +354,12 @@ class AuthService {
             resource: 'users',
             resourceId: userId,
             before: oldData,
-            after: user
+            after: updatedUser
         });
 
         logger.info('User updated', { userId });
 
-        const { passwordHash: _, ...userWithoutPassword } = user;
+        const { password_hash: _, ...userWithoutPassword } = updatedUser;
         return userWithoutPassword;
     }
 
@@ -306,13 +367,14 @@ class AuthService {
      * Delete user
      */
     async deleteUser(userId) {
-        const user = this.users.get(userId);
+        const user = this.getUserById(userId);
 
         if (!user) {
             throw new Error('User not found');
         }
 
-        this.users.delete(userId);
+        const stmt = this.db.prepare('DELETE FROM users WHERE id = ?');
+        stmt.run(userId);
 
         // Auditar
         await auditLogger.logAction({
