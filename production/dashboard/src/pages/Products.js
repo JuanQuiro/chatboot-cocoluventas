@@ -7,7 +7,7 @@ const Products = () => {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3009/api/products');
+      const response = await fetch('/api/products');
       const data = await response.json();
       if (data.success) {
         setProducts(data.data);

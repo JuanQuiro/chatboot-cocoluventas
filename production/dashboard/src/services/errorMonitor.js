@@ -12,23 +12,23 @@ class ErrorMonitor {
             localStorage.removeItem('dashoffice_warnings');
             localStorage.removeItem('dashoffice_logs');
         }
-        
+
         // Arrays para almacenar errores, warnings y logs
         this.errors = this.loadFromStorage('dashoffice_errors') || [];
         this.warnings = this.loadFromStorage('dashoffice_warnings') || [];
         this.logs = this.loadFromStorage('dashoffice_logs') || [];
-        
+
         this.isInitialized = false;
         this.maxErrors = 100; // Límite de errores a guardar más historia
         this.maxLogs = 500;
         this.isInitialized = false;
-        
+
         // Cola para envío a backend
         this.backendQueue = [];
         this.batchSize = 20;
         this.flushInterval = 5000; // 5 segundos
         this.isOnline = navigator.onLine;
-        
+
         // Listeners de conectividad
         window.addEventListener('online', () => {
             this.isOnline = true;
@@ -37,7 +37,7 @@ class ErrorMonitor {
         window.addEventListener('offline', () => {
             this.isOnline = false;
         });
-        
+
         // Auto-flush cada 5 segundos
         setInterval(() => this.flushToBackend(), this.flushInterval);
     }
@@ -213,27 +213,27 @@ class ErrorMonitor {
      */
     setupNetworkMonitor() {
         const originalFetch = window.fetch;
-        
+
         window.fetch = async (...args) => {
             const startTime = performance.now();
             const url = args[0];
-            
+
             try {
                 const response = await originalFetch(...args);
                 const duration = performance.now() - startTime;
-                
+
                 // Alertar si la llamada tardó más de 3 segundos
                 if (duration > 3000) {
                     console.warn(`⚠️ [PERFORMANCE] Llamada lenta: ${url} (${Math.round(duration)}ms)`);
                 }
-                
+
                 // Si hay error HTTP (pero NO logs batch sin token)
                 if (!response.ok) {
                     // Ignorar errores de /api/logs/batch cuando no hay token
                     if (url.includes('/api/logs/batch') && !localStorage.getItem('token')) {
                         return response;
                     }
-                    
+
                     const errorData = {
                         type: 'NETWORK_ERROR',
                         message: `HTTP ${response.status}: ${url}`,
@@ -241,22 +241,22 @@ class ErrorMonitor {
                         url: url,
                         timestamp: new Date().toISOString()
                     };
-                    
+
                     this.logError(errorData);
                     console.error('🔴 [NETWORK ERROR]', errorData);
                 }
-                
+
                 return response;
             } catch (error) {
                 // Ignorar COMPLETAMENTE errores de API cuando no hay token
                 const noToken = !localStorage.getItem('token');
                 const isApiCall = url.includes('/api/');
-                
+
                 if (noToken && isApiCall) {
                     // No registrar nada, solo lanzar el error
                     throw error;
                 }
-                
+
                 const errorData = {
                     type: 'NETWORK_EXCEPTION',
                     message: `Fetch exception: ${url}`,
@@ -264,10 +264,10 @@ class ErrorMonitor {
                     url: url,
                     timestamp: new Date().toISOString()
                 };
-                
+
                 this.logError(errorData);
                 // NO loguear en consola para evitar spam
-                
+
                 throw error;
             }
         };
@@ -284,7 +284,7 @@ class ErrorMonitor {
                     for (const entry of list.getEntries()) {
                         if (entry.duration > 1000) {
                             console.warn(`⚠️ [PERFORMANCE] Operación lenta detectada: ${entry.name} (${entry.duration}ms)`);
-                            
+
                             this.logWarning({
                                 type: 'PERFORMANCE',
                                 message: `Operación lenta: ${entry.name}`,
@@ -313,15 +313,15 @@ class ErrorMonitor {
             timestamp: new Date().toISOString(),
             type: 'LOG'
         };
-        
+
         this.logs.push(logEntry);
-        
+
         if (this.logs.length > this.maxLogs) {
             this.logs.shift();
         }
-        
+
         this.saveToStorage('dashoffice_logs', this.logs);
-        
+
         // Enviar a backend de forma asíncrona
         this.sendToBackend({
             log_type: 'INFO',
@@ -337,7 +337,7 @@ class ErrorMonitor {
      */
     logError(errorData) {
         this.errors.push(errorData);
-        
+
         // Mantener solo los últimos N errores
         if (this.errors.length > this.maxErrors) {
             this.errors.shift();
@@ -345,7 +345,7 @@ class ErrorMonitor {
 
         // Guardar en localStorage
         this.saveToStorage('dashoffice_errors', this.errors);
-        
+
         // Enviar a backend
         this.sendToBackend({
             log_type: errorData.type === 'CRITICAL' ? 'CRITICAL' : 'ERROR',
@@ -362,14 +362,14 @@ class ErrorMonitor {
      */
     logWarning(warningData) {
         this.warnings.push(warningData);
-        
+
         if (this.warnings.length > this.maxErrors) {
             this.warnings.shift();
         }
-        
+
         // Guardar en localStorage
         this.saveToStorage('dashoffice_warnings', this.warnings);
-        
+
         // Enviar a backend
         this.sendToBackend({
             log_type: 'WARNING',
@@ -471,7 +471,7 @@ class ErrorMonitor {
     sendToBackend(logData) {
         // Agregar contexto del usuario si existe
         const user = this.getCurrentUser();
-        
+
         const enrichedLog = {
             ...logData,
             user_id: user?.id,
@@ -483,7 +483,7 @@ class ErrorMonitor {
 
         // Agregar a la cola
         this.backendQueue.push(enrichedLog);
-        
+
         // Guardar cola en localStorage por si se cierra el navegador
         this.saveToStorage('dashoffice_backend_queue', this.backendQueue);
 
@@ -505,13 +505,13 @@ class ErrorMonitor {
 
         try {
             const token = localStorage.getItem('token');
-            
+
             // Solo enviar si hay usuario logueado
             if (!token) {
                 return; // Silenciosamente no enviar si no hay token
             }
 
-            const response = await fetch('http://localhost:3009/api/logs/batch', {
+            const response = await fetch('/api/logs/batch', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -525,7 +525,7 @@ class ErrorMonitor {
             }
 
             console.log(`[ErrorMonitor] ✅ ${logsToSend.length} logs enviados a BD`);
-            
+
         } catch (error) {
             // Silenciosamente guardar para reintentar, sin mostrar error
             this.backendQueue.push(...logsToSend);
@@ -538,13 +538,13 @@ class ErrorMonitor {
      */
     async processBackendQueue() {
         console.log('[ErrorMonitor] Procesando cola de backend...');
-        
+
         // Cargar cola guardada
         const savedQueue = this.loadFromStorage('dashoffice_backend_queue') || [];
         if (savedQueue.length > 0) {
             this.backendQueue.push(...savedQueue);
         }
-        
+
         await this.flushToBackend();
     }
 

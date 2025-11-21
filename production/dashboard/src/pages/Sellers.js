@@ -7,7 +7,7 @@ const Sellers = () => {
 
   const fetchSellers = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3009/api/sellers');
+      const response = await fetch('/api/sellers');
       const data = await response.json();
       if (data.success) {
         setSellers(data.data);
@@ -26,7 +26,7 @@ const Sellers = () => {
 
   const updateSellerStatus = async (sellerId, newStatus) => {
     try {
-      await fetch(`http://localhost:3009/api/sellers/${sellerId}/status`, {
+      await fetch(`/api/sellers/${sellerId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -84,9 +84,9 @@ const Sellers = () => {
                 <div className="metric-label">Clientes Actuales</div>
                 <div className="metric-value">{seller.currentClients} / {seller.maxClients}</div>
                 <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{width: `${(seller.currentClients / seller.maxClients) * 100}%`}}
+                  <div
+                    className="progress-fill"
+                    style={{ width: `${(seller.currentClients / seller.maxClients) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -104,21 +104,21 @@ const Sellers = () => {
             </div>
 
             <div className="seller-actions">
-              <button 
+              <button
                 className="btn btn-success"
                 onClick={() => updateSellerStatus(seller.id, 'available')}
                 disabled={seller.status === 'available'}
               >
                 Disponible
               </button>
-              <button 
+              <button
                 className="btn btn-warning"
                 onClick={() => updateSellerStatus(seller.id, 'busy')}
                 disabled={seller.status === 'busy'}
               >
                 Ocupado
               </button>
-              <button 
+              <button
                 className="btn btn-danger"
                 onClick={() => updateSellerStatus(seller.id, 'offline')}
                 disabled={seller.status === 'offline'}

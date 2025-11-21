@@ -8,7 +8,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3009/api/dashboard');
+      const response = await fetch('/api/dashboard');
       const data = await response.json();
       if (data.success) {
         setDashboardData(data.data);

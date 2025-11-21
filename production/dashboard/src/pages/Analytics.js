@@ -17,8 +17,8 @@ const Analytics = () => {
 
     try {
       const [metricsRes, eventsRes] = await Promise.all([
-        fetch('http://localhost:3009/api/analytics/metrics'),
-        fetch('http://localhost:3009/api/analytics/events?limit=20')
+        fetch('/api/analytics/metrics'),
+        fetch('/api/analytics/events?limit=20')
       ]);
 
       const metricsData = await metricsRes.json();
@@ -40,7 +40,7 @@ const Analytics = () => {
     // Solo cargar si hay token
     const token = localStorage.getItem('token');
     if (!token) return;
-    
+
     fetchAnalytics();
     const interval = setInterval(fetchAnalytics, 5000);
     return () => clearInterval(interval);
