@@ -738,7 +738,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Webhook URL</h3>
                     <div class="info-box">
                         <label>URL para configurar en Meta Dashboard:</label>
-                        <input type="text" id="webhookUrl" value="${webhookUrl}" readonly>
+                        <input type="text" id="webhookUrl" value="\${webhookUrl}" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('webhookUrl')">
                             <span>📋</span> Copiar URL
                         </button>
@@ -752,7 +752,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Verify Token</h3>
                     <div class="info-box">
                         <label>Token de verificación:</label>
-                        <input type="text" id="verifyToken" value="${config.verifyToken}" readonly>
+                        <input type="text" id="verifyToken" value="\${config.verifyToken}" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('verifyToken')">
                             <span>📋</span> Copiar Token
                         </button>
@@ -859,7 +859,7 @@ body {
                                 type="text" 
                                 name="META_NUMBER_ID" 
                                 placeholder="123456789012345" 
-                                value="${config.numberId}"
+                                value="\${config.numberId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -876,7 +876,7 @@ body {
                                 type="text" 
                                 name="META_BUSINESS_ACCOUNT_ID" 
                                 placeholder="123456789012345" 
-                                value="${config.businessId}"
+                                value="\${config.businessId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -909,7 +909,7 @@ body {
                                 type="text" 
                                 name="PHONE_NUMBER" 
                                 placeholder="+573001234567" 
-                                value="${config.phoneNumber}"
+                                value="\${config.phoneNumber}"
                                 oninput="validateField(this)"
                             >
                             <div class="validation-message"></div>
