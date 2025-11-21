@@ -5,11 +5,35 @@
 
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
 class MetaConfigService {
     constructor() {
         // Usar misma base de datos que sellers
-        const dbPath = path.join(process.cwd(), 'database', 'sellers.db');
+        // Intentar múltiples rutas para encontrar la DB
+        const possiblePaths = [
+            path.join(process.cwd(), 'database', 'sellers.db'), // Local / Production default
+            path.join(process.cwd(), '..', 'database', 'sellers.db'), // Parent dir
+            '/app/database/sellers.db', // Docker volume mount standard
+            path.join(__dirname, '../../database/sellers.db') // Relative to service file
+        ];
+
+        let dbPath = possiblePaths[0];
+        for (const p of possiblePaths) {
+            try {
+                // Verificar si el directorio existe (para creación) o el archivo existe
+                const dir = path.dirname(p);
+                if (fs.existsSync(dir)) {
+                    dbPath = p;
+                    // Si el archivo existe, preferimos esta ruta
+                    if (fs.existsSync(p)) {
+                        console.log(`📦 Database encontrada en: ${p}`);
+                        break;
+                    }
+                }
+            } catch (e) { }
+        }
+
         this.db = new Database(dbPath);
 
         console.log(`📦 MetaConfigService initialized with database: ${dbPath}`);
