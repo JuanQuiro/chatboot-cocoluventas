@@ -653,7 +653,7 @@ export const setupRoutes = (app) => {
                 sendEvent('messages', messages);
 
                 // Logs recientes
-                const logsService = (await import('../../services/logs.service.js')).default;
+                const logsService = (await import('../services/logs.service.js')).default;
                 const recentLogs = await logsService.getRecentLogs({ limit: 50 });
                 sendEvent('logs', recentLogs);
 
@@ -678,7 +678,7 @@ export const setupRoutes = (app) => {
                 sendEvent('messages', messages);
 
                 // Logs recientes (solo los últimos 20)
-                const logsService = (await import('../../services/logs.service.js')).default;
+                const logsService = (await import('../services/logs.service.js')).default;
                 const recentLogs = await logsService.getRecentLogs({ limit: 20 });
                 sendEvent('logs', recentLogs);
 
