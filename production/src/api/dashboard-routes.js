@@ -52,28 +52,38 @@ export const setupDashboardRoutes = (app) => {
   </div>
 
   <script>
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      
-      // Credenciales válidas:
-      // 1) Usuario clásico: admin / admin123
-      // 2) Demo nueva: admin@cocolu.com / demo123
-      const validCombos = [
-        { user: 'admin', password: 'admin123' },
-        { user: 'admin@cocolu.com', password: 'demo123' }
-      ];
+      const errorElement = document.getElementById('error');
+      errorElement.style.display = 'none'; // Ocultar errores previos
 
-      const isValid = validCombos.some(c => c.user === username && c.password === password);
-      
-      if (isValid) {
-        localStorage.setItem('cocolu_token', 'authenticated');
-        localStorage.setItem('cocolu_user', username);
-        window.location.href = '/dashboard';
-      } else {
-        document.getElementById('error').textContent = 'Usuario o contraseña incorrectos';
-        document.getElementById('error').style.display = 'block';
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) { // Si la respuesta HTTP es exitosa (código 2xx)
+          localStorage.setItem('cocolu_token', data.token); // Asumiendo que el backend devuelve { token: '...' }
+          localStorage.setItem('cocolu_user', username); // O data.user si el backend lo devuelve
+          window.location.href = '/dashboard';
+        } else {
+          // Manejar errores de la API (ej. 401 Unauthorized)
+          errorElement.textContent = data.message || 'Error de autenticación'; // Asumiendo que el backend devuelve { message: '...' }
+          errorElement.style.display = 'block';
+        }
+      } catch (error) {
+        // Manejar errores de red u otras excepciones
+        console.error('Login error:', error);
+        errorElement.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        errorElement.style.display = 'block';
       }
     }
   </script>
