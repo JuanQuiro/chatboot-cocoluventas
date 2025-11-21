@@ -738,7 +738,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Webhook URL</h3>
                     <div class="info-box">
                         <label>URL para configurar en Meta Dashboard:</label>
-                        <input type="text" id="webhookUrl" value="\${webhookUrl}" readonly>
+                        <input type="text" id="webhookUrl" value="\\${webhookUrl}" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('webhookUrl')">
                             <span>📋</span> Copiar URL
                         </button>
@@ -752,7 +752,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Verify Token</h3>
                     <div class="info-box">
                         <label>Token de verificación:</label>
-                        <input type="text" id="verifyToken" value="\${config.verifyToken}" readonly>
+                        <input type="text" id="verifyToken" value="\\${config.verifyToken}" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('verifyToken')">
                             <span>📋</span> Copiar Token
                         </button>
@@ -781,26 +781,26 @@ body {
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">JWT Token:</p>
-                        <span class="status ${config.jwtToken ? 'ok' : 'error'}">
-                            ${config.jwtToken ? '✓ Configurado' : '✗ Falta'}
+                        <span class="status \${config.jwtToken ? 'ok' : 'error'}">
+                            \${config.jwtToken ? '✓ Configurado' : '✗ Falta'}
                         </span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Number ID:</p>
-                        <span class="status ${config.numberId ? 'ok' : 'error'}">
-                            ${config.numberId ? '✓ Configurado' : '✗ Falta'}
+                        <span class="status \${config.numberId ? 'ok' : 'error'}">
+                            \${config.numberId ? '✓ Configurado' : '✗ Falta'}
                         </span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Business ID:</p>
-                        <span class="status ${config.businessId ? 'ok' : 'error'}">
-                            ${config.businessId ? '✓ Configurado' : '✗ Falta'}
+                        <span class="status \${config.businessId ? 'ok' : 'error'}">
+                            \${config.businessId ? '✓ Configurado' : '✗ Falta'}
                         </span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">API Version:</p>
-                        <span class="status ${config.apiVersion ? 'ok' : 'error'}">
-                            ${config.apiVersion ? '✓ ' + config.apiVersion : '✗ Falta'}
+                        <span class="status \${config.apiVersion ? 'ok' : 'error'}">
+                            \${config.apiVersion ? '✓ ' + config.apiVersion : '✗ Falta'}
                         </span>
                     </div>
                 </div>
@@ -828,7 +828,7 @@ body {
                             placeholder="EAAB..." 
                             oninput="validateField(this)"
                             required
-                        >${config.jwtToken}</textarea>
+                        >\${config.jwtToken}</textarea>
                         <div class="validation-message"></div>
                         <div class="char-counter"></div>
                     </div>
@@ -859,7 +859,7 @@ body {
                                 type="text" 
                                 name="META_NUMBER_ID" 
                                 placeholder="123456789012345" 
-                                value="\${config.numberId}"
+                                value="\\${config.numberId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -876,7 +876,7 @@ body {
                                 type="text" 
                                 name="META_BUSINESS_ACCOUNT_ID" 
                                 placeholder="123456789012345" 
-                                value="\${config.businessId}"
+                                value="\\${config.businessId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -892,10 +892,10 @@ body {
                                 <span class="tooltip-icon" title="Versión de la API de WhatsApp Business. Recomendado: v22.0 (última estable)">?</span>
                             </label>
                             <select name="META_API_VERSION" required>
-                                <option value="v22.0" ${config.apiVersion === 'v22.0' ? 'selected' : ''}>v22.0 (Recomendado)</option>
-                                <option value="v21.0" ${config.apiVersion === 'v21.0' ? 'selected' : ''}>v21.0</option>
-                                <option value="v20.0" ${config.apiVersion === 'v20.0' ? 'selected' : ''}>v20.0</option>
-                                <option value="v19.0" ${config.apiVersion === 'v19.0' ? 'selected' : ''}>v19.0</option>
+                                <option value="v22.0" \${config.apiVersion === 'v22.0' ? 'selected' : ''}>v22.0 (Recomendado)</option>
+                                <option value="v21.0" \${config.apiVersion === 'v21.0' ? 'selected' : ''}>v21.0</option>
+                                <option value="v20.0" \${config.apiVersion === 'v20.0' ? 'selected' : ''}>v20.0</option>
+                                <option value="v19.0" \${config.apiVersion === 'v19.0' ? 'selected' : ''}>v19.0</option>
                             </select>
                             <div class="validation-message valid">✓ Última versión estable</div>
                         </div>
@@ -909,7 +909,7 @@ body {
                                 type="text" 
                                 name="PHONE_NUMBER" 
                                 placeholder="+573001234567" 
-                                value="\${config.phoneNumber}"
+                                value="\\${config.phoneNumber}"
                                 oninput="validateField(this)"
                             >
                             <div class="validation-message"></div>
