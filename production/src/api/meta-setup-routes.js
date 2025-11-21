@@ -22,6 +22,16 @@ const setupMetaRoutes = (app, metaConfigService) => {
             phoneNumber: process.env.PHONE_NUMBER || ''
         };
 
+        // Pre-compute dynamic values to avoid template literal nesting issues
+        const jwtTokenClass = config.jwtToken ? 'ok' : 'error';
+        const jwtTokenText = config.jwtToken ? '✓ Configurado' : '✗ Falta';
+        const numberIdClass = config.numberId ? 'ok' : 'error';
+        const numberIdText = config.numberId ? '✓ Configurado' : '✗ Falta';
+        const businessIdClass = config.businessId ? 'ok' : 'error';
+        const businessIdText = config.businessId ? '✓ Configurado' : '✗ Falta';
+        const apiVersionClass = config.apiVersion ? 'ok' : 'error';
+        const apiVersionText = config.apiVersion ? '✓ ' + config.apiVersion : '✗ Falta';
+
         res.send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -738,7 +748,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Webhook URL</h3>
                     <div class="info-box">
                         <label>URL para configurar en Meta Dashboard:</label>
-                        <input type="text" id="webhookUrl" value="${webhookUrl}" readonly>
+                        <input type="text" id="webhookUrl" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('webhookUrl')">
                             <span>📋</span> Copiar URL
                         </button>
@@ -752,7 +762,7 @@ body {
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Verify Token</h3>
                     <div class="info-box">
                         <label>Token de verificación:</label>
-                        <input type="text" id="verifyToken" value="${config.verifyToken}" readonly>
+                        <input type="text" id="verifyToken" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('verifyToken')">
                             <span>📋</span> Copiar Token
                         </button>
@@ -781,28 +791,51 @@ body {
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">JWT Token:</p>
-                        <span class="status ${config.jwtToken ? 'ok' : 'error'}">
-                            ${config.jwtToken ? '✓ Configurado' : '✗ Falta'}
-                        </span>
+                        <span id="status-jwt" class="status pending">Cargando...</span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Number ID:</p>
-                        <span class="status ${config.numberId ? 'ok' : 'error'}">
-                            ${config.numberId ? '✓ Configurado' : '✗ Falta'}
-                        </span>
+                        <span id="status-number" class="status pending">Cargando...</span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Business ID:</p>
-                        <span class="status ${config.businessId ? 'ok' : 'error'}">
-                            ${config.businessId ? '✓ Configurado' : '✗ Falta'}
-                        </span>
+                        <span id="status-business" class="status pending">Cargando...</span>
                     </div>
                     <div>
                         <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">API Version:</p>
-                        <span class="status ${config.apiVersion ? 'ok' : 'error'}">
-                            ${config.apiVersion ? '✓ ' + config.apiVersion : '✗ Falta'}
-                        </span>
+                        <span id="status-version" class="status pending">Cargando...</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Status update logic
+                const updateStatus = (id, value, textPrefix = '✓ Configurado') => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.className = 'status ' + (value ? 'ok' : 'error');
+                        el.textContent = value ? textPrefix : '✗ Falta';
+                    }
+                };
+
+                // Wait for config to be populated
+                setTimeout(() => {
+                    if (typeof config !== 'undefined' && config) {
+                        updateStatus('status-jwt', config.jwtToken);
+                        updateStatus('status-number', config.numberId);
+                        updateStatus('status-business', config.businessId);
+                        
+                        const elVer = document.getElementById('status-version');
+                        if (elVer) {
+                            elVer.className = 'status ' + (config.apiVersion ? 'ok' : 'error');
+                            elVer.textContent = config.apiVersion ? '✓ ' + config.apiVersion : '✗ Falta';
+                        }
+                    }
+                }, 100);
+            });
+        </script>
                 </div>
             </div>
         </div>
@@ -828,7 +861,7 @@ body {
                             placeholder="EAAB..." 
                             oninput="validateField(this)"
                             required
-                        >${config.jwtToken}</textarea>
+                        ></textarea>
                         <div class="validation-message"></div>
                         <div class="char-counter"></div>
                     </div>
@@ -859,7 +892,6 @@ body {
                                 type="text" 
                                 name="META_NUMBER_ID" 
                                 placeholder="123456789012345" 
-                                value="${config.numberId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -876,7 +908,6 @@ body {
                                 type="text" 
                                 name="META_BUSINESS_ACCOUNT_ID" 
                                 placeholder="123456789012345" 
-                                value="${config.businessId}"
                                 oninput="validateField(this)"
                                 required
                             >
@@ -892,10 +923,10 @@ body {
                                 <span class="tooltip-icon" title="Versión de la API de WhatsApp Business. Recomendado: v22.0 (última estable)">?</span>
                             </label>
                             <select name="META_API_VERSION" required>
-                                <option value="v22.0" ${config.apiVersion === 'v22.0' ? 'selected' : ''}>v22.0 (Recomendado)</option>
-                                <option value="v21.0" ${config.apiVersion === 'v21.0' ? 'selected' : ''}>v21.0</option>
-                                <option value="v20.0" ${config.apiVersion === 'v20.0' ? 'selected' : ''}>v20.0</option>
-                                <option value="v19.0" ${config.apiVersion === 'v19.0' ? 'selected' : ''}>v19.0</option>
+                                <option value="v22.0">v22.0 (Recomendado)</option>
+                                <option value="v21.0">v21.0</option>
+                                <option value="v20.0">v20.0</option>
+                                <option value="v19.0">v19.0</option>
                             </select>
                             <div class="validation-message valid">✓ Última versión estable</div>
                         </div>
@@ -909,12 +940,42 @@ body {
                                 type="text" 
                                 name="PHONE_NUMBER" 
                                 placeholder="+573001234567" 
-                                value="${config.phoneNumber}"
                                 oninput="validateField(this)"
                             >
                             <div class="validation-message"></div>
                         </div>
                     </div>
+
+                    <script>
+                        // Populate fields from server config safely
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const config = null; // CONFIG_PLACEHOLDER
+                            
+                            const setVal = (name, val) => {
+                                const el = document.querySelector('[name="' + name + '"]');
+                                if (el && val) el.value = val;
+                            };
+
+                            setVal('META_JWT_TOKEN', config.jwtToken);
+                            setVal('META_NUMBER_ID', config.numberId);
+                            setVal('META_BUSINESS_ACCOUNT_ID', config.businessId);
+                            setVal('PHONE_NUMBER', config.phoneNumber);
+                            
+                            // Set webhook and verify token
+                            const webhookUrl = window.location.protocol + '//' + window.location.host + '/webhooks/whatsapp';
+                            const elWebhook = document.getElementById('webhookUrl');
+                            if (elWebhook) elWebhook.value = webhookUrl;
+                            
+                            const elVerify = document.getElementById('verifyToken');
+                            if (elVerify && config.verifyToken) elVerify.value = config.verifyToken;
+                            
+                            // Set select value
+                            const select = document.querySelector('select[name="META_API_VERSION"]');
+                            if (select && config.apiVersion) {
+                                select.value = config.apiVersion;
+                            }
+                        });
+                    </script>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
                         <button type="submit" class="btn btn-primary" id="saveBtn">
@@ -1219,7 +1280,7 @@ function copyToClipboard(elementId) {
 }
 
 function copyFieldValue(fieldName) {
-    const input = document.querySelector(\`[name="\${fieldName}"]\`);
+    const input = document.querySelector('[name="' + fieldName + '"]');
     if (input && input.value) {
         input.select();
         document.execCommand('copy');
@@ -1507,7 +1568,7 @@ async function sendTestMessage() {
         
         // Toast de éxito o error
         if (response.ok && data.success) {
-            toastManager.success(`Mensaje enviado en ${ duration }ms`, 'Prueba Exitosa');
+            toastManager.success('Mensaje enviado en ' + duration + 'ms', 'Prueba Exitosa');
         } else {
             toastManager.error(data.error || 'Error al enviar mensaje', 'Error');
         }
@@ -1556,7 +1617,7 @@ function displayTechnicalDetails(data, phoneNumber, message, statusCode, duratio
     const responseInfo = {
         status: statusCode,
         success: data.success,
-        duration: `${ duration }ms`,
+        duration: duration + 'ms',
         response: data.response || data.data,
         error: data.error,
         metaResponse: data.technicalDetails?.metaResponse,
@@ -1567,13 +1628,19 @@ function displayTechnicalDetails(data, phoneNumber, message, statusCode, duratio
     
     // Status box
     statusDetails.className = 'status-box ' + (data.success ? 'success' : 'error');
-    statusDetails.innerHTML = `
-        < div > <strong>Status Code:</strong> ${ statusCode }</div >
-        <div><strong>Success:</strong> ${data.success ? '✅ Yes' : '❌ No'}</div>
-        <div><strong>Duration:</strong> ${duration}ms</div>
-        ${ data.messageId ? `<div><strong>Message ID:</strong> ${data.messageId}</div>` : '' }
-        ${ data.error ? `<div><strong>Error:</strong> ${data.error}</div>` : '' }
-            `;
+    
+    let statusHtml = '<div><strong>Status Code:</strong> ' + statusCode + '</div>';
+    statusHtml += '<div><strong>Success:</strong> ' + (data.success ? '✅ Yes' : '❌ No') + '</div>';
+    statusHtml += '<div><strong>Duration:</strong> ' + duration + 'ms</div>';
+    
+    if (data.messageId) {
+        statusHtml += '<div><strong>Message ID:</strong> ' + data.messageId + '</div>';
+    }
+    if (data.error) {
+        statusHtml += '<div><strong>Error:</strong> ' + data.error + '</div>';
+    }
+    
+    statusDetails.innerHTML = statusHtml;
     
     // Mostrar sección
     technicalDetails.style.display = 'block';
@@ -1588,24 +1655,24 @@ function displayTechnicalDetails(data, phoneNumber, message, statusCode, duratio
  * Generar comando curl de ejemplo
  */
 function generateCurlCommand(phoneNumber, message) {
-    return `curl - X POST "https://graph.facebook.com/v21.0/[PHONE_NUMBER_ID]/messages" \\
-            -H "Content-Type: application/json" \\
-            -H "Authorization: Bearer [META_JWT_TOKEN]" \\
-            -d '{
-    "messaging_product": "whatsapp",
-            "to": "${phoneNumber}",
-            "text": {
-            "body": "${message.replace(/" / g, '\\"')
-    }"
-    }
-  }'`;
+    let cmd = 'curl -X POST "https://graph.facebook.com/v21.0/[PHONE_NUMBER_ID]/messages" \\\\\n';
+    cmd += '  -H "Content-Type: application/json" \\\\\n';
+    cmd += '  -H "Authorization: Bearer [META_JWT_TOKEN]" \\\\\n';
+    cmd += '  -d \'{\n';
+    cmd += '    "messaging_product": "whatsapp",\n';
+    cmd += '    "to": "' + phoneNumber + '",\n';
+    cmd += '    "text": {\n';
+    cmd += '      "body": "' + message.replace(/"/g, '\\"') + '"\n';
+    cmd += '    }\n';
+    cmd += '  }\'';
+    return cmd;
 }
 
 </script >
 
 </body >
 </html >
-    `);
+    `.replace('const config = null; // CONFIG_PLACEHOLDER', `const config = ${JSON.stringify(config)}; `));
     });
 
 
@@ -1648,11 +1715,11 @@ function generateCurlCommand(phoneNumber, message) {
             let content = fs.readFileSync(envPath, 'utf8');
 
             Object.entries(req.body).forEach(([key, value]) => {
-                const regex = new RegExp(`^ ${ key }=.* $`, 'm');
+                const regex = new RegExp(`^ ${key}=.* $`, 'm');
                 if (regex.test(content)) {
-                    content = content.replace(regex, `${ key }=${ value } `);
+                    content = content.replace(regex, `${key}=${value} `);
                 } else {
-                    content += `\n${ key }=${ value } `;
+                    content += `\n${key}=${value} `;
                 }
             });
 
@@ -1676,7 +1743,7 @@ function generateCurlCommand(phoneNumber, message) {
 
             // Aquí se integraría con el provider real
             // Por ahora simulamos
-            console.log(`📤 Mensaje de prueba a ${ phone }: ${ message } `);
+            console.log(`📤 Mensaje de prueba a ${phone}: ${message} `);
 
             res.json({
                 success: true,
@@ -1728,185 +1795,185 @@ function generateCurlCommand(phoneNumber, message) {
             // Llamar a Meta API /register
             const metaUrl = `https://graph.facebook.com/${apiVersion}/${numberId}/register`;
 
-console.log(`📞 Registrando número ${numberId} con Meta API...`);
+            console.log(`📞 Registrando número ${numberId} con Meta API...`);
 
-const metaResponse = await fetch(metaUrl, {
-    method: 'POST',
-    headers: {
-        'Authorization': `Bearer ${jwtToken}`,
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        pin: pin
-    })
-});
-
-const metaData = await metaResponse.json();
-
-console.log('Meta API Response:', metaData);
-
-if (metaResponse.ok && metaData.success) {
-    // Guardar estado de registro en SQLite
-    metaConfigService.setConfigs({
-        PHONE_REGISTERED: 'true',
-        PHONE_REGISTERED_DATE: new Date().toISOString()
-    });
-
-    console.log('✅ Número registrado exitosamente');
-
-    return res.json({
-        success: true,
-        message: 'Número registrado exitosamente. El error 133010 debería desaparecer en unos minutos.',
-        data: {
-            registered: true,
-            timestamp: new Date().toISOString()
-        }
-    });
-} else {
-    console.error('❌ Error de Meta API:', metaData.error);
-
-    return res.status(400).json({
-        success: false,
-        error: 'Error de Meta API',
-        message: metaData.error?.message || metaData.error?.error_user_msg || 'Error desconocido al registrar el número',
-        metaError: metaData.error
-    });
-}
-        } catch (error) {
-    console.error('❌ Error en registro de número:', error);
-    return res.status(500).json({
-        success: false,
-        error: 'Error del servidor',
-        message: error.message
-    });
-}
-    });
-
-// API: Enviar mensaje de prueba con detalles técnicos completos
-app.post('/api/meta/send-test', async (req, res) => {
-    try {
-        const { to, message } = req.body;
-
-        // Validar inputs
-        if (!to || !message) {
-            return res.status(400).json({
-                success: false,
-                error: 'Parámetros faltantes',
-                message: 'Se requiere "to" (número) y "message" (texto)'
+            const metaResponse = await fetch(metaUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    pin: pin
+                })
             });
-        }
 
-        // Obtener configuración de Meta
-        const config = metaConfigService.getAllConfigs();
-        const jwtToken = config.META_JWT_TOKEN;
-        const numberId = config.META_NUMBER_ID;
-        const apiVersion = config.META_API_VERSION || 'v21.0';
+            const metaData = await metaResponse.json();
 
-        if (!jwtToken || !numberId) {
-            return res.status(400).json({
-                success: false,
-                error: 'Configuración incompleta',
-                message: 'Falta META_JWT_TOKEN o META_NUMBER_ID. Configura Meta primero.'
-            });
-        }
+            console.log('Meta API Response:', metaData);
 
-        // Preparar request para Meta API
-        const endpoint = `https://graph.facebook.com/${apiVersion}/${numberId}/messages`;
-        const requestBody = {
-            messaging_product: 'whatsapp',
-            to: to,
-            text: {
-                body: message
+            if (metaResponse.ok && metaData.success) {
+                // Guardar estado de registro en SQLite
+                metaConfigService.setConfigs({
+                    PHONE_REGISTERED: 'true',
+                    PHONE_REGISTERED_DATE: new Date().toISOString()
+                });
+
+                console.log('✅ Número registrado exitosamente');
+
+                return res.json({
+                    success: true,
+                    message: 'Número registrado exitosamente. El error 133010 debería desaparecer en unos minutos.',
+                    data: {
+                        registered: true,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+            } else {
+                console.error('❌ Error de Meta API:', metaData.error);
+
+                return res.status(400).json({
+                    success: false,
+                    error: 'Error de Meta API',
+                    message: metaData.error?.message || metaData.error?.error_user_msg || 'Error desconocido al registrar el número',
+                    metaError: metaData.error
+                });
             }
-        };
+        } catch (error) {
+            console.error('❌ Error en registro de número:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Error del servidor',
+                message: error.message
+            });
+        }
+    });
 
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${jwtToken}`
-        };
+    // API: Enviar mensaje de prueba con detalles técnicos completos
+    app.post('/api/meta/send-test', async (req, res) => {
+        try {
+            const { to, message } = req.body;
 
-        // Generar comando curl para debugging
-        const curlCommand = `curl -X POST "${endpoint}" \\
+            // Validar inputs
+            if (!to || !message) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Parámetros faltantes',
+                    message: 'Se requiere "to" (número) y "message" (texto)'
+                });
+            }
+
+            // Obtener configuración de Meta
+            const config = metaConfigService.getAllConfigs();
+            const jwtToken = config.META_JWT_TOKEN;
+            const numberId = config.META_NUMBER_ID;
+            const apiVersion = config.META_API_VERSION || 'v21.0';
+
+            if (!jwtToken || !numberId) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Configuración incompleta',
+                    message: 'Falta META_JWT_TOKEN o META_NUMBER_ID. Configura Meta primero.'
+                });
+            }
+
+            // Preparar request para Meta API
+            const endpoint = `https://graph.facebook.com/${apiVersion}/${numberId}/messages`;
+            const requestBody = {
+                messaging_product: 'whatsapp',
+                to: to,
+                text: {
+                    body: message
+                }
+            };
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`
+            };
+
+            // Generar comando curl para debugging
+            const curlCommand = `curl -X POST "${endpoint}" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer ${jwtToken.substring(0, 20)}...${jwtToken.substring(jwtToken.length - 20)}" \\
   -d '${JSON.stringify(requestBody, null, 2)}'`;
 
-        // Enviar mensaje a Meta
-        const startTime = Date.now();
-        const metaResponse = await fetch(endpoint, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(requestBody)
-        });
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-
-        const metaData = await metaResponse.json();
-        const responseHeaders = {};
-        metaResponse.headers.forEach((value, key) => {
-            responseHeaders[key] = value;
-        });
-
-        // Preparar respuesta con detalles técnicos
-        if (metaResponse.ok && metaData.messages) {
-            return res.json({
-                success: true,
-                message: 'Mensaje enviado correctamente',
-                messageId: metaData.messages[0]?.id,
-                response: metaData,
-                technicalDetails: {
-                    endpoint: endpoint,
-                    curlCommand: curlCommand,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
-                    },
-                    requestBody: requestBody,
-                    metaResponse: metaData,
-                    responseHeaders: responseHeaders,
-                    duration: `${duration}ms`,
-                    statusCode: metaResponse.status,
-                    timestamp: new Date().toISOString()
-                }
+            // Enviar mensaje a Meta
+            const startTime = Date.now();
+            const metaResponse = await fetch(endpoint, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(requestBody)
             });
-        } else {
-            // Error de Meta API
-            return res.status(metaResponse.status || 500).json({
+            const endTime = Date.now();
+            const duration = endTime - startTime;
+
+            const metaData = await metaResponse.json();
+            const responseHeaders = {};
+            metaResponse.headers.forEach((value, key) => {
+                responseHeaders[key] = value;
+            });
+
+            // Preparar respuesta con detalles técnicos
+            if (metaResponse.ok && metaData.messages) {
+                return res.json({
+                    success: true,
+                    message: 'Mensaje enviado correctamente',
+                    messageId: metaData.messages[0]?.id,
+                    response: metaData,
+                    technicalDetails: {
+                        endpoint: endpoint,
+                        curlCommand: curlCommand,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
+                        },
+                        requestBody: requestBody,
+                        metaResponse: metaData,
+                        responseHeaders: responseHeaders,
+                        duration: `${duration}ms`,
+                        statusCode: metaResponse.status,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+            } else {
+                // Error de Meta API
+                return res.status(metaResponse.status || 500).json({
+                    success: false,
+                    error: metaData.error?.message || 'Error de Meta API',
+                    message: metaData.error?.error_user_msg || 'No se pudo enviar el mensaje',
+                    response: metaData,
+                    technicalDetails: {
+                        endpoint: endpoint,
+                        curlCommand: curlCommand,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
+                        },
+                        requestBody: requestBody,
+                        metaResponse: metaData,
+                        responseHeaders: responseHeaders,
+                        duration: `${duration}ms`,
+                        statusCode: metaResponse.status,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('❌ Error en envío de prueba:', error);
+            return res.status(500).json({
                 success: false,
-                error: metaData.error?.message || 'Error de Meta API',
-                message: metaData.error?.error_user_msg || 'No se pudo enviar el mensaje',
-                response: metaData,
+                error: 'Error del servidor',
+                message: error.message,
                 technicalDetails: {
-                    endpoint: endpoint,
-                    curlCommand: curlCommand,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
-                    },
-                    requestBody: requestBody,
-                    metaResponse: metaData,
-                    responseHeaders: responseHeaders,
-                    duration: `${duration}ms`,
-                    statusCode: metaResponse.status,
-                    timestamp: new Date().toISOString()
+                    error: error.toString(),
+                    stack: error.stack?.split('\n').slice(0, 5).join('\n')
                 }
             });
         }
-
-    } catch (error) {
-        console.error('❌ Error en envío de prueba:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Error del servidor',
-            message: error.message,
-            technicalDetails: {
-                error: error.toString(),
-                stack: error.stack?.split('\n').slice(0, 5).join('\n')
-            }
-        });
-    }
-});
+    });
 };
 
 export default setupMetaRoutes;
