@@ -21,7 +21,8 @@ public/catalogo*
 ocr-debug/
 presupuiestos/
 *.traineddata
-public/
+# public/ # Comentado para permitir dashboard/public
+/public/ # Solo ignorar public en la raiz de production, no recursivo (con barra inicial)
 
 # Logs
 logs/
