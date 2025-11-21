@@ -3,7 +3,7 @@
  * Configuración completa y pruebas de Meta WhatsApp
  */
 
-const setupMetaRoutes = (app) => {
+const setupMetaRoutes = (app, metaConfigService) => {
 
     // Página principal de configuración Meta
     app.get('/meta-setup', (req, res) => {
@@ -906,21 +906,74 @@ function reloadConfig() {
 }
 
 // ==================== INIT ====================
-document.addEventListener('DOMContentLoaded', function() {
-    // Validate all fields on load
-    document.querySelectorAll('[oninput*="validateField"]').forEach(input => {
-        if (input.value.trim()) {
-            validateField(input);
-        }
-    });
-
+document.addEventListener('DOMContentLoaded', async function() {
+    // Cargar configuración desde BD
+    await loadMetaConfigFromAPI();
+    
     toastManager.success('Configuración cargada correctamente', 'Listo');
 });
+
+// Cargar configuración desde API
+async function loadMetaConfigFromAPI() {
+    try {
+        const res = await fetch('/api/meta/config');
+        const json = await res.json();
+        
+        if (json.success && json.data) {
+            // Pre-llenar formulario con valores de BD
+            Object.entries(json.data).forEach(([key, value]) => {
+                const input = document.querySelector(`[name = "${key}"]`);
+                if (input && value) {
+                    input.value = value;
+                    // Validar campo si tiene valor
+                    if (value.trim()) {
+                        validateField(input);
+                    }
+                }
+            });
+            console.log('✅ Configuración cargada desde BD');
+        }
+    } catch (error) {
+        console.error('❌ Error cargando config:', error);
+        toastManager.warning('No se pudo cargar configuración anterior', 'Advertencia');
+    }
+}
 </script>
 
 </body>
 </html>
         `);
+    });
+
+
+    // API: Obtener configuración Meta desde BD
+    app.get('/api/meta/config', (req, res) => {
+        try {
+            // 1. Intentar leer desde BD
+            let config = metaConfigService.getAllConfigs();
+
+            // 2. Si está vacío, leer desde .env como fallback
+            if (Object.keys(config).length === 0) {
+                config = {
+                    META_JWT_TOKEN: process.env.META_JWT_TOKEN || '',
+                    META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN || '',
+                    META_NUMBER_ID: process.env.META_NUMBER_ID || '',
+                    META_BUSINESS_ACCOUNT_ID: process.env.META_BUSINESS_ACCOUNT_ID || '',
+                    META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta',
+                    META_API_VERSION: process.env.META_API_VERSION || 'v22.0',
+                    PHONE_NUMBER: process.env.PHONE_NUMBER || ''
+                };
+
+                // Guardar en BD para próxima vez (migración automática)
+                metaConfigService.setConfigs(config);
+                console.log('✅ Configuración migrada desde .env a BD');
+            }
+
+            res.json({ success: true, data: config });
+        } catch (error) {
+            console.error('❌ Error cargando config:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
     });
 
     // API: Guardar configuración Meta
@@ -930,6 +983,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const path = require('path');
             const envPath = path.resolve(process.cwd(), '.env');
 
+            // 1. Guardar en .env (como antes)
             let content = fs.readFileSync(envPath, 'utf8');
 
             Object.entries(req.body).forEach(([key, value]) => {
@@ -943,8 +997,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fs.writeFileSync(envPath, content, 'utf8');
 
+            // 2. Guardar en SQLite (NUEVO)
+            metaConfigService.setConfigs(req.body);
+
+            console.log('✅ Configuración Meta guardada en .env y BD');
             res.json({ success: true, message: 'Configuración guardada' });
         } catch (error) {
+            console.error('❌ Error guardando config:', error);
             res.status(500).json({ success: false, error: error.message });
         }
     });

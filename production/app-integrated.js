@@ -39,6 +39,7 @@ import { setupSettingsRoutes } from './src/api/settings.routes.js';
 import { setupSellerAvailabilityRoutes } from './src/api/seller-availability.routes.js';
 import setupSellersManagementRoutes from './src/api/sellers-management-routes.js';
 import setupMetaRoutes from './src/api/meta-setup-routes.js';
+import MetaConfigService from './src/services/meta-config.service.js';
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
 import botManager from './src/services/bot-manager.service.js';
@@ -145,7 +146,8 @@ const main = async () => {
         setupSellersManagementRoutes(apiApp);
 
         // Configurar rutas de Meta WhatsApp Setup
-        setupMetaRoutes(apiApp);
+        const metaConfigService = new MetaConfigService();
+        setupMetaRoutes(apiApp, metaConfigService);
         // ============================================
         // WEBHOOK META (WhatsApp Business API)
         // ============================================

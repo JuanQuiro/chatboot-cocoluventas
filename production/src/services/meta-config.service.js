@@ -1,0 +1,191 @@
+/**
+ * Servicio de gestión de configuración Meta WhatsApp
+ * Persistencia de tokens y credenciales en SQLite
+ */
+
+import Database from 'better-sqlite3';
+import path from 'path';
+
+class MetaConfigService {
+    constructor() {
+        // Usar misma base de datos que sellers
+        const dbPath = path.join(process.cwd(), 'database', 'sellers.db');
+        this.db = new Database(dbPath);
+
+        console.log(`📦 MetaConfigService initialized with database: ${dbPath}`);
+
+        // Crear tabla si no existe
+        this.initializeDatabase();
+    }
+
+    /**
+     * Inicializar tabla meta_config
+     */
+    initializeDatabase() {
+        this.db.exec(`
+            CREATE TABLE IF NOT EXISTS meta_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                key TEXT NOT NULL UNIQUE,
+                value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            
+            CREATE INDEX IF NOT EXISTS idx_meta_config_key ON meta_config(key);
+        `);
+
+        console.log('✅ Tabla meta_config inicializada');
+    }
+
+    /**
+     * Obtener configuración por clave
+     * @param {string} key - Nombre de la variable
+     * @returns {string|null} - Valor o null si no existe
+     */
+    getConfig(key) {
+        const stmt = this.db.prepare('SELECT value FROM meta_config WHERE key = ?');
+        const row = stmt.get(key);
+        return row ? row.value : null;
+    }
+
+    /**
+     * Obtener todas las configuraciones
+     * @returns {Object} - Objeto con todas las configs {key: value}
+     */
+    getAllConfigs() {
+        const stmt = this.db.prepare('SELECT key, value FROM meta_config');
+        const rows = stmt.all();
+
+        const config = {};
+        rows.forEach(row => {
+            config[row.key] = row.value || '';
+        });
+
+        return config;
+    }
+
+    /**
+     * Guardar/actualizar una configuración
+     * @param {string} key - Nombre de la variable
+     * @param {string} value - Valor
+     */
+    setConfig(key, value) {
+        const stmt = this.db.prepare(`
+            INSERT INTO meta_config (key, value, updated_at) 
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET 
+                value = excluded.value,
+                updated_at = CURRENT_TIMESTAMP
+        `);
+
+        stmt.run(key, value || '');
+        console.log(`✓ Meta config actualizada: ${key}`);
+    }
+
+    /**
+     * Guardar múltiples configuraciones en una transacción
+     * @param {Object} configObj - Objeto con configs {key: value}
+     */
+    setConfigs(configObj) {
+        const stmt = this.db.prepare(`
+            INSERT INTO meta_config (key, value, updated_at) 
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(key) DO UPDATE SET 
+                value = excluded.value,
+                updated_at = CURRENT_TIMESTAMP
+        `);
+
+        const transaction = this.db.transaction((configs) => {
+            for (const [key, value] of Object.entries(configs)) {
+                stmt.run(key, value || '');
+            }
+        });
+
+        transaction(configObj);
+        console.log(`✅ ${Object.keys(configObj).length} configuraciones Meta actualizadas`);
+    }
+
+    /**
+     * Eliminar una configuración
+     * @param {string} key - Nombre de la variable
+     */
+    deleteConfig(key) {
+        const stmt = this.db.prepare('DELETE FROM meta_config WHERE key = ?');
+        const info = stmt.run(key);
+
+        if (info.changes > 0) {
+            console.log(`✓ Config eliminada: ${key}`);
+        }
+
+        return info.changes > 0;
+    }
+
+    /**
+     * Verificar si una clave existe
+     * @param {string} key - Nombre de la variable
+     * @returns {boolean}
+     */
+    hasConfig(key) {
+        const stmt = this.db.prepare('SELECT COUNT(*) as count FROM meta_config WHERE key = ?');
+        const row = stmt.get(key);
+        return row.count > 0;
+    }
+
+    /**
+     * Obtener timestamp de última actualización
+     * @param {string} key - Nombre de la variable
+     * @returns {string|null} - Timestamp o null
+     */
+    getLastUpdated(key) {
+        const stmt = this.db.prepare('SELECT updated_at FROM meta_config WHERE key = ?');
+        const row = stmt.get(key);
+        return row ? row.updated_at : null;
+    }
+
+    /**
+     * Limpiar todas las configuraciones (usar con cuidado)
+     */
+    clearAll() {
+        const stmt = this.db.prepare('DELETE FROM meta_config');
+        const info = stmt.run();
+        console.log(`⚠️ ${info.changes} configuraciones Meta eliminadas`);
+        return info.changes;
+    }
+
+    /**
+     * Obtener estadísticas
+     * @returns {Object}
+     */
+    getStats() {
+        const countStmt = this.db.prepare('SELECT COUNT(*) as total FROM meta_config');
+        const lastStmt = this.db.prepare('SELECT MAX(updated_at) as last_update FROM meta_config');
+
+        const count = countStmt.get();
+        const last = lastStmt.get();
+
+        return {
+            totalConfigs: count.total,
+            lastUpdate: last.last_update
+        };
+    }
+
+    /**
+     * Migrar desde process.env
+     * @param {Array<string>} keys - Lista de claves a migrar
+     */
+    migrateFromEnv(keys) {
+        let migratedCount = 0;
+
+        keys.forEach(key => {
+            const value = process.env[key];
+            if (value && !this.hasConfig(key)) {
+                this.setConfig(key, value);
+                migratedCount++;
+            }
+        });
+
+        console.log(`✅ Migradas ${migratedCount} configuraciones desde .env`);
+        return migratedCount;
+    }
+}
+
+export default MetaConfigService;
