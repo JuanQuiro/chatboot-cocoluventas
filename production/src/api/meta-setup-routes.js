@@ -449,6 +449,57 @@ body {
         max-width: none;
     }
 }
+
+/* Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Steps Guide */
+.steps-guide {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+/* Input with Action Button */
+.input-with-action {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.input-with-action input {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .input-with-action {
+        flex-direction: column;
+    }
+    
+    .input-with-action button {
+        width: 100%;
+    }
+}
 </style>
 </head>
 <body>
@@ -462,7 +513,7 @@ body {
             <h1>🌐 Meta WhatsApp Setup</h1>
             <p>Configuración profesional de credenciales y pruebas de conexión</p>
         </div>
-        <a href="/" class="btn-back">← Volver</a>
+        <a href="/dashboard" class="btn-back">← Volver</a>
     </div>
 
     <div class="grid">
@@ -662,6 +713,66 @@ body {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- REGISTRO DE NÚMERO TELEFÓNICO -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+                <h2>📞 Registro de Número Telefónico</h2>
+                <span class="badge badge-warning" id="registration-status">No registrado</span>
+            </div>
+            
+            <div class="alert alert-info" style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 8px; font-size: 16px;">¿Por qué registrar el número?</h4>
+                <p style="margin: 0; line-height: 1.6;">Este paso <strong>activa tu número de WhatsApp</strong> con Meta y elimina el error <code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px;">133010</code> que impide enviar mensajes.</p>
+            </div>
+
+            <div class="steps-guide">
+                <h3 style="margin-bottom: 12px; font-size: 15px; font-weight: 600;">Pasos para registrar:</h3>
+                <ol style="margin-left: 20px; margin-top: 12px; line-height: 1.8;">
+                    <li>Ve a <strong>WhatsApp Manager</strong> → Tu número → <strong>"Reenviar código de verificación"</strong></li>
+                    <li>Recibirás un <strong>SMS con 6 dígitos</strong> en tu celular</li>
+                    <li>Ingresa esos 6 dígitos aquí abajo</li>
+                    <li>Haz clic en <strong>"Registrar Número"</strong></li>
+                </ol>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="registrationPin">
+                    PIN de Verificación (6 dígitos)
+                    <span class="required">*</span>
+                </label>
+                <div class="input-with-action">
+                    <input
+                        type="tel"
+                        id="registrationPin"
+                        name="registrationPin"
+                        placeholder="123456"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        required
+                        autocomplete="off"
+                        style="font-size: 18px; text-align: center; letter-spacing: 4px;"
+                    />
+                    <button
+                        type="button"
+                        id="registerPhoneBtn"
+                        class="btn btn-primary"
+                        disabled
+                        style="min-width: 200px;"
+                    >
+                        <span class="btn-text">📱 Registrar Número</span>
+                        <span class="btn-loading" style="display: none; align-items: center; gap: 8px;">
+                            <div class="spinner"></div>
+                            Registrando...
+                        </span>
+                    </button>
+                </div>
+                <div class="validation-message"></div>
+                <small class="help-text">
+                    El PIN debe ser exactamente 6 dígitos numéricos
+                </small>
             </div>
         </div>
     </div>
@@ -938,6 +1049,114 @@ async function loadMetaConfigFromAPI() {
         toastManager.warning('No se pudo cargar configuración anterior', 'Advertencia');
     }
 }
+
+// ==================== MÓDULO REGISTRO DE NÚMERO ====================
+
+// Cargar estado de registro al inicio
+async function loadRegistrationStatus() {
+    try {
+        const res = await fetch('/api/meta/config');
+        const json = await res.json();
+        
+        if (json.success && json.data.PHONE_REGISTERED === 'true') {
+            const statusBadge = document.getElementById('registration-status');
+            if (statusBadge) {
+                statusBadge.textContent = '✅ Registrado';
+                statusBadge.classList.remove('badge-warning');
+                statusBadge.classList.add('badge-success');
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar estado de registro:', error);
+    }
+}
+
+// Validación PIN
+const pinInput = document.getElementById('registrationPin');
+const registerBtn = document.getElementById('registerPhoneBtn');
+
+if (pinInput && registerBtn) {
+    pinInput.addEventListener('input', (e) => {
+        const pin = e.target.value.replace(/\\D/g, ''); // Solo dígitos
+        e.target.value = pin;
+        
+        const isValid = pin.length === 6;
+        registerBtn.disabled = !isValid;
+        
+        if (isValid) {
+            e.target.classList.add('valid');
+            e.target.classList.remove('invalid');
+        } else if (pin.length > 0) {
+            e.target.classList.add('invalid');
+            e.target.classList.remove('valid');
+        } else {
+            e.target.classList.remove('valid', 'invalid');
+        }
+    });
+
+    // Registro de número
+    registerBtn.addEventListener('click', async () => {
+        const pin = pinInput.value;
+        
+        if (pin.length !== 6) {
+            toastManager.error('El PIN debe tener exactamente 6 dígitos');
+            return;
+        }
+        
+        // UI Loading state
+        registerBtn.disabled = true;
+        registerBtn.querySelector('.btn-text').style.display = 'none';
+        registerBtn.querySelector('.btn-loading').style.display = 'flex';
+        
+        try {
+            const res = await fetch('/api/meta/register-phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin })
+            });
+            
+            const json = await res.json();
+            
+            if (json.success) {
+                toastManager.success(
+                    '✅ Número registrado exitosamente! El error 133010 debería desaparecer en unos minutos.',
+                    'Registro Exitoso'
+                );
+                
+                // Actualizar status badge
+                const statusBadge = document.getElementById('registration-status');
+                statusBadge.textContent = '✅ Registrado';
+                statusBadge.classList.remove('badge-warning');
+                statusBadge.classList.add('badge-success');
+                
+                // Limpiar input
+                pinInput.value = '';
+                pinInput.classList.remove('valid');
+                
+            } else {
+                toastManager.error(
+                    json.message || 'Error al registrar el número',
+                    'Error de Registro'
+                );
+            }
+        } catch (error) {
+            console.error('Error al registrar número:', error);
+            toastManager.error(
+                'Error de conexión al intentar registrar el número',
+                'Error'
+            );
+        } finally {
+            // Restore button state
+            registerBtn.disabled = false;
+            registerBtn.querySelector('.btn-text').style.display = 'inline';
+            registerBtn.querySelector('.btn-loading').style.display = 'none';
+        }
+    });
+}
+
+// Cargar estado de registro cuando cargue la página
+loadRegistrationStatus();
+
 </script>
 
 </body>
@@ -1034,6 +1253,92 @@ async function loadMetaConfigFromAPI() {
             success: true,
             messages: []
         });
+    });
+
+    // Endpoint para registrar número telefónico (elimina error 133010)
+    app.post('/api/meta/register-phone', async (req, res) => {
+        try {
+            const { pin } = req.body;
+
+            // Validar PIN
+            if (!pin || !/^\\d{6}$/.test(pin)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'PIN inválido',
+                    message: 'El PIN debe ser exactamente 6 dígitos numéricos'
+                });
+            }
+
+            // Obtener configuración
+            const allConfigs = metaConfigService.getAllConfigs();
+            const numberId = allConfigs.META_NUMBER_ID || process.env.META_NUMBER_ID;
+            const jwtToken = allConfigs.META_JWT_TOKEN || process.env.META_JWT_TOKEN;
+            const apiVersion = allConfigs.META_API_VERSION || process.env.META_API_VERSION || 'v20.0';
+
+            if (!numberId || !jwtToken) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Configuración incompleta',
+                    message: 'META_NUMBER_ID y META_JWT_TOKEN son requeridos. Por favor configura estos valores primero.'
+                });
+            }
+
+            // Llamar a Meta API /register
+            const metaUrl = `https://graph.facebook.com/${apiVersion}/${numberId}/register`;
+
+            console.log(`📞 Registrando número ${numberId} con Meta API...`);
+
+            const metaResponse = await fetch(metaUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    pin: pin
+                })
+            });
+
+            const metaData = await metaResponse.json();
+
+            console.log('Meta API Response:', metaData);
+
+            if (metaResponse.ok && metaData.success) {
+                // Guardar estado de registro en SQLite
+                metaConfigService.setConfigs({
+                    PHONE_REGISTERED: 'true',
+                    PHONE_REGISTERED_DATE: new Date().toISOString()
+                });
+
+                console.log('✅ Número registrado exitosamente');
+
+                return res.json({
+                    success: true,
+                    message: 'Número registrado exitosamente. El error 133010 debería desaparecer en unos minutos.',
+                    data: {
+                        registered: true,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+            } else {
+                console.error('❌ Error de Meta API:', metaData.error);
+
+                return res.status(400).json({
+                    success: false,
+                    error: 'Error de Meta API',
+                    message: metaData.error?.message || metaData.error?.error_user_msg || 'Error desconocido al registrar el número',
+                    metaError: metaData.error
+                });
+            }
+        } catch (error) {
+            console.error('❌ Error en registro de número:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Error del servidor',
+                message: error.message
+            });
+        }
     });
 };
 
