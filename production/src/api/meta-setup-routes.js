@@ -513,7 +513,10 @@ body {
             <h1>🌐 Meta WhatsApp Setup</h1>
             <p>Configuración profesional de credenciales y pruebas de conexión</p>
         </div>
-        <a href="/dashboard" class="btn-back">← Volver</a>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="#registration-section" class="btn btn-secondary" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">📞 Ir a Registro</a>
+            <a href="/dashboard" class="btn-back">← Volver</a>
+        </div>
     </div>
 
     <div class="grid">
@@ -717,7 +720,7 @@ body {
         </div>
 
         <!-- REGISTRO DE NÚMERO TELEFÓNICO -->
-        <div class="card" style="grid-column: 1 / -1;">
+        <div class="card" id="registration-section" style="grid-column: 1 / -1;">
             <div class="card-header">
                 <h2>📞 Registro de Número Telefónico</h2>
                 <span class="badge badge-warning" id="registration-status">No registrado</span>
