@@ -3,6 +3,9 @@
  * Configuración completa y pruebas de Meta WhatsApp
  */
 
+import fs from 'fs';
+import path from 'path';
+
 const setupMetaRoutes = (app, metaConfigService) => {
 
     // Página principal de configuración Meta
@@ -1639,8 +1642,6 @@ function generateCurlCommand(phoneNumber, message) {
     // API: Guardar configuración Meta
     app.post('/api/meta/save-config', (req, res) => {
         try {
-            const fs = require('fs');
-            const path = require('path');
             const envPath = path.resolve(process.cwd(), '.env');
 
             // 1. Guardar en .env (como antes)
