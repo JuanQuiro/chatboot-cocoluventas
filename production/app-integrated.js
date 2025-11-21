@@ -422,16 +422,28 @@ const main = async () => {
         if (BOT_ADAPTER === 'meta') {
             console.log('🔧 Configurando provider Meta (WhatsApp Business API)...');
 
+            // Intentar cargar configuración desde la base de datos si no está en .env
+            const metaConfigService = new MetaConfigService();
+            const dbConfig = metaConfigService.getAllConfigs();
+
+            console.log('📂 Configuración encontrada en DB:', Object.keys(dbConfig));
+
+            // Prioridad: 1. Environment, 2. Database
             const metaConfig = {
-                jwtToken: process.env.META_JWT_TOKEN,
-                numberId: process.env.META_NUMBER_ID,
-                verifyToken: process.env.META_VERIFY_TOKEN,
+                jwtToken: process.env.META_JWT_TOKEN || process.env.META_ACCESS_TOKEN || dbConfig.META_ACCESS_TOKEN || dbConfig.META_JWT_TOKEN,
+                numberId: process.env.META_NUMBER_ID || process.env.PHONE_NUMBER_ID || dbConfig.META_NUMBER_ID || dbConfig.PHONE_NUMBER_ID,
+                verifyToken: process.env.META_VERIFY_TOKEN || process.env.VERIFY_TOKEN || dbConfig.META_VERIFY_TOKEN || dbConfig.VERIFY_TOKEN || 'cocolu_verify_token_2024',
                 version: process.env.META_API_VERSION || 'v18.0',
             };
 
-            if (!metaConfig.jwtToken || !metaConfig.numberId || !metaConfig.verifyToken) {
-                console.warn('⚠️  Faltan variables META_JWT_TOKEN, META_NUMBER_ID o META_VERIFY_TOKEN.');
-                console.warn('⚠️  Verifica tu archivo .env antes de usar el adaptador Meta.');
+            if (!metaConfig.jwtToken || !metaConfig.numberId) {
+                console.error('❌ ERROR CRÍTICO: Faltan credenciales de Meta (Token o ID).');
+                console.error('   - JWT/Access Token:', metaConfig.jwtToken ? '✅ Presente' : '❌ Faltante');
+                console.error('   - Number ID:', metaConfig.numberId ? '✅ Presente' : '❌ Faltante');
+                console.error('   - Verify Token:', metaConfig.verifyToken ? '✅ Presente' : '❌ Faltante');
+                console.warn('⚠️  Por favor configura las credenciales en el Dashboard -> Configuración Meta');
+            } else {
+                console.log('✅ Credenciales de Meta cargadas correctamente');
             }
 
             const { MetaProvider } = await import('@builderbot/provider-meta');
@@ -441,6 +453,7 @@ const main = async () => {
             console.log('📋 Configuración Meta:', {
                 numberId: metaConfig.numberId,
                 version: metaConfig.version,
+                hasToken: !!metaConfig.jwtToken
             });
         } else {
             const metodoConexion = USE_PAIRING_CODE ? 'NÚMERO TELEFÓNICO' : 'QR CODE';
