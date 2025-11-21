@@ -213,7 +213,7 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
     </a>
 
     <h3>🌐 Meta</h3>
-    <a href="/meta-settings" class="nav-item">
+    <a href="/meta-setup" class="nav-item">
       <span class="nav-icon">⚙️</span>
       <span>Config Meta</span>
     </a>
@@ -901,7 +901,7 @@ header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; pad
     </a>
 
     <h3>🌐 Meta</h3>
-    <a href="/meta-settings" class="nav-item">
+    <a href="/meta-setup" class="nav-item">
       <span class="nav-icon">⚙️</span>
       <span>Config Meta</span>
     </a>

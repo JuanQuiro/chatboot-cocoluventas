@@ -439,7 +439,7 @@ export const setupDashboardRoutes = (app) => {
       </a>
 
       <h3>🌐 Meta</h3>
-      <a href="/meta-settings" class="nav-item">
+      <a href="/meta-setup" class="nav-item">
         <span class="nav-icon">⚙️</span>
         <span class="nav-label">Config Meta</span>
       </a>
@@ -460,6 +460,17 @@ export const setupDashboardRoutes = (app) => {
     </div>
 
     <div class="main">
+      <!-- Alerta de Registro Pendiente -->
+      <div id="registration-alert" style="display:none; background: #fff3cd; color: #856404; padding: 16px; border-radius: 10px; margin-bottom: 24px; border: 1px solid #ffeeba; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 24px;">⚠️</span>
+          <div>
+            <h4 style="margin-bottom: 4px; font-size: 16px;">Acción Requerida: Registro de Número</h4>
+            <p style="margin: 0; font-size: 14px;">Tu número de WhatsApp no está registrado con Meta. El bot no podrá enviar mensajes hasta que completes este paso.</p>
+          </div>
+          <a href="/meta-setup#registration-section" style="margin-left: auto; background: #856404; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px;">Registrar Ahora →</a>
+        </div>
+      </div>
       <div class="card">
         <h2>Bienvenido al Dashboard</h2>
         <p style="color: #666; margin: 15px 0;">Gestiona tu chatbot desde aquí.</p>
@@ -1573,6 +1584,17 @@ export const setupDashboardRoutes = (app) => {
       US: 'Estados Unidos',
     };
     
+    // Verificar estado de registro Meta
+    fetch('/api/meta/config')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data.PHONE_REGISTERED !== 'true') {
+          const alert = document.getElementById('registration-alert');
+          if (alert) alert.style.display = 'block';
+        }
+      })
+      .catch(e => console.error('Error checking meta status:', e));
+
     // Cargar todo al inicio
     loadSummary('month');
     loadMonthlyStats();
