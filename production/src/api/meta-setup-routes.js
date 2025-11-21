@@ -922,7 +922,7 @@ async function loadMetaConfigFromAPI() {
         if (json.success && json.data) {
             // Pre-llenar formulario con valores de BD
             Object.entries(json.data).forEach(([key, value]) => {
-                const input = document.querySelector(\\`[name = "\\${key}"]\\`);
+                const input = document.querySelector('[name=\"' + key + '\"]');
                 if (input && value) {
                     input.value = value;
                     // Validar campo si tiene valor
