@@ -6,7 +6,7 @@
 import axios from 'axios';
 
 // Configuración base
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3009/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Crear instancia de axios
 const apiClient = axios.create({
@@ -24,13 +24,13 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        
+
         // Agregar tenant si existe
         const tenantId = localStorage.getItem('tenantId');
         if (tenantId) {
             config.headers['X-Tenant-ID'] = tenantId;
         }
-        
+
         return config;
     },
     (error) => {
@@ -48,16 +48,16 @@ apiClient.interceptors.response.use(
             // Token expirado o inválido
             // Solo desloguear si hay un token (usuario estaba autenticado)
             const hadToken = localStorage.getItem('token');
-            
+
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            
+
             // Solo redirigir si no estamos ya en login Y teníamos un token
             if (hadToken && window.location.pathname !== '/login') {
                 window.location.href = '/login';
             }
         }
-        
+
         return Promise.reject(error);
     }
 );
