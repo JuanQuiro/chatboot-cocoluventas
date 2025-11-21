@@ -513,6 +513,132 @@ body {
     max-width: 600px;
 }
 
+.input-group-premium input {
+    flex: 1;
+    font-size: 48px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 8px;
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.input-group-premium input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.input-group-premium button {
+    flex-shrink: 0;
+    min-width: 160px;
+}
+
+/* Testing Module Styles */
+.testing-area {
+    display: grid;
+    gap: 24px;
+}
+
+.test-input-section {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.technical-details {
+    margin-top: 24px;
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px solid #667eea;
+}
+
+.detail-section {
+    margin-bottom: 24px;
+}
+
+.detail-section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-block {
+    position: relative;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+}
+
+.code-block pre {
+    margin: 0;
+    color: #e2e8f0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.copy-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.status-box {
+    padding: 16px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.status-box.success {
+    background: #dcfce7;
+    color: #166534;
+    border: 2px solid #86efac;
+}
+
+.status-box.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #fca5a5;
+}
+
+.btn-register .btn-loader {
+    display: none;
+}
+
+.btn-register.loading .btn-text {
+    display: none;
+}
+
+.btn-register.loading .btn-loader {
+    display: inline;
+}
+
 #registrationPin {
     font-size: 24px;
     letter-spacing: 8px;
@@ -849,6 +975,83 @@ body {
                 <small class="help-text">
                     El PIN debe ser exactamente 6 dígitos numéricos
                 </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TESTING TÉCNICO -->
+<div class="card" style="grid-column: 1 / -1; margin-top: 24px;">
+    <h2 style="margin-bottom: 20px;">🧪 Testing & Debugging Técnico</h2>
+    
+    <div class="testing-area">
+        <div class="test-input-section">
+            <div class="form-group">
+                <label class="form-label">📱 Número de Prueba</label>
+                <input 
+                    type="text" 
+                    id="testPhoneNumber" 
+                    class="form-input" 
+                    placeholder="59178123456"
+                    style="font-family: 'Courier New', monospace;"
+                />
+                <small class="help-text">Número completo con código de país (sin +)</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">💬 Mensaje de Prueba</label>
+                <textarea 
+                    id="testMessage" 
+                    class="form-input" 
+                    rows="3"
+                    placeholder="Hola, este es un mensaje de prueba desde el sistema Cocolu"
+                >Hola, mensaje de prueba desde Cocolu 🤖</textarea>
+            </div>
+            
+            <button 
+                id="sendTestBtn" 
+                class="btn-register"
+                onclick="sendTestMessage()"
+            >
+                <span class="btn-text">🚀 Enviar Prueba</span>
+                <span class="btn-loader" style="display: none;">⏳</span>
+            </button>
+        </div>
+        
+        <!-- DETALLES TÉCNICOS -->
+        <div id="technicalDetails" class="technical-details" style="display: none;">
+            <h3 style="margin-top: 24px; margin-bottom: 16px; color: #667eea;">📋 Detalles Técnicos</h3>
+            
+            <!-- CURL COMMAND -->
+            <div class="detail-section">
+                <h4>🔧 Comando cURL</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('curlCommand')">📋 Copiar</button>
+                    <pre id="curlCommand"></pre>
+                </div>
+            </div>
+            
+            <!-- REQUEST DETAILS -->
+            <div class="detail-section">
+                <h4>📤 Request Details</h4>
+                <div class="code-block">
+                    <pre id="requestDetails"></pre>
+                </div>
+            </div>
+            
+            <!-- RESPONSE DETAILS -->
+            <div class="detail-section">
+                <h4>📥 Response Details</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('responseDetails')">📋 Copiar</button>
+                    <pre id="responseDetails"></pre>
+                </div>
+            </div>
+            
+            <!-- STATUS -->
+            <div class="detail-section">
+                <h4>✅ Status</h4>
+                <div id="statusDetails" class="status-box"></div>
             </div>
         </div>
     </div>
@@ -1233,11 +1436,173 @@ if (pinInput && registerBtn) {
 // Cargar estado de registro cuando cargue la página
 loadRegistrationStatus();
 
-</script>
+// ==================== TESTING MODULE FUNCTIONS ====================
 
-</body>
-</html>
-        `);
+/**
+ * Copiar contenido al portapapeles
+ */
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const text = element.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        toastManager.success('Copiado al portapapeles', 'Éxito');
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+        toastManager.error('No se pudo copiar', 'Error');
+    });
+}
+
+/**
+ * Enviar mensaje de prueba con detalles técnicos completos
+ */
+async function sendTestMessage() {
+    const phoneNumber = document.getElementById('testPhoneNumber').value.trim();
+    const message = document.getElementById('testMessage').value.trim();
+    const btn = document.getElementById('sendTestBtn');
+    const technicalDetails = document.getElementById('technicalDetails');
+    
+    // Validaciones
+    if (!phoneNumber) {
+        toastManager.error('Por favor ingresa un número de teléfono', 'Validación');
+        return;
+    }
+    
+    if (!message) {
+        toastManager.error('Por favor ingresa un mensaje', 'Validación');
+        return;
+    }
+    
+    // Loading state
+    btn.classList.add('loading');
+    btn.disabled = true;
+    technicalDetails.style.display = 'none';
+    
+    try {
+        const startTime = Date.now();
+        
+        // Llamar al backend
+        const response = await fetch('/api/meta/send-test', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: phoneNumber,
+                message: message
+            })
+        });
+        
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+        
+        const data = await response.json();
+        
+        // Mostrar detalles técnicos
+        displayTechnicalDetails(data, phoneNumber, message, response.status, duration);
+        
+        // Toast de éxito o error
+        if (response.ok && data.success) {
+            toastManager.success(`Mensaje enviado en ${ duration }ms`, 'Prueba Exitosa');
+        } else {
+            toastManager.error(data.error || 'Error al enviar mensaje', 'Error');
+        }
+        
+    } catch (error) {
+        console.error('Error en prueba:', error);
+        toastManager.error(error.message || 'Error de red', 'Error');
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+/**
+ * Mostrar detalles técnicos en la UI
+ */
+function displayTechnicalDetails(data, phoneNumber, message, statusCode, duration) {
+    const technicalDetails = document.getElementById('technicalDetails');
+    const curlCommand = document.getElementById('curlCommand');
+    const requestDetails = document.getElementById('requestDetails');
+    const responseDetails = document.getElementById('responseDetails');
+    const statusDetails = document.getElementById('statusDetails');
+    
+    // Generar curl command
+    const curlCmd = data.technicalDetails?.curlCommand || generateCurlCommand(phoneNumber, message);
+    curlCommand.textContent = curlCmd;
+    
+    // Request details
+    const requestInfo = {
+        method: 'POST',
+        endpoint: data.technicalDetails?.endpoint || '/v21.0/[PHONE_NUMBER_ID]/messages',
+        headers: data.technicalDetails?.headers || {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer [META_JWT_TOKEN]'
+        },
+        body: data.technicalDetails?.requestBody || {
+            messaging_product: 'whatsapp',
+            to: phoneNumber,
+            text: { body: message }
+        },
+        timestamp: new Date().toISOString()
+    };
+    requestDetails.textContent = JSON.stringify(requestInfo, null, 2);
+    
+    // Response details
+    const responseInfo = {
+        status: statusCode,
+        success: data.success,
+        duration: `${ duration }ms`,
+        response: data.response || data.data,
+        error: data.error,
+        metaResponse: data.technicalDetails?.metaResponse,
+        headers: data.technicalDetails?.responseHeaders,
+        timestamp: new Date().toISOString()
+    };
+    responseDetails.textContent = JSON.stringify(responseInfo, null, 2);
+    
+    // Status box
+    statusDetails.className = 'status-box ' + (data.success ? 'success' : 'error');
+    statusDetails.innerHTML = `
+        < div > <strong>Status Code:</strong> ${ statusCode }</div >
+        <div><strong>Success:</strong> ${data.success ? '✅ Yes' : '❌ No'}</div>
+        <div><strong>Duration:</strong> ${duration}ms</div>
+        ${ data.messageId ? `<div><strong>Message ID:</strong> ${data.messageId}</div>` : '' }
+        ${ data.error ? `<div><strong>Error:</strong> ${data.error}</div>` : '' }
+            `;
+    
+    // Mostrar sección
+    technicalDetails.style.display = 'block';
+    
+    // Scroll suave a detalles técnicos
+    setTimeout(() => {
+        technicalDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+}
+
+/**
+ * Generar comando curl de ejemplo
+ */
+function generateCurlCommand(phoneNumber, message) {
+    return `curl - X POST "https://graph.facebook.com/v21.0/[PHONE_NUMBER_ID]/messages" \\
+            -H "Content-Type: application/json" \\
+            -H "Authorization: Bearer [META_JWT_TOKEN]" \\
+            -d '{
+    "messaging_product": "whatsapp",
+            "to": "${phoneNumber}",
+            "text": {
+            "body": "${message.replace(/" / g, '\\"')
+    }"
+    }
+  }'`;
+}
+
+</script >
+
+</body >
+</html >
+    `);
     });
 
 
@@ -1282,11 +1647,11 @@ loadRegistrationStatus();
             let content = fs.readFileSync(envPath, 'utf8');
 
             Object.entries(req.body).forEach(([key, value]) => {
-                const regex = new RegExp(`^${key}=.*$`, 'm');
+                const regex = new RegExp(`^ ${ key }=.* $`, 'm');
                 if (regex.test(content)) {
-                    content = content.replace(regex, `${key}=${value}`);
+                    content = content.replace(regex, `${ key }=${ value } `);
                 } else {
-                    content += `\n${key}=${value}`;
+                    content += `\n${ key }=${ value } `;
                 }
             });
 
@@ -1310,7 +1675,7 @@ loadRegistrationStatus();
 
             // Aquí se integraría con el provider real
             // Por ahora simulamos
-            console.log(`📤 Mensaje de prueba a ${phone}: ${message}`);
+            console.log(`📤 Mensaje de prueba a ${ phone }: ${ message } `);
 
             res.json({
                 success: true,
@@ -1362,60 +1727,185 @@ loadRegistrationStatus();
             // Llamar a Meta API /register
             const metaUrl = `https://graph.facebook.com/${apiVersion}/${numberId}/register`;
 
-            console.log(`📞 Registrando número ${numberId} con Meta API...`);
+console.log(`📞 Registrando número ${numberId} con Meta API...`);
 
-            const metaResponse = await fetch(metaUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    messaging_product: 'whatsapp',
-                    pin: pin
-                })
-            });
+const metaResponse = await fetch(metaUrl, {
+    method: 'POST',
+    headers: {
+        'Authorization': `Bearer ${jwtToken}`,
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        pin: pin
+    })
+});
 
-            const metaData = await metaResponse.json();
+const metaData = await metaResponse.json();
 
-            console.log('Meta API Response:', metaData);
+console.log('Meta API Response:', metaData);
 
-            if (metaResponse.ok && metaData.success) {
-                // Guardar estado de registro en SQLite
-                metaConfigService.setConfigs({
-                    PHONE_REGISTERED: 'true',
-                    PHONE_REGISTERED_DATE: new Date().toISOString()
-                });
+if (metaResponse.ok && metaData.success) {
+    // Guardar estado de registro en SQLite
+    metaConfigService.setConfigs({
+        PHONE_REGISTERED: 'true',
+        PHONE_REGISTERED_DATE: new Date().toISOString()
+    });
 
-                console.log('✅ Número registrado exitosamente');
+    console.log('✅ Número registrado exitosamente');
 
-                return res.json({
-                    success: true,
-                    message: 'Número registrado exitosamente. El error 133010 debería desaparecer en unos minutos.',
-                    data: {
-                        registered: true,
-                        timestamp: new Date().toISOString()
-                    }
-                });
-            } else {
-                console.error('❌ Error de Meta API:', metaData.error);
-
-                return res.status(400).json({
-                    success: false,
-                    error: 'Error de Meta API',
-                    message: metaData.error?.message || metaData.error?.error_user_msg || 'Error desconocido al registrar el número',
-                    metaError: metaData.error
-                });
-            }
-        } catch (error) {
-            console.error('❌ Error en registro de número:', error);
-            return res.status(500).json({
-                success: false,
-                error: 'Error del servidor',
-                message: error.message
-            });
+    return res.json({
+        success: true,
+        message: 'Número registrado exitosamente. El error 133010 debería desaparecer en unos minutos.',
+        data: {
+            registered: true,
+            timestamp: new Date().toISOString()
         }
     });
+} else {
+    console.error('❌ Error de Meta API:', metaData.error);
+
+    return res.status(400).json({
+        success: false,
+        error: 'Error de Meta API',
+        message: metaData.error?.message || metaData.error?.error_user_msg || 'Error desconocido al registrar el número',
+        metaError: metaData.error
+    });
+}
+        } catch (error) {
+    console.error('❌ Error en registro de número:', error);
+    return res.status(500).json({
+        success: false,
+        error: 'Error del servidor',
+        message: error.message
+    });
+}
+    });
+
+// API: Enviar mensaje de prueba con detalles técnicos completos
+app.post('/api/meta/send-test', async (req, res) => {
+    try {
+        const { to, message } = req.body;
+
+        // Validar inputs
+        if (!to || !message) {
+            return res.status(400).json({
+                success: false,
+                error: 'Parámetros faltantes',
+                message: 'Se requiere "to" (número) y "message" (texto)'
+            });
+        }
+
+        // Obtener configuración de Meta
+        const config = metaConfigService.getAllConfigs();
+        const jwtToken = config.META_JWT_TOKEN;
+        const numberId = config.META_NUMBER_ID;
+        const apiVersion = config.META_API_VERSION || 'v21.0';
+
+        if (!jwtToken || !numberId) {
+            return res.status(400).json({
+                success: false,
+                error: 'Configuración incompleta',
+                message: 'Falta META_JWT_TOKEN o META_NUMBER_ID. Configura Meta primero.'
+            });
+        }
+
+        // Preparar request para Meta API
+        const endpoint = `https://graph.facebook.com/${apiVersion}/${numberId}/messages`;
+        const requestBody = {
+            messaging_product: 'whatsapp',
+            to: to,
+            text: {
+                body: message
+            }
+        };
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
+        };
+
+        // Generar comando curl para debugging
+        const curlCommand = `curl -X POST "${endpoint}" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer ${jwtToken.substring(0, 20)}...${jwtToken.substring(jwtToken.length - 20)}" \\
+  -d '${JSON.stringify(requestBody, null, 2)}'`;
+
+        // Enviar mensaje a Meta
+        const startTime = Date.now();
+        const metaResponse = await fetch(endpoint, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestBody)
+        });
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        const metaData = await metaResponse.json();
+        const responseHeaders = {};
+        metaResponse.headers.forEach((value, key) => {
+            responseHeaders[key] = value;
+        });
+
+        // Preparar respuesta con detalles técnicos
+        if (metaResponse.ok && metaData.messages) {
+            return res.json({
+                success: true,
+                message: 'Mensaje enviado correctamente',
+                messageId: metaData.messages[0]?.id,
+                response: metaData,
+                technicalDetails: {
+                    endpoint: endpoint,
+                    curlCommand: curlCommand,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
+                    },
+                    requestBody: requestBody,
+                    metaResponse: metaData,
+                    responseHeaders: responseHeaders,
+                    duration: `${duration}ms`,
+                    statusCode: metaResponse.status,
+                    timestamp: new Date().toISOString()
+                }
+            });
+        } else {
+            // Error de Meta API
+            return res.status(metaResponse.status || 500).json({
+                success: false,
+                error: metaData.error?.message || 'Error de Meta API',
+                message: metaData.error?.error_user_msg || 'No se pudo enviar el mensaje',
+                response: metaData,
+                technicalDetails: {
+                    endpoint: endpoint,
+                    curlCommand: curlCommand,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken.substring(0, 20)}...`
+                    },
+                    requestBody: requestBody,
+                    metaResponse: metaData,
+                    responseHeaders: responseHeaders,
+                    duration: `${duration}ms`,
+                    statusCode: metaResponse.status,
+                    timestamp: new Date().toISOString()
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('❌ Error en envío de prueba:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Error del servidor',
+            message: error.message,
+            technicalDetails: {
+                error: error.toString(),
+                stack: error.stack?.split('\n').slice(0, 5).join('\n')
+            }
+        });
+    }
+});
 };
 
 export default setupMetaRoutes;
