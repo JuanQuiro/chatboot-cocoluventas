@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,7 +9,14 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
+
+    // Redirigir al dashboard si ya está autenticado
+    useEffect(() => {
+        if (isAuthenticated) {
+            window.location.href = '/dashboard';
+        }
+    }, [isAuthenticated]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
