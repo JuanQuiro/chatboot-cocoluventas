@@ -526,6 +526,9 @@ body {
                     <button class="copy-button" onclick="copyToClipboard('verifyToken', 'Verify Token')">
                         📋 Copiar
                     </button>
+                    <button class="copy-button" onclick="openEditModal('META_VERIFY_TOKEN', 'Token de Verificación', '${verifyToken}')" style="background: var(--secondary-600); margin-left: 8px;">
+                        ✏️ Editar
+                    </button>
                 </div>
                 <p class="help-text">Este token se usa para verificar tu webhook con Meta.</p>
             </div>
@@ -923,6 +926,7 @@ function openEditModal(key, label, currentValue) {
         'META_JWT_TOKEN': 'Token de acceso permanente de Meta Business. Lo encuentras en Meta Business Suite → Configuración → Tokens de sistema.',
         'META_NUMBER_ID': 'ID del número de teléfono de WhatsApp Business. Lo encuentras en Meta Business Suite → WhatsApp → Configuración.',
         'META_BUSINESS_ACCOUNT_ID': 'ID de la cuenta de negocio de Meta. Lo encuentras en Meta Business Suite → Configuración de la empresa.',
+        'META_VERIFY_TOKEN': 'Token secreto para verificar tu webhook con Meta. Usa un valor único y seguro (mínimo 20 caracteres).',
         'META_API_VERSION': 'Versión de la API de Meta (ej: v22.0, v21.0). Recomendado: v22.0',
         'PHONE_NUMBER': 'Número de teléfono para pruebas (formato internacional con +, ej: +1234567890)'
     };
