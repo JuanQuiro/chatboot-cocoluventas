@@ -30,6 +30,7 @@ const setupMetaRoutes = (app, metaConfigService) => {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌐 Meta WhatsApp Setup - Cocolu</title>
 <link rel="stylesheet" href="/api/components/design-system.css">
+<link rel="stylesheet" href="/api/components/testing-styles.css">
 <style>
 body {
     background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
@@ -604,35 +605,230 @@ body {
             </div>
         </div>
 
-        <!-- Test Section -->
+        <!-- Advanced Technical Testing Section -->
         <div class="test-section">
             <div class="section-header">
                 <div class="section-icon">🧪</div>
                 <div class="section-title">
-                    <h2>Probar Conexión</h2>
-                    <p>Envía un mensaje de prueba para verificar que todo funciona correctamente</p>
+                    <h2>Testing & Debugging Técnico</h2>
+                    <p>Pruebas avanzadas con detalles completos de request/response y código ejecutado</p>
                 </div>
             </div>
 
-            <div class="test-controls">
-                <div class="form-group">
-                    <label class="form-label">Número de destino</label>
-                    <input type="tel" class="form-input" id="testPhone" placeholder="${config.phoneNumber || '+1234567890'}" value="${config.phoneNumber}">
+            <!-- Test Type Tabs -->
+            <div class="test-tabs">
+                <button class="test-tab active" onclick="switchTestTab('simple')" id="tab-simple">
+                    📤 Mensaje Simple
+                </button>
+                <button class="test-tab" onclick="switchTestTab('template')" id="tab-template">
+                    📋 Template Message
+                </button>
+                <button class="test-tab" onclick="switchTestTab('media')" id="tab-media">
+                    🖼️ Media Message
+                </button>
+                <button class="test-tab" onclick="switchTestTab('interactive')" id="tab-interactive">
+                    🔘 Interactive Button
+                </button>
+            </div>
+
+            <!-- Simple Message Test -->
+            <div class="test-panel" id="panel-simple">
+                <div class="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número de destino</label>
+                            <input type="tel" class="form-input" id="testPhone" placeholder="+1234567890" value="${config.phoneNumber}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Mensaje</label>
+                            <input type="text" class="form-input" id="testMessage" placeholder="Mensaje de prueba" value="Ping desde dashboard">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="opacity: 0;">Action</label>
+                            <button class="btn btn-primary" onclick="runTest('simple')" id="testButton">
+                                <span id="testButtonText">🚀 Ejecutar Test</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Mensaje de prueba</label>
-                    <input type="text" class="form-input" id="testMessage" placeholder="Hola desde Cocolu" value="Ping de prueba desde dashboard">
+
+                <!-- Code Display -->
+                <div class="code-display">
+                    <div class="code-header">
+                        <span>📝 Código que se ejecutará:</span>
+                        <button class="btn btn-sm btn-secondary" onclick="copyCode('simple')">📋 Copiar</button>
+                    </div>
+                    <pre class="code-block" id="code-simple"><code class="language-javascript">// POST /api/meta/test-message
+const payload = {
+  to: "${config.phoneNumber || '+1234567890'}",
+  message: "Ping desde dashboard"
+};
+
+const response = await fetch('/api/meta/test-message', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});</code></pre>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" style="opacity: 0;">Action</label>
-                    <button class="btn btn-primary" onclick="sendTestMessage()" id="testButton">
-                        <span id="testButtonText">🚀 Enviar Prueba</span>
+            </div>
+
+            <!-- Template Message Test -->
+            <div class="test-panel" id="panel-template" style="display: none;">
+                <div class="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número de destino</label>
+                            <input type="tel" class="form-input" id="testPhoneTemplate" placeholder="+1234567890" value="${config.phoneNumber}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Template Name</label>
+                            <input type="text" class="form-input" id="templateName" placeholder="hello_world">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="opacity: 0;">Action</label>
+                            <button class="btn btn-primary" onclick="runTest('template')">
+                                🚀 Ejecutar Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-display">
+                    <div class="code-header">
+                        <span>📝 Código que se ejecutará:</span>
+                        <button class="btn btn-sm btn-secondary" onclick="copyCode('template')">📋 Copiar</button>
+                    </div>
+                    <pre class="code-block" id="code-template"><code class="language-javascript">// Template Message via Meta API
+const payload = {
+  messaging_product: "whatsapp",
+  to: "${config.phoneNumber || '+1234567890'}",
+  type: "template",
+  template: {
+    name: "hello_world",
+    language: { code: "en_US" }
+  }
+};</code></pre>
+                </div>
+            </div>
+
+            <!-- Media Message Test -->
+            <div class="test-panel" id="panel-media" style="display: none;">
+                <div class="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número de destino</label>
+                            <input type="tel" class="form-input" id="testPhoneMedia" placeholder="+1234567890" value="${config.phoneNumber}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Media URL</label>
+                            <input type="url" class="form-input" id="mediaUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="opacity: 0;">Action</label>
+                            <button class="btn btn-primary" onclick="runTest('media')">
+                                🚀 Ejecutar Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-display">
+                    <div class="code-header">
+                        <span>📝 Código que se ejecutará:</span>
+                        <button class="btn btn-sm btn-secondary" onclick="copyCode('media')">📋 Copiar</button>
+                    </div>
+                    <pre class="code-block" id="code-media"><code class="language-javascript">// Media Message via Meta API
+const payload = {
+  messaging_product: "whatsapp",
+  to: "${config.phoneNumber || '+1234567890'}",
+  type: "image",
+  image: {
+    link: "https://example.com/image.jpg"
+  }
+};</code></pre>
+                </div>
+            </div>
+
+            <!-- Interactive Button Test -->
+            <div class="test-panel" id="panel-interactive" style="display: none;">
+                <div class="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número de destino</label>
+                            <input type="tel" class="form-input" id="testPhoneInteractive" placeholder="+1234567890" value="${config.phoneNumber}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Texto del botón</label>
+                            <input type="text" class="form-input" id="buttonText" placeholder="Confirmar" value="Aceptar">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="opacity: 0;">Action</label>
+                            <button class="btn btn-primary" onclick="runTest('interactive')">
+                                🚀 Ejecutar Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-display">
+                    <div class="code-header">
+                        <span>📝 Código que se ejecutará:</span>
+                        <button class="btn btn-sm btn-secondary" onclick="copyCode('interactive')">📋 Copiar</button>
+                    </div>
+                    <pre class="code-block" id="code-interactive"><code class="language-javascript">// Interactive Button via Meta API
+const payload = {
+  messaging_product: "whatsapp",
+  to: "${config.phoneNumber || '+1234567890'}",
+  type: "interactive",
+  interactive: {
+    type: "button",
+    body: { text: "¿Deseas continuar?" },
+    action: {
+      buttons: [{ type: "reply", reply: { id: "btn_1", title: "Aceptar" } }]
+    }
+  }
+};</code></pre>
+                </div>
+            </div>
+
+            <!-- Request/Response Viewer -->
+            <div class="request-response-viewer" id="rrViewer" style="display: none;">
+                <div class="viewer-tabs">
+                    <button class="viewer-tab active" onclick="switchViewer('request')" id="vtab-request">
+                        📤 Request
+                    </button>
+                    <button class="viewer-tab" onclick="switchViewer('response')" id="vtab-response">
+                        📥 Response
+                    </button>
+                    <button class="viewer-tab" onclick="switchViewer('headers')" id="vtab-headers">
+                        📋 Headers
                     </button>
                 </div>
-            </div>
 
-            <div id="testResult" class="test-result" style="display: none;">
-                Esperando resultado...
+                <div class="viewer-content">
+                    <div class="viewer-panel active" id="viewer-request">
+                        <div class="viewer-header">
+                            <span class="viewer-method" id="reqMethod">POST</span>
+                            <span class="viewer-url" id="reqUrl">/api/meta/test-message</span>
+                            <span class="viewer-status" id="reqStatus"></span>
+                        </div>
+                        <pre class="viewer-code" id="reqBody"></pre>
+                    </div>
+
+                    <div class="viewer-panel" id="viewer-response" style="display: none;">
+                        <div class="viewer-header">
+                            <span class="viewer-label">Status:</span>
+                            <span class="viewer-status" id="resStatus"></span>
+                            <span class="viewer-label">Time:</span>
+                            <span class="viewer-time" id="resTime"></span>
+                        </div>
+                        <pre class="viewer-code" id="resBody"></pre>
+                    </div>
+
+                    <div class="viewer-panel" id="viewer-headers" style="display: none;">
+                        <pre class="viewer-code" id="headersContent"></pre>
+                    </div>
+                </div>
             </div>
         </div>
 </div>
