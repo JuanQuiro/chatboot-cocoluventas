@@ -509,19 +509,17 @@ body {
                 </div>
             </div>
 
-            <div class="steps-guide" style="margin-top: var(--space-6);">
-                <h3>🔧 ¿Cómo actualizar credenciales?</h3>
-                <ol>
-                    <li>Edita el archivo <code>.env</code> en el servidor</li>
-                    <li>Agrega o actualiza las variables:
-                        <ul style="margin-top: var(--space-2); list-style: none;">
-                            <li><code>META_JWT_TOKEN=tu_token</code></li>
-                            <li><code>META_NUMBER_ID=tu_number_id</code></li>
-                            <li><code>META_BUSINESS_ACCOUNT_ID=tu_business_id</code></li>
-                        </ul>
-                    </li>
-                    <li>Reinicia el servidor: <code>npm restart</code></li>
-                </ol>
+            <div style="margin-top: var(--space-6); padding: var(--space-4); background: var(--info-50); border-left: 4px solid var(--info-600); border-radius: var(--radius-lg);">
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <span style="font-size: var(--text-2xl);">⚙️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: var(--font-semibold); color: var(--info-900); margin-bottom: var(--space-1);">¿Necesitas actualizar las credenciales?</div>
+                        <div style="font-size: var(--text-sm); color: var(--info-800);">Puedes gestionar todas las credenciales desde la configuración del sistema</div>
+                    </div>
+                    <a href="/settings" class="btn btn-primary" style="white-space: nowrap;">
+                        Ir a Configuración
+                    </a>
+                </div>
             </div>
         </div>
 
