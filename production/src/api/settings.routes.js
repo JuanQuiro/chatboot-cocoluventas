@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
 
 // Usar ruta absoluta desde el directorio actual del proceso
 const ENV_PATH = path.join(process.cwd(), '.env');
@@ -112,7 +113,10 @@ export function setupSettingsRoutes(app) {
       // Guardar cambios
       fs.writeFileSync(ENV_PATH, envContent, 'utf-8');
 
-      console.log('✅ Configuración actualizada:', Object.keys(settings));
+      // Recargar variables de entorno para que se reflejen inmediatamente
+      dotenv.config({ path: ENV_PATH, override: true });
+
+      console.log('✅ Configuración actualizada y recargada en process.env:', Object.keys(settings));
 
       res.json({
         success: true,
@@ -153,7 +157,10 @@ export function setupSettingsRoutes(app) {
 
       fs.writeFileSync(ENV_PATH, envContent, 'utf-8');
 
-      console.log(`✅ Variable ${key} actualizada`);
+      // Recargar variables de entorno para que se reflejen inmediatamente
+      dotenv.config({ path: ENV_PATH, override: true });
+
+      console.log(`✅ Variable ${key} actualizada y recargada en process.env`);
 
       res.json({
         success: true,
