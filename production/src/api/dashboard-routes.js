@@ -4,7 +4,9 @@
 
 export const setupDashboardRoutes = (app) => {
   console.log('✅ Dashboard routes cargadas');
-  // Página de LOGIN
+  // COMENTADO: Esta ruta estática interceptaba el login del React app
+  // Ahora el React Router maneja /login correctamente
+  /*
   app.get('/login', (req, res) => {
     const html = `<!doctype html>
 <html lang="es">
@@ -92,6 +94,7 @@ export const setupDashboardRoutes = (app) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
   });
+  */
 
 
   // Redirect /meta-settings → /meta-setup (nueva UI premium)
