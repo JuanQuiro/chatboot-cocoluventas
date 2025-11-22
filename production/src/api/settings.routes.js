@@ -24,7 +24,7 @@ export function setupSettingsRoutes(app) {
         if (line && !line.startsWith('#')) {
           const [key, ...valueParts] = line.split('=');
           const value = valueParts.join('=');
-          
+
           // Ocultar valores sensibles
           const isSensitive = sensitiveKeys.some(k => key.includes(k));
           envVars[key] = {
@@ -50,7 +50,7 @@ export function setupSettingsRoutes(app) {
   app.get('/api/settings/:key', (req, res) => {
     try {
       const { key } = req.params;
-      
+
       if (!fs.existsSync(ENV_PATH)) {
         return res.status(404).json({ error: 'Archivo .env no encontrado' });
       }
@@ -88,8 +88,10 @@ export function setupSettingsRoutes(app) {
         return res.status(400).json({ error: 'Formato de configuración inválido' });
       }
 
+      // Crear archivo .env si no existe (resiliente)
       if (!fs.existsSync(ENV_PATH)) {
-        return res.status(404).json({ error: 'Archivo .env no encontrado' });
+        console.log('⚠️ Archivo .env no existe, creándolo...');
+        fs.writeFileSync(ENV_PATH, '', 'utf-8');
       }
 
       let envContent = fs.readFileSync(ENV_PATH, 'utf-8');
@@ -97,7 +99,7 @@ export function setupSettingsRoutes(app) {
       // Actualizar o agregar cada variable
       Object.entries(settings).forEach(([key, value]) => {
         const regex = new RegExp(`^${key}=.*$`, 'm');
-        
+
         if (regex.test(envContent)) {
           // Actualizar variable existente
           envContent = envContent.replace(regex, `${key}=${value}`);
@@ -134,8 +136,10 @@ export function setupSettingsRoutes(app) {
         return res.status(400).json({ error: 'Valor requerido' });
       }
 
+      // Crear archivo .env si no existe (resiliente)
       if (!fs.existsSync(ENV_PATH)) {
-        return res.status(404).json({ error: 'Archivo .env no encontrado' });
+        console.log('⚠️ Archivo .env no existe, creándolo...');
+        fs.writeFileSync(ENV_PATH, '', 'utf-8');
       }
 
       let envContent = fs.readFileSync(ENV_PATH, 'utf-8');
