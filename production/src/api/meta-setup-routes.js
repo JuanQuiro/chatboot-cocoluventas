@@ -508,19 +508,6 @@ body {
                     </div>
                 </div>
             </div>
-
-            <div style="margin-top: var(--space-6); padding: var(--space-4); background: var(--info-50); border-left: 4px solid var(--info-600); border-radius: var(--radius-lg);">
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
-                    <span style="font-size: var(--text-2xl);">⚙️</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: var(--font-semibold); color: var(--info-900); margin-bottom: var(--space-1);">¿Necesitas actualizar las credenciales?</div>
-                        <div style="font-size: var(--text-sm); color: var(--info-800);">Puedes gestionar todas las credenciales desde la configuración del sistema</div>
-                    </div>
-                    <a href="/settings" class="btn btn-primary" style="white-space: nowrap;">
-                        Ir a Configuración
-                    </a>
-                </div>
-            </div>
         </div>
 
         <!-- Test Section -->
