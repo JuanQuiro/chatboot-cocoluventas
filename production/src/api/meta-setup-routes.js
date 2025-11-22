@@ -370,6 +370,98 @@ body {
         opacity: 1;
     }
 }
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-2xl);
+    max-width: 500px;
+    width: 90%;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-header {
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--gray-900);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: var(--text-2xl);
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.modal-close:hover {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.modal-body {
+    padding: var(--space-6);
+}
+
+.modal-footer {
+    padding: var(--space-6);
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 </style>
 </head>
 <body>
@@ -465,9 +557,9 @@ body {
                         <div class="config-item-label">JWT Token</div>
                         <div class="config-item-value">${config.jwtToken ? config.jwtToken.substring(0, 20) + '...' : 'No configurado'}</div>
                     </div>
-                    <div class="status-indicator ${config.jwtToken ? 'configured' : 'missing'}">
-                        ${config.jwtToken ? '✓' : '✗'}
-                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_JWT_TOKEN', 'JWT Token', '${config.jwtToken}')">
+                        ✏️ Editar
+                    </button>
                 </div>
 
                 <div class="config-item">
@@ -475,9 +567,9 @@ body {
                         <div class="config-item-label">Number ID</div>
                         <div class="config-item-value">${config.numberId || 'No configurado'}</div>
                     </div>
-                    <div class="status-indicator ${config.numberId ? 'configured' : 'missing'}">
-                        ${config.numberId ? '✓' : '✗'}
-                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_NUMBER_ID', 'Number ID', '${config.numberId}')">
+                        ✏️ Editar
+                    </button>
                 </div>
 
                 <div class="config-item">
@@ -485,9 +577,9 @@ body {
                         <div class="config-item-label">Business Account ID</div>
                         <div class="config-item-value">${config.businessId || 'No configurado'}</div>
                     </div>
-                    <div class="status-indicator ${config.businessId ? 'configured' : 'missing'}">
-                        ${config.businessId ? '✓' : '✗'}
-                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_BUSINESS_ACCOUNT_ID', 'Business Account ID', '${config.businessId}')">
+                        ✏️ Editar
+                    </button>
                 </div>
 
                 <div class="config-item">
@@ -495,7 +587,9 @@ body {
                         <div class="config-item-label">API Version</div>
                         <div class="config-item-value">${config.apiVersion}</div>
                     </div>
-                    <div class="status-indicator configured">✓</div>
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_API_VERSION', 'API Version', '${config.apiVersion}')">
+                        ✏️ Editar
+                    </button>
                 </div>
 
                 <div class="config-item">
@@ -503,9 +597,9 @@ body {
                         <div class="config-item-label">Phone Number (Testing)</div>
                         <div class="config-item-value">${config.phoneNumber || 'No configurado'}</div>
                     </div>
-                    <div class="status-indicator ${config.phoneNumber ? 'configured' : 'missing'}">
-                        ${config.phoneNumber ? '✓' : '✗'}
-                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('PHONE_NUMBER', 'Phone Number', '${config.phoneNumber}')">
+                        ✏️ Editar
+                    </button>
                 </div>
             </div>
         </div>
@@ -540,6 +634,30 @@ body {
             <div id="testResult" class="test-result" style="display: none;">
                 Esperando resultado...
             </div>
+        </div>
+</div>
+</div>
+
+<!-- Edit Credential Modal -->
+<div id="editModal" class="modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeEditModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Editar Credencial</h3>
+            <button class="modal-close" onclick="closeEditModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label" id="modalLabel">Valor</label>
+                <input type="text" class="form-input" id="modalInput" placeholder="Ingresa el nuevo valor">
+                <p class="help-text" id="modalHelp"></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveCredential()" id="saveButton">
+                <span id="saveButtonText">💾 Guardar</span>
+            </button>
         </div>
     </div>
 </div>
@@ -583,6 +701,94 @@ function showToast(type, title, message) {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 5000);
+}
+
+// Modal state
+let currentEditKey = '';
+let currentEditLabel = '';
+
+// Open edit modal
+function openEditModal(key, label, currentValue) {
+    currentEditKey = key;
+    currentEditLabel = label;
+    
+    const modal = document.getElementById('editModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalLabel = document.getElementById('modalLabel');
+    const modalInput = document.getElementById('modalInput');
+    const modalHelp = document.getElementById('modalHelp');
+    
+    modalTitle.textContent = \`Editar \${label}\`;
+    modalLabel.textContent = label;
+    modalInput.value = currentValue || '';
+    
+    // Set help text based on credential type
+    const helpTexts = {
+        'META_JWT_TOKEN': 'Token de acceso permanente de Meta Business. Lo encuentras en Meta Business Suite → Configuración → Tokens de sistema.',
+        'META_NUMBER_ID': 'ID del número de teléfono de WhatsApp Business. Lo encuentras en Meta Business Suite → WhatsApp → Configuración.',
+        'META_BUSINESS_ACCOUNT_ID': 'ID de la cuenta de negocio de Meta. Lo encuentras en Meta Business Suite → Configuración de la empresa.',
+        'META_API_VERSION': 'Versión de la API de Meta (ej: v22.0, v21.0). Recomendado: v22.0',
+        'PHONE_NUMBER': 'Número de teléfono para pruebas (formato internacional con +, ej: +1234567890)'
+    };
+    
+    modalHelp.textContent = helpTexts[key] || 'Ingresa el nuevo valor para esta credencial.';
+    
+    modal.style.display = 'flex';
+    modalInput.focus();
+}
+
+// Close edit modal
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'none';
+    currentEditKey = '';
+    currentEditLabel = '';
+}
+
+// Save credential
+async function saveCredential() {
+    const modalInput = document.getElementById('modalInput');
+    const saveButton = document.getElementById('saveButton');
+    const saveButtonText = document.getElementById('saveButtonText');
+    const newValue = modalInput.value.trim();
+    
+    if (!newValue) {
+        showToast('error', 'Error', 'El valor no puede estar vacío');
+        return;
+    }
+    
+    // Disable button and show loading
+    saveButton.disabled = true;
+    saveButtonText.innerHTML = '<div class="spinner"></div> Guardando...';
+    
+    try {
+        const response = await fetch(\`/api/settings/\${currentEditKey}\`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ value: newValue })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast('success', 'Guardado', \`\${currentEditLabel} actualizado correctamente\`);
+            closeEditModal();
+            
+            // Reload page after 1 second to show updated values
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showToast('error', 'Error', data.error || 'Error al guardar la credencial');
+        }
+    } catch (error) {
+        showToast('error', 'Error de conexión', 'No se pudo conectar con el servidor');
+    } finally {
+        saveButton.disabled = false;
+        saveButtonText.innerHTML = '💾 Guardar';
+    }
 }
 
 // Send test message
