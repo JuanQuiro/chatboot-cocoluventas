@@ -6,37 +6,57 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login, user, isAuthenticated } = useAuth();
+    const { login, user } = useAuth();
 
-    // Redirigir al dashboard si ya está autenticado
+    // Verificar autenticación solo una vez al montar
     useEffect(() => {
-        if (user && isAuthenticated()) {
-            console.log('✅ Usuario ya autenticado, redirigiendo a dashboard...', user);
-            window.location.href = '/dashboard';
+        const token = localStorage.getItem('token');
+        if (token && user) {
+            console.log('✅ Ya autenticado al cargar, redirigiendo...', user);
+            setSuccess('Ya estás autenticado. Redirigiendo...');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
         }
-    }, [user, isAuthenticated]);
+    }, []); // Solo al montar, NO dependencies
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
         setLoading(true);
 
-        const result = await login(email, password);
+        console.log('🔑 Intentando login con:', email);
 
-        if (result.success) {
-            console.log('✅ Login exitoso, redirigiendo...', result.user);
-            // Redirigir al dashboard HTML estático (no React Router)
-            window.location.href = '/dashboard';
-        } else {
-            const errorMsg = result.error || 'Error al iniciar sesión';
-            console.error('❌ Login fallido:', errorMsg);
+        try {
+            const result = await login(email, password);
+
+            console.log('📊 Resultado del login:', result);
+
+            if (result.success) {
+                setSuccess('✅ Login exitoso! Redirigiendo a dashboard...');
+                console.log('✅ Login exitoso, usuario:', result.user);
+
+                // Redirigir después de mostrar mensaje
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            } else {
+                const errorMsg = result.error || 'Credenciales inválidas. Intenta de nuevo.';
+                setError(errorMsg);
+                console.error('❌ Login fallido:', errorMsg);
+            }
+        } catch (err) {
+            const errorMsg = err.message || 'Error de conexión. Intenta de nuevo.';
             setError(errorMsg);
+            console.error('❌ Excepción en login:', err);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const quickLogin = (demoEmail) => {
@@ -168,6 +188,16 @@ function Login() {
                                     <div className="flex-1">
                                         <p className="font-semibold">Error de autenticación</p>
                                         <p className="text-sm">{error}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg flex items-start gap-3">
+                                    <span className="text-xl">✅</span>
+                                    <div className="flex-1">
+                                        <p className="font-semibold">Éxito</p>
+                                        <p className="text-sm">{success}</p>
                                     </div>
                                 </div>
                             )}
