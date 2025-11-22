@@ -360,8 +360,8 @@ const main = async () => {
         // Catch-all route: sirve index.html del React app para todas las rutas que no sean API
         // Esto permite que React Router maneje el routing del lado del cliente
         apiApp.get('*', (req, res) => {
-            // No servir index.html para rutas de API
-            if (req.path.startsWith('/api/')) {
+            // No servir index.html para rutas de API (excepto archivos estáticos como CSS)
+            if (req.path.startsWith('/api/') && !req.path.startsWith('/api/components/')) {
                 return res.status(404).json({ error: 'API endpoint not found' });
             }
             // Servir index.html para todas las demás rutas (login, dashboard, etc.)
