@@ -9,14 +9,15 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login, isAuthenticated } = useAuth();
+    const { login, user, isAuthenticated } = useAuth();
 
     // Redirigir al dashboard si ya está autenticado
     useEffect(() => {
-        if (isAuthenticated) {
+        if (user && isAuthenticated()) {
+            console.log('✅ Usuario ya autenticado, redirigiendo a dashboard...', user);
             window.location.href = '/dashboard';
         }
-    }, [isAuthenticated]);
+    }, [user, isAuthenticated]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,10 +27,13 @@ function Login() {
         const result = await login(email, password);
 
         if (result.success) {
+            console.log('✅ Login exitoso, redirigiendo...', result.user);
             // Redirigir al dashboard HTML estático (no React Router)
             window.location.href = '/dashboard';
         } else {
-            setError(result.error || 'Error al iniciar sesión');
+            const errorMsg = result.error || 'Error al iniciar sesión';
+            console.error('❌ Login fallido:', errorMsg);
+            setError(errorMsg);
         }
 
         setLoading(false);
