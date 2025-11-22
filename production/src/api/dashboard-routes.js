@@ -96,6 +96,57 @@ export const setupDashboardRoutes = (app) => {
   });
   */
 
+  // POST /api/login - Endpoint para autenticación del dashboard HTML
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      // Validar credenciales recibidas
+      if (!username || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Usuario y contraseña requeridos'
+        });
+      }
+
+      // Credenciales de demostración (hardcoded por ahora)
+      const validCredentials = [
+        { username: 'admin@cocolu.com', password: 'Admin123!', role: 'admin' },
+        { username: 'seller@cocolu.com', password: 'Seller123!', role: 'seller' }
+      ];
+
+      // Buscar credencial válida
+      const credential = validCredentials.find(
+        c => c.username === username && c.password === password
+      );
+
+      if (!credential) {
+        return res.status(401).json({
+          success: false,
+          message: 'Credenciales inválidas'
+        });
+      }
+
+      // Generar token simple (en producción usar JWT real)
+      const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+
+      res.json({
+        success: true,
+        token: token,
+        user: {
+          username: credential.username,
+          role: credential.role
+        }
+      });
+
+    } catch (error) {
+      console.error('Error en /api/login:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  });
 
   // Redirect /meta-settings → /meta-setup (nueva UI premium)
   app.get('/meta-settings', (req, res) => {
