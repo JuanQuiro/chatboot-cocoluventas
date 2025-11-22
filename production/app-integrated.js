@@ -352,11 +352,15 @@ const main = async () => {
             }
         });
 
-        // Ruta raíz - redirige al login HTML del dashboard integrado
-        // De esta forma, el flujo principal usa SOLO el login + dashboard HTML
-        // y el dashboard React (Cocolu Ventas) deja de ser el entrypoint.
-        apiApp.get('/', (req, res) => {
-            res.redirect('/login');
+        // Catch-all route: sirve index.html del React app para todas las rutas que no sean API
+        // Esto permite que React Router maneje el routing del lado del cliente
+        apiApp.get('*', (req, res) => {
+            // No servir index.html para rutas de API
+            if (req.path.startsWith('/api/')) {
+                return res.status(404).json({ error: 'API endpoint not found' });
+            }
+            // Servir index.html para todas las demás rutas (login, dashboard, etc.)
+            res.sendFile(path.join(dashboardBuildPath, 'index.html'));
         });
 
         // Levantar el servidor API ANTES del bot para que el bot pueda usar sus rutas
