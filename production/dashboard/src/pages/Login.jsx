@@ -14,7 +14,7 @@ function Login() {
 
     // Verificar autenticación solo una vez al montar
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('cocolu_token');
         if (token && user) {
             console.log('✅ Ya autenticado al cargar, redirigiendo...', user);
             setSuccess('Ya estás autenticado. Redirigiendo...');

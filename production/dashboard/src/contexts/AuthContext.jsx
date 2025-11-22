@@ -26,13 +26,13 @@ export const AuthProvider = ({ children }) => {
      */
     const initializeAuth = useCallback(() => {
         const savedUser = authService.getCurrentUser();
-        const token = localStorage.getItem('token');
-        
+        const token = localStorage.getItem('cocolu_token');
+
         if (savedUser && token) {
             setUser(savedUser);
             setPermissions(savedUser.permissions || []);
         }
-        
+
         setLoading(false);
     }, []);
 
@@ -50,16 +50,16 @@ export const AuthProvider = ({ children }) => {
 
             // En desarrollo, usar siempre mock
             const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-            
+
             let result;
-            
+
             if (isDevelopment) {
                 // Modo desarrollo - usar mock directo
                 result = await authService.loginMock(email, password);
             } else {
                 // Modo producción - intentar backend real
                 result = await authService.login(email, password);
-                
+
                 // Fallback a mock si falla
                 if (!result.success) {
                     result = await authService.loginMock(email, password);
@@ -119,26 +119,26 @@ export const AuthProvider = ({ children }) => {
         console.log(`🔐 [hasPermission] Verificando permiso: "${permission}"`);
         console.log(`👤 [hasPermission] Usuario:`, user);
         console.log(`🔑 [hasPermission] Permisos actuales:`, permissions);
-        
+
         if (!user) {
             console.error('❌ [hasPermission] NO HAY USUARIO AUTENTICADO');
             return false;
         }
-        
+
         // Owner siempre tiene todos los permisos
         if (user.role === 'owner') {
             console.log('✅ [hasPermission] Usuario es OWNER - acceso total');
             return true;
         }
-        
+
         // Verificar en la lista de permisos
         const hasAccess = permissions.includes(permission);
         console.log(`${hasAccess ? '✅' : '❌'} [hasPermission] Resultado: ${hasAccess ? 'PERMITIDO' : 'DENEGADO'}`);
-        
+
         if (!hasAccess) {
             console.error(`🚫 [hasPermission] Permiso "${permission}" NO encontrado en:`, permissions);
         }
-        
+
         return hasAccess;
     }, [user, permissions]);
 
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }) => {
     const hasAllPermissions = useCallback((permissionList) => {
         if (!user) return false;
         if (user.role === 'owner') return true;
-        
+
         return permissionList.every(p => permissions.includes(p));
     }, [user, permissions]);
 
@@ -158,7 +158,7 @@ export const AuthProvider = ({ children }) => {
     const hasAnyPermission = useCallback((permissionList) => {
         if (!user) return false;
         if (user.role === 'owner') return true;
-        
+
         return permissionList.some(p => permissions.includes(p));
     }, [user, permissions]);
 
@@ -198,21 +198,21 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         permissions,
-        
+
         // Autenticación
         login,
         logout,
         isAuthenticated,
-        
+
         // Roles
         hasRole,
         role: user?.role,
-        
+
         // Permisos
         hasPermission,
         hasAllPermissions,
         hasAnyPermission,
-        
+
         // Perfil
         updateProfile,
         refreshUser,
