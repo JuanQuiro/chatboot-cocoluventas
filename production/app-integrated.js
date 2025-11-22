@@ -130,6 +130,11 @@ const main = async () => {
         apiApp.use(express.static(dashboardBuildPath));
         console.log(`✅ Dashboard React servido desde: ${dashboardBuildPath}`);
 
+        // Servir archivos del design system
+        const componentsPath = path.join(__dirname, './src/api/components');
+        apiApp.use('/api/components', express.static(componentsPath));
+        console.log(`✅ Design system servido desde: ${componentsPath}`);
+
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
 
