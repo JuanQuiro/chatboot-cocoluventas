@@ -3,7 +3,8 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 // Usar ruta absoluta desde el directorio actual del proceso
-const ENV_PATH = path.join(process.cwd(), '.env');
+// El contenedor ejecuta desde /app, pero el .env está en /app/production/
+const ENV_PATH = path.join(process.cwd(), 'production', '.env');
 
 /**
  * Rutas para gestionar configuración del bot (.env)
