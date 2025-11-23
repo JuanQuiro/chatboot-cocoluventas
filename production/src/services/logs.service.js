@@ -83,6 +83,13 @@ class LogsService {
     }
 
     /**
+     * Obtiene logs recientes (alias de getLogs para compatibilidad)
+     */
+    getRecentLogs(options = {}) {
+        return this.getLogs(options);
+    }
+
+    /**
      * Obtiene estadísticas de logs
      */
     getStats() {

@@ -121,7 +121,7 @@ const main = async () => {
             allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID']
         }));
 
-        apiApp.use(express.json());
+        apiApp.use(express.json({ limit: '2mb' })); // Aumentado para log batching
 
         // Servir archivos estáticos del dashboard React
         const __filename = fileURLToPath(import.meta.url);

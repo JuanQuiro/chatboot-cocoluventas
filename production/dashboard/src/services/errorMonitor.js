@@ -499,12 +499,19 @@ class ErrorMonitor {
     async flushToBackend() {
         if (this.backendQueue.length === 0 || !this.isOnline) return;
 
-        const logsToSend = [...this.backendQueue];
+        // Truncar logs antes de enviar para evitar HTTP 413
+        const logsToSend = [...this.backendQueue].map(log => ({
+            ...log,
+            message: this.truncateString(log.message, 500),
+            stack_trace: this.truncateString(log.stack_trace, 1000),
+            data: this.truncateData(log.data)
+        }));
+
         this.backendQueue = [];
         this.saveToStorage('dashoffice_backend_queue', []);
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('cocolu_token') || localStorage.getItem('token');
 
             // Solo enviar si hay usuario logueado
             if (!token) {
@@ -557,6 +564,34 @@ class ErrorMonitor {
             return userStr ? JSON.parse(userStr) : null;
         } catch (error) {
             return null;
+        }
+    }
+
+    /**
+     * Truncar string a máximo de caracteres
+     */
+    truncateString(str, maxLength) {
+        if (!str || typeof str !== 'string') return str;
+        if (str.length <= maxLength) return str;
+        return str.substring(0, maxLength) + '... [truncated]';
+    }
+
+    /**
+     * Truncar objetos grandes para evitar payloads enormes
+     */
+    truncateData(data) {
+        try {
+            const str = JSON.stringify(data);
+            if (str.length > 5000) {
+                return {
+                    _truncated: true,
+                    preview: str.substring(0, 5000) + '...',
+                    originalSize: str.length
+                };
+            }
+            return data;
+        } catch (error) {
+            return { _error: 'Failed to serialize data' };
         }
     }
 }

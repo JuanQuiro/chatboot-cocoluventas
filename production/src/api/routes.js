@@ -72,6 +72,46 @@ export const setupRoutes = (app) => {
     // ============================================
     // app.use('/api/logs', logsRouter);
 
+    // POST /api/logs/batch - Recibir logs en batch desde frontend
+    app.post('/api/logs/batch', async (req, res) => {
+        try {
+            const { logs } = req.body;
+
+            if (!logs || !Array.isArray(logs)) {
+                return res.status(400).json({ error: 'Logs array required' });
+            }
+
+            // Validar tamaño del payload (máximo 2MB)
+            const payloadSize = JSON.stringify(logs).length;
+            if (payloadSize > 2097152) { // 2MB
+                return res.status(413).json({
+                    error: 'Payload too large',
+                    size: payloadSize,
+                    limit: 2097152
+                });
+            }
+
+            // Importar logsService dinámicamente
+            const logsService = (await import('../services/logs.service.js')).default;
+
+            // Guardar cada log (con límite para performance)
+            const logsToSave = logs.slice(0, 100); // Máximo 100 logs por batch
+            for (const log of logsToSave) {
+                await logsService.addLog(log);
+            }
+
+            res.json({
+                success: true,
+                saved: logsToSave.length,
+                skipped: logs.length - logsToSave.length
+            });
+
+        } catch (error) {
+            console.error('Error guardando logs batch:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
     // ============================================
     // COMANDOS - Listado de comandos del bot
     // ============================================
