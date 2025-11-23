@@ -29,13 +29,78 @@ const setupMetaRoutes = (app, metaConfigService) => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌐 Meta WhatsApp Setup - Cocolu</title>
-<link rel="stylesheet" href="/api/components/design-system.css">
-<link rel="stylesheet" href="/api/components/testing-styles.css">
 <style>
+/* CSS Variables */
+:root {
+    /* Colors */
+    --primary-50: #eef2ff;
+    --primary-600: #4f46e5;
+    --primary-700: #4338ca;
+    --secondary-600: #7c3aed;
+    --success-50: #f0fdf4;
+    --success-400: #4ade80;
+    --success-600: #16a34a;
+    --success-700: #15803d;
+    --error-50: #fef2f2;
+    --error-600: #dc2626;
+    --error-700: #b91c1c;
+    --warning-50: #fffbeb;
+    --warning-100: #fef3c7;
+    --warning-600: #d97706;
+    --warning-900: #78350f;
+    --gray-50: #f9fafb;
+    --gray-200: #e5e7eb;
+    --gray-600: #4b5563;
+    --gray-900: #111827;
+    
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    
+    /* Typography */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-mono: 'Courier New', monospace;
+    
+    /* Borders */
+    --radius-sm: 0.125rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-full: 9999px;
+    
+    /* Shadows */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* Z-index */
+    --z-tooltip: 1000;
+    --z-modal: 2000;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
     min-height: 100vh;
     padding: var(--space-6);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 .page-header {
