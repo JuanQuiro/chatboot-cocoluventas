@@ -1337,6 +1337,198 @@ async function sendTestMessage() {
         buttonText.innerHTML = '🚀 Enviar Prueba';
     }
 }
+
+// Switch between test tabs
+function switchTestTab(tabName) {
+    // Hide all panels
+    const panels = ['simple', 'template', 'media', 'interactive'];
+    panels.forEach(panel => {
+        const panelEl = document.getElementById(`panel - ${ panel }`);
+        const tabEl = document.getElementById(`tab - ${ panel }`);
+        if (panelEl) panelEl.style.display = 'none';
+        if (tabEl) tabEl.classList.remove('active');
+    });
+    
+    // Show selected panel
+    const selectedPanel = document.getElementById(`panel - ${ tabName }`);
+    const selectedTab = document.getElementById(`tab - ${ tabName }`);
+    if (selectedPanel) selectedPanel.style.display = 'block';
+    if (selectedTab) selectedTab.classList.add('active');
+}
+
+// Run test based on type
+async function runTest(type) {
+    let phone, payload, endpoint;
+    
+    // Get form values based on test type
+    switch(type) {
+        case 'simple':
+            phone = document.getElementById('testPhone').value;
+            const message = document.getElementById('testMessage').value;
+            if (!phone || !message) {
+                showToast('error', 'Error', 'Completa todos los campos');
+                return;
+            }
+            payload = {
+                messaging_product: "whatsapp",
+                to: phone,
+                type: "text",
+                text: { body: message }
+            };
+            endpoint = '/api/meta/test-message';
+            break;
+            
+        case 'template':
+            phone = document.getElementById('testPhoneTemplate').value;
+            const templateName = document.getElementById('templateName').value;
+            if (!phone || !templateName) {
+                showToast('error', 'Error', 'Completa todos los campos');
+                return;
+            }
+            payload = {
+                messaging_product: "whatsapp",
+                to: phone,
+                type: "template",
+                template: {
+                    name: templateName,
+                    language: { code: "en_US" }
+                }
+            };
+            endpoint = '/api/meta/test-message';
+            break;
+            
+        case 'media':
+            phone = document.getElementById('testPhoneMedia').value;
+            const mediaUrl = document.getElementById('mediaUrl').value;
+            if (!phone || !mediaUrl) {
+                showToast('error', 'Error', 'Completa todos los campos');
+                return;
+            }
+            payload = {
+                messaging_product: "whatsapp",
+                to: phone,
+                type: "image",
+                image: { link: mediaUrl }
+            };
+            endpoint = '/api/meta/test-message';
+            break;
+            
+        case 'interactive':
+            phone = document.getElementById('testPhoneInteractive').value;
+            const buttonText = document.getElementById('buttonText').value;
+            if (!phone || !buttonText) {
+                showToast('error', 'Error', 'Completa todos los campos');
+                return;
+            }
+            payload = {
+                messaging_product: "whatsapp",
+                to: phone,
+                type: "interactive",
+                interactive: {
+                    type: "button",
+                    body: { text: "¿Deseas continuar?" },
+                    action: {
+                        buttons: [{ type: "reply", reply: { id: "btn_1", title: buttonText } }]
+                    }
+                }
+            };
+            endpoint = '/api/meta/test-message';
+            break;
+            
+        default:
+            showToast('error', 'Error', 'Tipo de test no reconocido');
+            return;
+    }
+    
+    // Show viewer and set loading state
+    const viewer = document.getElementById('rrViewer');
+    viewer.style.display = 'block';
+    
+    const requestViewer = document.getElementById('viewer-request');
+    const responseViewer = document.getElementById('viewer-response');
+    const headersViewer = document.getElementById('viewer-headers');
+    
+    // Show request
+    requestViewer.textContent = JSON.stringify(payload, null, 2);
+    responseViewer.textContent = 'Esperando respuesta...';
+    headersViewer.textContent = 'Enviando request...';
+    
+    // Switch to request tab
+    switchViewer('request');
+    
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        
+        // Show response
+        responseViewer.textContent = JSON.stringify(data, null, 2);
+        
+        // Show headers
+        const headers = {};
+        response.headers.forEach((value, key) => {
+            headers[key] = value;
+        });
+        headersViewer.textContent = JSON.stringify({
+            status: response.status,
+            statusText: response.statusText,
+            headers: headers
+        }, null, 2);
+        
+        // Switch to response tab
+        switchViewer('response');
+        
+        if (response.ok && data.success) {
+            showToast('success', 'Éxito', 'Test ejecutado correctamente');
+        } else {
+            showToast('error', 'Error', data.error || 'Error en la ejecución');
+        }
+    } catch (error) {
+        responseViewer.textContent = 'Error: ' + error.message;
+        headersViewer.textContent = 'Error de conexión';
+        showToast('error', 'Error de conexión', 'No se pudo conectar con el servidor');
+    }
+}
+
+// Switch between request/response/headers viewers
+function switchViewer(viewerType) {
+    // Hide all viewer contents
+    const viewers = ['request', 'response', 'headers'];
+    viewers.forEach(v => {
+        const contentEl = document.getElementById(`viewer - ${ v }`);
+        const tabEl = document.getElementById(`vtab - ${ v }`);
+        if (contentEl) contentEl.style.display = 'none';
+        if (tabEl) tabEl.classList.remove('active');
+    });
+    
+    // Show selected viewer
+    const selectedContent = document.getElementById(`viewer - ${ viewerType }`);
+    const selectedTab = document.getElementById(`vtab - ${ viewerType }`);
+    if (selectedContent) selectedContent.style.display = 'block';
+    if (selectedTab) selectedTab.classList.add('active');
+}
+
+// Copy code to clipboard
+function copyCode(type) {
+    const codeEl = document.getElementById(`code - ${ type }`);
+    if (!codeEl) return;
+    
+    const code = codeEl.textContent;
+    const textArea = document.createElement('textarea');
+    textArea.value = code;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    showToast('success', 'Copiado', 'Código copiado al portapapeles');
+}
 </script>
 
 </body>
