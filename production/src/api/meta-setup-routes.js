@@ -1002,15 +1002,12 @@ const response = await fetch('/api/meta/test-message', {
                         <span>📝 Código que se ejecutará:</span>
                         <button class="btn btn-sm btn-secondary" onclick="copyCode('template')">📋 Copiar</button>
                     </div>
-                    <pre class="code-block" id="code-template"><code class="language-javascript">// Template Message via Meta API
+                    <pre class="code-block" id="code-template"><code class="language-javascript">// Simple Text Message via Meta API
 const payload = {
   messaging_product: "whatsapp",
-  to: "${config.phoneNumber || '+1234567890'}",
-  type: "template",
-  template: {
-    name: "hello_world",
-    language: { code: "en_US" }
-  }
+  to: "\${config.phoneNumber || '+1234567890'}",
+  type: "text",
+  text: { body: "Ping desde dashboard" }
 };</code></pre>
                 </div>
             </div>
@@ -1044,7 +1041,7 @@ const payload = {
                     <pre class="code-block" id="code-media"><code class="language-javascript">// Media Message via Meta API
 const payload = {
   messaging_product: "whatsapp",
-  to: "${config.phoneNumber || '+1234567890'}",
+  to: "\${config.phoneNumber || '+1234567890'}",
   type: "image",
   image: {
     link: "https://example.com/image.jpg"
@@ -1082,7 +1079,7 @@ const payload = {
                     <pre class="code-block" id="code-interactive"><code class="language-javascript">// Interactive Button via Meta API
 const payload = {
   messaging_product: "whatsapp",
-  to: "${config.phoneNumber || '+1234567890'}",
+  to: "\${config.phoneNumber || '+1234567890'}",
   type: "interactive",
   interactive: {
     type: "button",
