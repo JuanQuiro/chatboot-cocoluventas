@@ -941,7 +941,7 @@ body {
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Número de destino</label>
-                            <input type="tel" class="form-input" id="testPhone" placeholder="+1234567890" value="${config.phoneNumber || ''}">
+                            <input type="tel" class="form-input" id="testPhone" placeholder="+1234567890" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Mensaje</label>
@@ -982,7 +982,7 @@ const response = await fetch('/api/meta/test-message', {
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Número de destino</label>
-                            <input type="tel" class="form-input" id="testPhoneTemplate" placeholder="+1234567890" value="${config.phoneNumber || ''}">
+                            <input type="tel" class="form-input" id="testPhoneTemplate" placeholder="+1234567890" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Template Name</label>
@@ -1018,7 +1018,7 @@ const payload = {
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Número de destino</label>
-                            <input type="tel" class="form-input" id="testPhoneMedia" placeholder="+1234567890" value="${config.phoneNumber || ''}">
+                            <input type="tel" class="form-input" id="testPhoneMedia" placeholder="+1234567890" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Media URL</label>
@@ -1056,7 +1056,7 @@ const payload = {
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Número de destino</label>
-                            <input type="tel" class="form-input" id="testPhoneInteractive" placeholder="+1234567890" value="${config.phoneNumber || ''}">
+                            <input type="tel" class="form-input" id="testPhoneInteractive" placeholder="+1234567890" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Texto del botón</label>
