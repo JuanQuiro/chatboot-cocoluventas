@@ -964,7 +964,7 @@ body {
                     </div>
                     <pre class="code-block" id="code-simple"><code class="language-javascript">// POST /api/meta/test-message
 const payload = {
-  to: "${config.phoneNumber || '+1234567890'}",
+  to: "\\${config.phoneNumber || '+1234567890'}",
   message: "Ping desde dashboard"
 };
 
