@@ -533,11 +533,15 @@ export const setupRoutes = (app) => {
             const sellersStats = sellersManager.getStats();
             const analyticsSummary = analyticsService.getExecutiveSummary();
 
+            // Get current provider from environment
+            const currentProvider = process.env.BOT_ADAPTER || process.env.WHATSAPP_PROVIDER || 'meta';
+
             console.log('📊 [HEALTH CHECK] Vendedores en memoria:', JSON.stringify(sellersStats.sellersStats, null, 2));
 
             res.json({
                 success: true,
                 status: 'healthy',
+                provider: currentProvider, // ← ADDED for Adapters page
                 timestamp: new Date().toISOString(),
                 uptime: process.uptime(),
                 version: '1.0.0',
