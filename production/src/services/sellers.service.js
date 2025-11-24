@@ -66,48 +66,15 @@ class SellersManager {
             )
         `);
 
-        // Verificar si hay datos, sino insertar vendedores por defecto
+        // Verificar si hay datos
         const count = this.db.prepare('SELECT COUNT(*) as count FROM sellers').get();
-
-        if (count.count === 0) {
-            console.log('📥 Insertando vendedores por defecto...');
-            this.seedDefaultSellers();
-        } else {
-            console.log(`✅ Base de datos tiene ${count.count} vendedor(es)`);
-        }
+        console.log(`✅ Base de datos inicializada - ${count.count} vendedor(es) en el sistema`);
     }
 
     /**
-     * Insertar vendedores por defecto
+     * SEED DATA REMOVED - Database starts empty
+     * Users must add their own sellers via the dashboard
      */
-    seedDefaultSellers() {
-        const defaults = [
-            { id: 'SELLER001', name: 'Ana García', phone: '+573001234567', email: 'ana@emberdrago.com', specialty: 'premium', rating: 4.8 },
-            { id: 'SELLER002', name: 'Carlos Méndez', phone: '+573009876543', email: 'carlos@emberdrago.com', specialty: 'general', rating: 4.9 },
-            { id: 'SELLER003', name: 'María López', phone: '+573005555555', email: 'maria@emberdrago.com', specialty: 'technical', rating: 4.7, maxClients: 8 },
-            { id: 'SELLER004', name: 'Juan Rodríguez', phone: '+573007777777', email: 'juan@emberdrago.com', specialty: 'general', rating: 4.6 },
-            { id: 'SELLER005', name: 'Laura Martínez', phone: '+573008888888', email: 'laura@emberdrago.com', specialty: 'vip', rating: 5.0, maxClients: 5 }
-        ];
-
-        const insert = this.db.prepare(`
-            INSERT INTO sellers (id, name, phone, email, specialty, maxClients, rating, status, active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'available', 1)
-        `);
-
-        for (const seller of defaults) {
-            insert.run(
-                seller.id,
-                seller.name,
-                seller.phone,
-                seller.email,
-                seller.specialty,
-                seller.maxClients || 10,
-                seller.rating
-            );
-        }
-
-        console.log(`✅ ${defaults.length} vendedores por defecto insertados`);
-    }
 
     /**
      * Obtener todos los vendedores
