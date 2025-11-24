@@ -176,7 +176,7 @@ export const setupDashboardRoutes = (app) => {
      // ... (legacy HTML code)
      res.redirect('/dashboard/messages');
   });
-  */
+
 };
 
 const lastHour = Date.now() - 3600000;
@@ -282,6 +282,7 @@ subscribeEvents();
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
   });
+  */
 
   // Página de ADAPTADORES
   app.get('/adapters', (req, res) => {
