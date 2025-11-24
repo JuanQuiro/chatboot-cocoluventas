@@ -890,7 +890,7 @@ body {
                 <div class="config-item">
                     <div class="config-item-info">
                         <div class="config-item-label">API Version</div>
-                        <div class="config-item-value">${config.apiVersion}</div>
+                        <div class="config-item-value" id="display-api-version">v18.0</div>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_API_VERSION', 'API Version', '')">
                         ✏️ Editar
