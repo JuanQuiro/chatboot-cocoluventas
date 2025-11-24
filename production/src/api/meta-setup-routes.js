@@ -1188,24 +1188,23 @@ function copyToClipboard(elementId, label) {
     const input = document.getElementById(elementId);
     input.select();
     document.execCommand('copy');
-    showToast('success', 'Copiado', \`\${label} copiado al portapapeles\`);
+    showToast('success', 'Copiado', label + ' copiado al portapapeles');
 }
 
 // Toast notification system
 function showToast(type, title, message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    toast.className = \`toast \${type}\`;
+    toast.className = 'toast ' + type;
     
     const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
     
-    toast.innerHTML = \`
-        <div class="toast-icon">\${icon}</div>
-        <div class="toast-content">
-            <div class="toast-title">\${title}</div>
-            <div class="toast-message">\${message}</div>
-        </div>
-    \`;
+    toast.innerHTML = 
+        '<div class="toast-icon">' + icon + '</div>' +
+        '<div class="toast-content">' +
+            '<div class="toast-title">' + title + '</div>' +
+            '<div class="toast-message">' + message + '</div>' +
+        '</div>';
     
     container.appendChild(toast);
     
@@ -1230,7 +1229,7 @@ function openEditModal(key, label, currentValue) {
     const modalInput = document.getElementById('modalInput');
     const modalHelp = document.getElementById('modalHelp');
     
-    modalTitle.textContent = \`Editar \${label}\`;
+    modalTitle.textContent = 'Editar ' + label;
     modalLabel.textContent = label;
     modalInput.value = currentValue || '';
     
@@ -1275,7 +1274,7 @@ async function saveCredential() {
     saveButtonText.innerHTML = '<div class="spinner"></div> Guardando...';
     
     try {
-        const response = await fetch(\`/api/settings/\${currentEditKey}\`, {
+        const response = await fetch('/api/settings/' + currentEditKey, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -1286,7 +1285,7 @@ async function saveCredential() {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            showToast('success', 'Guardado', \`\${currentEditLabel} actualizado correctamente\`);
+            showToast('success', 'Guardado', currentEditLabel + ' actualizado correctamente');
             closeEditModal();
             
             // Reload page after 1 second to show updated values
@@ -1355,15 +1354,15 @@ function switchTestTab(tabName) {
     // Hide all panels
     const panels = ['simple', 'template', 'media', 'interactive'];
     panels.forEach(panel => {
-        const panelEl = document.getElementById(`panel - ${ panel }`);
-        const tabEl = document.getElementById(`tab - ${ panel }`);
+        const panelEl = document.getElementById('panel - ' + panel);
+        const tabEl = document.getElementById('tab - ' + panel);
         if (panelEl) panelEl.style.display = 'none';
         if (tabEl) tabEl.classList.remove('active');
     });
     
     // Show selected panel
-    const selectedPanel = document.getElementById(`panel - ${ tabName }`);
-    const selectedTab = document.getElementById(`tab - ${ tabName }`);
+    const selectedPanel = document.getElementById('panel - ' + tabName);
+    const selectedTab = document.getElementById('tab - ' + tabName);
     if (selectedPanel) selectedPanel.style.display = 'block';
     if (selectedTab) selectedTab.classList.add('active');
 }
@@ -1513,22 +1512,22 @@ function switchViewer(viewerType) {
     // Hide all viewer contents
     const viewers = ['request', 'response', 'headers'];
     viewers.forEach(v => {
-        const contentEl = document.getElementById(`viewer - ${ v }`);
-        const tabEl = document.getElementById(`vtab - ${ v }`);
+        const contentEl = document.getElementById('viewer - ' + v);
+        const tabEl = document.getElementById('vtab - ' + v);
         if (contentEl) contentEl.style.display = 'none';
         if (tabEl) tabEl.classList.remove('active');
     });
     
     // Show selected viewer
-    const selectedContent = document.getElementById(`viewer - ${ viewerType }`);
-    const selectedTab = document.getElementById(`vtab - ${ viewerType }`);
+    const selectedContent = document.getElementById('viewer - ' + viewerType);
+    const selectedTab = document.getElementById('vtab - ' + viewerType);
     if (selectedContent) selectedContent.style.display = 'block';
     if (selectedTab) selectedTab.classList.add('active');
 }
 
 // Copy code to clipboard
 function copyCode(type) {
-    const codeEl = document.getElementById(`code - ${ type }`);
+    const codeEl = document.getElementById('code - ' + type);
     if (!codeEl) return;
     
     const code = codeEl.textContent;
@@ -1573,8 +1572,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update status indicators
         const updateStatus = (id, value) => {
-            const statusEl = document.getElementById(`status - ${ id }`);
-            const iconEl = document.getElementById(`icon - ${ id }`);
+            const statusEl = document.getElementById('status - ' + id);
+            const iconEl = document.getElementById('icon - ' + id);
             if(statusEl && iconEl) {
                 if(value) {
                     statusEl.classList.remove('missing');
