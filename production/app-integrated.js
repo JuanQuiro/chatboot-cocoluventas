@@ -135,6 +135,10 @@ const main = async () => {
         apiApp.use('/api/components', express.static(componentsPath));
         console.log(`✅ Design system servido desde: ${componentsPath}`);
 
+        // Configurar rutas de Meta WhatsApp Setup (PRIMERO para prioridad)
+        const metaConfigService = new MetaConfigService();
+        setupMetaRoutes(apiApp, metaConfigService);
+
         // Configurar rutas de la API (incluye /api/bots)
         setupRoutes(apiApp);
 
@@ -150,9 +154,6 @@ const main = async () => {
         // Configurar rutas de Gestión de Vendedores
         setupSellersManagementRoutes(apiApp);
 
-        // Configurar rutas de Meta WhatsApp Setup
-        const metaConfigService = new MetaConfigService();
-        setupMetaRoutes(apiApp, metaConfigService);
         // ============================================
         // WEBHOOK META (WhatsApp Business API)
         // ============================================
