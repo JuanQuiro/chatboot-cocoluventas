@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -12,13 +12,10 @@ import { TypographyProvider } from './contexts/TypographyContext';
 
 // Componentes base
 import PrivateRoute from './components/PrivateRoute';
-import { Can, RoleBadge } from './components/auth';
-import ThemeSelector from './components/ThemeSelector';
-import FontSelector from './components/FontSelector';
 import ErrorBoundary from './components/ErrorBoundary';
 import RouteLogger from './components/RouteLogger';
 
-// Páginas - Lazy loading para code splitting
+// Páginas - Lazy loading
 const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Sellers = lazy(() => import('./pages/Sellers'));
@@ -30,8 +27,6 @@ const Roles = lazy(() => import('./pages/Roles'));
 const BotsWrapper = lazy(() => import('./pages/BotsWrapper'));
 const Settings = lazy(() => import('./pages/Settings'));
 const SellerAvailability = lazy(() => import('./pages/SellerAvailability'));
-
-// Nuevas páginas Meta/WhatsApp
 const Messages = lazy(() => import('./pages/Messages'));
 const MetaSetup = lazy(() => import('./pages/MetaSetup'));
 const Connection = lazy(() => import('./pages/Connection'));
@@ -40,7 +35,7 @@ const MetaBilling = lazy(() => import('./pages/MetaBilling'));
 const Health = lazy(() => import('./pages/Health'));
 const Adapters = lazy(() => import('./pages/Adapters'));
 
-// Loading fallback component
+// Loading fallback
 function LoadingFallback() {
   return (
     <div className="loading-container">
@@ -50,9 +45,26 @@ function LoadingFallback() {
   );
 }
 
-// Layout autenticado
-function AuthenticatedLayout({ activeTab, setActiveTab }) {
+// Layout con sidebar colapsable (IGUAL AL VIEJO)
+function AuthenticatedLayout() {
   const { user, logout } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    // Cargar estado del sidebar del localStorage
+    const collapsed = localStorage.getItem('cocolu_sidebar_collapsed') === '1';
+    setSidebarCollapsed(collapsed);
+  }, []);
+
+  const toggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    if (newState) {
+      localStorage.setItem('cocolu_sidebar_collapsed', '1');
+    } else {
+      localStorage.removeItem('cocolu_sidebar_collapsed');
+    }
+  };
 
   const handleLogout = () => {
     if (window.confirm('¿Estás seguro que deseas cerrar sesión?')) {
@@ -62,179 +74,138 @@ function AuthenticatedLayout({ activeTab, setActiveTab }) {
 
   return (
     <>
-      {/* Header */}
-      <header className="app-header">
-        <div className="header-content">
-          <div className="logo-section">
-            <h1>🤖 Cocolu Ventas</h1>
-            <span className="powered-by">Powered by <strong>Ember Drago</strong></span>
-          </div>
-          <div className="header-stats">
-            <FontSelector className="mr-2" />
-            <ThemeSelector />
-            <div className="user-info">
-              <span className="user-role">Hola, <strong>{user?.username || 'admin'}</strong></span>
-              <RoleBadge role={user?.role || 'admin'} />
-            </div>
-            <button onClick={handleLogout} className="btn-logout">
-              Cerrar Sesión
-            </button>
-          </div>
+      {/* Header - IGUAL AL VIEJO */}
+      <div className="header">
+        <div className="header-left">
+          <button className="menu-toggle" onClick={toggleSidebar} title="Contraer/expandir menú">
+            ☰
+          </button>
+          <h1>🤖 Cocolu Chatbot</h1>
         </div>
-      </header>
+        <button className="logout-btn" onClick={handleLogout}>
+          Cerrar Sesión
+        </button>
+      </div>
 
-      {/* Navigation */}
-      <nav className="app-nav">
-        <Link
-          to="/dashboard"
-          className={activeTab === 'dashboard' ? 'active' : ''}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          🏠 Dashboard
-        </Link>
-
-        {/* WhatsApp Section */}
-        <div className="nav-divider">WhatsApp</div>
-        <Link
-          to="/messages"
-          className={activeTab === 'messages' ? 'active' : ''}
-          onClick={() => setActiveTab('messages')}
-        >
-          💬 Mensajes
-        </Link>
-        <Link
-          to="/connection"
-          className={activeTab === 'connection' ? 'active' : ''}
-          onClick={() => setActiveTab('connection')}
-        >
-          📲 Conexión
-        </Link>
-        <Link
-          to="/adapters"
-          className={activeTab === 'adapters' ? 'active' : ''}
-          onClick={() => setActiveTab('adapters')}
-        >
-          🔌 Adaptadores
-        </Link>
-
-        {/* Meta Section */}
-        <div className="nav-divider">Meta Business</div>
-        <Link
-          to="/meta-setup"
-          className={activeTab === 'meta-setup' ? 'active' : ''}
-          onClick={() => setActiveTab('meta-setup')}
-        >
-          🌐 Configuración
-        </Link>
-        <Link
-          to="/meta-diagnostics"
-          className={activeTab === 'meta-diagnostics' ? 'active' : ''}
-          onClick={() => setActiveTab('meta-diagnostics')}
-        >
-          🧪 Diagnóstico
-        </Link>
-        <Link
-          to="/meta-billing"
-          className={activeTab === 'meta-billing' ? 'active' : ''}
-          onClick={() => setActiveTab('meta-billing')}
-        >
-          💰 Facturación
-        </Link>
-
-        {/* Business Section */}
-        <div className="nav-divider">Negocio</div>
-        <Link
-          to="/sellers"
-          className={activeTab === 'sellers' ? 'active' : ''}
-          onClick={() => setActiveTab('sellers')}
-        >
-          👥 Vendedores
-        </Link>
-        <Link
-          to="/seller-availability"
-          className={activeTab === 'seller-availability' ? 'active' : ''}
-          onClick={() => setActiveTab('seller-availability')}
-        >
-          ⏰ Disponibilidad
-        </Link>
-        <Link
-          to="/analytics"
-          className={activeTab === 'analytics' ? 'active' : ''}
-          onClick={() => setActiveTab('analytics')}
-        >
-          📈 Analytics
-        </Link>
-        <Link
-          to="/orders"
-          className={activeTab === 'orders' ? 'active' : ''}
-          onClick={() => setActiveTab('orders')}
-        >
-          🛒 Pedidos
-        </Link>
-        <Link
-          to="/products"
-          className={activeTab === 'products' ? 'active' : ''}
-          onClick={() => setActiveTab('products')}
-        >
-          📦 Productos
-        </Link>
-
-        {/* Admin Section */}
-        <Can permission="users.view">
-          <div className="nav-divider">Administración</div>
-          <Link
-            to="/users"
-            className={activeTab === 'users' ? 'active' : ''}
-            onClick={() => setActiveTab('users')}
-          >
-            👥 Usuarios
+      <div className={`container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        {/* Sidebar - ESTRUCTURA IDÉNTICA AL VIEJO */}
+        <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+          <h3>📊 Principal</h3>
+          <Link to="/dashboard" className="nav-item">
+            <span className="nav-icon">🏠</span>
+            <span className="nav-label">Dashboard</span>
           </Link>
-        </Can>
 
-        <Can permission="users.roles">
-          <Link
-            to="/roles"
-            className={activeTab === 'roles' ? 'active' : ''}
-            onClick={() => setActiveTab('roles')}
-          >
-            🎭 Roles
+          <h3>💬 Chatbot</h3>
+          <Link to="/messages" className="nav-item">
+            <span className="nav-icon">💬</span>
+            <span className="nav-label">Mensajes</span>
           </Link>
-        </Can>
-
-        <Can permission="bots.view">
-          <Link
-            to="/bots"
-            className={activeTab === 'bots' ? 'active' : ''}
-            onClick={() => setActiveTab('bots')}
-          >
-            🤖 Bots
+          <Link to="/analytics" className="nav-item">
+            <span className="nav-icon">📊</span>
+            <span className="nav-label">Análisis</span>
           </Link>
-        </Can>
+          <Link to="/connection" className="nav-item">
+            <span className="nav-icon">📲</span>
+            <span className="nav-label">Conexión</span>
+          </Link>
 
-        {/* System Section */}
-        <div className="nav-divider">Sistema</div>
-        <Link
-          to="/health"
-          className={activeTab === 'health' ? 'active' : ''}
-          onClick={() => setActiveTab('health')}
-        >
-          ❤️ Salud
-        </Link>
-        <Link
-          to="/settings"
-          className={activeTab === 'settings' ? 'active' : ''}
-          onClick={() => setActiveTab('settings')}
-        >
-          ⚙️ Settings
-        </Link>
-      </nav>
+          <h3>👥 Vendedores</h3>
+          <Link to="/sellers" className="nav-item">
+            <span className="nav-icon">👥</span>
+            <span className="nav-label">Vendedores</span>
+          </Link>
+          <Link to="/seller-availability" className="nav-item">
+            <span className="nav-icon">⏰</span>
+            <span className="nav-label">Disponibilidad</span>
+          </Link>
+
+          <h3>🛒 Negocio</h3>
+          <Link to="/orders" className="nav-item">
+            <span className="nav-icon">🛒</span>
+            <span className="nav-label">Pedidos</span>
+          </Link>
+          <Link to="/products" className="nav-item">
+            <span className="nav-icon">📦</span>
+            <span className="nav-label">Productos</span>
+          </Link>
+
+          <h3>⚙️ Configuración</h3>
+          <Link to="/adapters" className="nav-item">
+            <span className="nav-icon">🔌</span>
+            <span className="nav-label">Adaptadores</span>
+          </Link>
+          <Link to="/bots" className="nav-item">
+            <span className="nav-icon">🤖</span>
+            <span className="nav-label">Bots</span>
+          </Link>
+          <Link to="/settings" className="nav-item">
+            <span className="nav-icon">⚙️</span>
+            <span className="nav-label">Settings</span>
+          </Link>
+
+          <h3>🌐 Meta</h3>
+          <Link to="/meta-setup" className="nav-item">
+            <span className="nav-icon">⚙️</span>
+            <span className="nav-label">Config Meta</span>
+          </Link>
+          <Link to="/meta-diagnostics" className="nav-item">
+            <span className="nav-icon">🧪</span>
+            <span className="nav-label">Diagnóstico Meta</span>
+          </Link>
+          <Link to="/meta-billing" className="nav-item">
+            <span className="nav-icon">💰</span>
+            <span className="nav-label">Facturación</span>
+          </Link>
+
+          <h3>👤 Admin</h3>
+          <Link to="/users" className="nav-item">
+            <span className="nav-icon">👥</span>
+            <span className="nav-label">Usuarios</span>
+          </Link>
+          <Link to="/roles" className="nav-item">
+            <span className="nav-icon">🎭</span>
+            <span className="nav-label">Roles</span>
+          </Link>
+
+          <h3>🔧 Sistema</h3>
+          <Link to="/health" className="nav-item">
+            <span className="nav-icon">❤️</span>
+            <span className="nav-label">Salud</span>
+          </Link>
+        </div>
+
+        {/* Main content */}
+        <main className="main">
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/connection" element={<Connection />} />
+              <Route path="/adapters" element={<Adapters />} />
+              <Route path="/meta-setup" element={<MetaSetup />} />
+              <Route path="/meta-diagnostics" element={<MetaDiagnostics />} />
+              <Route path="/meta-billing" element={<MetaBilling />} />
+              <Route path="/sellers" element={<Sellers />} />
+              <Route path="/seller-availability" element={<SellerAvailability />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/roles" element={<Roles />} />
+              <Route path="/bots" element={<BotsWrapper />} />
+              <Route path="/health" element={<Health />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </Suspense>
+        </main>
+      </div>
     </>
   );
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -243,58 +214,18 @@ function App() {
             <AuthProvider>
               <Router>
                 <RouteLogger />
-                <div className="app-container">
-                  <Suspense fallback={<LoadingFallback />}>
-                    <Routes>
-                      {/* Public routes */}
-                      <Route path="/login" element={<Login />} />
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    path="/*"
+                    element={
+                      <PrivateRoute>
+                        <AuthenticatedLayout />
+                      </PrivateRoute>
+                    }
+                  />
+                </Routes>
 
-                      {/* Protected routes */}
-                      <Route
-                        path="/*"
-                        element={
-                          <PrivateRoute>
-                            <AuthenticatedLayout activeTab={activeTab} setActiveTab={setActiveTab} />
-                            <main className="app-main">
-                              <Routes>
-                                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                                <Route path="/dashboard" element={<Dashboard />} />
-
-                                {/* WhatsApp routes */}
-                                <Route path="/messages" element={<Messages />} />
-                                <Route path="/connection" element={<Connection />} />
-                                <Route path="/adapters" element={<Adapters />} />
-
-                                {/* Meta routes */}
-                                <Route path="/meta-setup" element={<MetaSetup />} />
-                                <Route path="/meta-diagnostics" element={<MetaDiagnostics />} />
-                                <Route path="/meta-billing" element={<MetaBilling />} />
-
-                                {/* Business routes */}
-                                <Route path="/sellers" element={<Sellers />} />
-                                <Route path="/seller-availability" element={<SellerAvailability />} />
-                                <Route path="/analytics" element={<Analytics />} />
-                                <Route path="/orders" element={<Orders />} />
-                                <Route path="/products" element={<Products />} />
-
-                                {/* Admin routes */}
-                                <Route path="/users" element={<Users />} />
-                                <Route path="/roles" element={<Roles />} />
-                                <Route path="/bots" element={<BotsWrapper />} />
-
-                                {/* System routes */}
-                                <Route path="/health" element={<Health />} />
-                                <Route path="/settings" element={<Settings />} />
-                              </Routes>
-                            </main>
-                          </PrivateRoute>
-                        }
-                      />
-                    </Routes>
-                  </Suspense>
-                </div>
-
-                {/* Toast Notifications */}
                 <Toaster
                   position="top-right"
                   toastOptions={{
@@ -304,14 +235,12 @@ function App() {
                       color: '#fff',
                     },
                     success: {
-                      duration: 3000,
                       iconTheme: {
                         primary: '#4ade80',
                         secondary: '#fff',
                       },
                     },
                     error: {
-                      duration: 5000,
                       iconTheme: {
                         primary: '#ef4444',
                         secondary: '#fff',
