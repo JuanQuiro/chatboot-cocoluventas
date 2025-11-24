@@ -826,43 +826,7 @@ export const setupRoutes = (app) => {
     // META - CONFIGURACIÓN Y DIAGNÓSTICO
     // ============================================
 
-    app.get('/api/meta/config', (req, res) => {
-        try {
-            const envConfig = readEnvConfig();
-            const data = {};
-            allowedMetaKeys.forEach((key) => {
-                if (envConfig[key]) {
-                    data[key] = envConfig[key];
-                }
-            });
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(500).json({ success: false, error: error.message });
-        }
-    });
-
-    app.post('/api/meta/config', (req, res) => {
-        try {
-            const payload = req.body || {};
-            const updates = {};
-            allowedMetaKeys.forEach((key) => {
-                if (Object.prototype.hasOwnProperty.call(payload, key)) {
-                    updates[key] = String(payload[key] ?? '').trim();
-                }
-            });
-
-            if (Object.keys(updates).length === 0) {
-                return res.status(400).json({ success: false, error: 'No valid keys provided' });
-            }
-
-            updateEnvVariables(updates);
-            Object.assign(process.env, updates);
-
-            res.json({ success: true, message: 'Meta configuration updated', data: updates });
-        } catch (error) {
-            res.status(500).json({ success: false, error: error.message });
-        }
-    });
+    // Rutas de Meta movidas a meta-setup-routes.js
 
     app.post('/api/meta/test-message', async (req, res) => {
         try {
