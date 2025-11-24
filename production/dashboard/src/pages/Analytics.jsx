@@ -7,27 +7,32 @@ import '../styles/Analytics.css';
 const COLORS = ['#667eea', '#4ade80', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function Analytics() {
-    const { data: analytics, isLoading } = useQuery({
+    // Fetch analytics metrics
+    const { data: analytics, isLoading, error } = useQuery({
         queryKey: ['analytics'],
         queryFn: async () => {
             const res = await fetch('/api/analytics/metrics');
             if (!res.ok) throw new Error('Error cargando analytics');
             return res.json();
-        }
+        },
+        retry: 1,
+        staleTime: 30000 // 30 seconds
     });
 
-    // Sellers workload
-    const { data: workload } = useQuery({
+    // Sellers workload - separate query
+    const { data: workload, isLoading: workloadLoading } = useQuery({
         queryKey: ['sellers-workload'],
         queryFn: async () => {
             const res = await fetch('/api/sellers/workload');
             if (!res.ok) throw new Error('Error cargando workload');
             const data = await res.json();
             return data.data || data || [];
-        }
+        },
+        retry: 1,
+        staleTime: 30000
     });
 
-    if (isLoading) {
+    if (isLoading || workloadLoading) {
         return (
             <div className="analytics-page loading">
                 <div className="spinner"></div>
