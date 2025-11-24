@@ -8,6 +8,21 @@ import path from 'path';
 
 const setupMetaRoutes = (app, metaConfigService) => {
 
+    // Endpoint para obtener configuración (Client-side fetching para evitar SyntaxError)
+    app.get('/api/meta/config', (req, res) => {
+        const verifyToken = process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta';
+        const config = {
+            webhookUrl: `https://${req.get('host')}/webhooks/whatsapp`,
+            verifyToken: verifyToken,
+            jwtToken: process.env.META_JWT_TOKEN || '',
+            numberId: process.env.META_NUMBER_ID || '',
+            businessId: process.env.META_BUSINESS_ACCOUNT_ID || '',
+            apiVersion: process.env.META_API_VERSION || 'v18.0',
+            phoneNumber: process.env.PHONE_NUMBER || ''
+        };
+        res.json(config);
+    });
+
     // Página principal de configuración Meta
     app.get('/meta-setup', (req, res) => {
         const webhookUrl = `https://${req.get('host')}/webhooks/whatsapp`;
@@ -812,7 +827,7 @@ body {
             <div class="info-box">
                 <div class="info-box-label">URL PARA CONFIGURAR EN META DASHBOARD:</div>
                 <div class="info-box-content">
-                    <input type="text" value="${webhookUrl}" readonly id="webhookUrl">
+                    <input type="text" value="" readonly id="webhookUrl">
                     <button class="copy-button" onclick="copyToClipboard('webhookUrl', 'Webhook URL')">
                         📋 Copiar
                     </button>
@@ -823,7 +838,7 @@ body {
             <div class="info-box">
                 <div class="info-box-label">TOKEN DE VERIFICACIÓN:</div>
                 <div class="info-box-content">
-                    <input type="text" value="${verifyToken}" readonly id="verifyToken">
+                    <input type="text" value="" readonly id="verifyToken">
                     <button class="copy-button" onclick="copyToClipboard('verifyToken', 'Verify Token')">
                         📋 Copiar
                     </button>
@@ -860,7 +875,7 @@ body {
                 <div class="config-item">
                     <div class="config-item-info">
                         <div class="config-item-label">JWT Token</div>
-                        <div class="config-item-value">${config.jwtToken ? config.jwtToken.substring(0, 20) + '...' : 'No configurado'}</div>
+                        <div class="config-item-value"><span id="display-jwt-token">Cargando...</span></div>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_JWT_TOKEN', 'JWT Token', '')">
                         ✏️ Editar
@@ -870,7 +885,7 @@ body {
                 <div class="config-item">
                     <div class="config-item-info">
                         <div class="config-item-label">Number ID</div>
-                        <div class="config-item-value">${config.numberId || 'No configurado'}</div>
+                        <div class="config-item-value"><span id="display-number-id">Cargando...</span></div>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_NUMBER_ID', 'Number ID', '')">
                         ✏️ Editar
@@ -880,7 +895,7 @@ body {
                 <div class="config-item">
                     <div class="config-item-info">
                         <div class="config-item-label">Business Account ID</div>
-                        <div class="config-item-value">${config.businessId || 'No configurado'}</div>
+                        <div class="config-item-value"><span id="display-business-id">Cargando...</span></div>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_BUSINESS_ACCOUNT_ID', 'Business Account ID', '')">
                         ✏️ Editar
@@ -1526,6 +1541,40 @@ function copyCode(type) {
     
     showToast('success', 'Copiado', 'Código copiado al portapapeles');
 }
+
+// Fetch config on load
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/meta/config');
+        const config = await res.json();
+        
+        if(document.getElementById('webhookUrl')) document.getElementById('webhookUrl').value = config.webhookUrl;
+        if(document.getElementById('verifyToken')) document.getElementById('verifyToken').value = config.verifyToken;
+        
+        // Update display values
+        const jwtDisplay = document.getElementById('display-jwt-token');
+        if(jwtDisplay) {
+            if(config.jwtToken) jwtDisplay.textContent = config.jwtToken.substring(0, 20) + '...';
+            else jwtDisplay.textContent = 'No configurado';
+        }
+        
+        if(document.getElementById('display-number-id')) document.getElementById('display-number-id').textContent = config.numberId || 'No configurado';
+        if(document.getElementById('display-business-id')) document.getElementById('display-business-id').textContent = config.businessId || 'No configurado';
+        if(document.getElementById('display-api-version')) document.getElementById('display-api-version').textContent = config.apiVersion;
+        if(document.getElementById('display-phone-number')) document.getElementById('display-phone-number').textContent = config.phoneNumber || 'No configurado';
+        
+        // Update inputs for testing
+        if(config.phoneNumber) {
+             if(document.getElementById('testPhone')) document.getElementById('testPhone').value = config.phoneNumber;
+             if(document.getElementById('testPhoneTemplate')) document.getElementById('testPhoneTemplate').value = config.phoneNumber;
+             if(document.getElementById('testPhoneMedia')) document.getElementById('testPhoneMedia').value = config.phoneNumber;
+             if(document.getElementById('testPhoneInteractive')) document.getElementById('testPhoneInteractive').value = config.phoneNumber;
+        }
+    } catch(e) {
+        console.error('Error loading config', e);
+        showToast('error', 'Error', 'No se pudo cargar la configuración');
+    }
+});
 </script>
 
 </body>
