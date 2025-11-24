@@ -796,16 +796,16 @@ body {
             </div>
         </div>
         <div class="config-status">
-            <div class="status-indicator ${config.jwtToken ? 'configured' : 'missing'}">
-                <span>${config.jwtToken ? '✓' : '✗'}</span>
+            <div class="status-indicator missing" id="status-jwt">
+                <span id="icon-jwt">✗</span>
                 <span>JWT Token</span>
             </div>
-            <div class="status-indicator ${config.numberId ? 'configured' : 'missing'}">
-                <span>${config.numberId ? '✓' : '✗'}</span>
+            <div class="status-indicator missing" id="status-number">
+                <span id="icon-number">✗</span>
                 <span>Number ID</span>
             </div>
-            <div class="status-indicator ${config.businessId ? 'configured' : 'missing'}">
-                <span>${config.businessId ? '✓' : '✗'}</span>
+            <div class="status-indicator missing" id="status-business">
+                <span id="icon-business">✗</span>
                 <span>Business ID</span>
             </div>
             <a href="/dashboard" class="btn btn-secondary btn-sm">← Volver al Dashboard</a>
@@ -1570,6 +1570,28 @@ document.addEventListener('DOMContentLoaded', async () => {
              if(document.getElementById('testPhoneMedia')) document.getElementById('testPhoneMedia').value = config.phoneNumber;
              if(document.getElementById('testPhoneInteractive')) document.getElementById('testPhoneInteractive').value = config.phoneNumber;
         }
+
+        // Update status indicators
+        const updateStatus = (id, value) => {
+            const statusEl = document.getElementById(`status - ${ id }`);
+            const iconEl = document.getElementById(`icon - ${ id }`);
+            if(statusEl && iconEl) {
+                if(value) {
+                    statusEl.classList.remove('missing');
+                    statusEl.classList.add('configured');
+                    iconEl.textContent = '✓';
+                } else {
+                    statusEl.classList.remove('configured');
+                    statusEl.classList.add('missing');
+                    iconEl.textContent = '✗';
+                }
+            }
+        };
+
+        updateStatus('jwt', config.jwtToken);
+        updateStatus('number', config.numberId);
+        updateStatus('business', config.businessId);
+
     } catch(e) {
         console.error('Error loading config', e);
         showToast('error', 'Error', 'No se pudo cargar la configuración');
