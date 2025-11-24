@@ -293,7 +293,24 @@ export const setupRoutes = (app) => {
         }
     });
 
-    // Actualizar estado de vendedor
+    // Actualizar vendedor completo (PUT)
+    app.put('/api/sellers/:id', (req, res) => {
+        try {
+            const updatedSeller = sellersManager.updateSeller(req.params.id, req.body);
+            res.json({
+                success: true,
+                data: updatedSeller,
+                message: 'Vendedor actualizado correctamente'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
+    // Actualizar estado de vendedor (PATCH) - mantener por compatibilidad
     app.patch('/api/sellers/:id/status', (req, res) => {
         try {
             const { status } = req.body;

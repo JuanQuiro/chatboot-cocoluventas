@@ -49,11 +49,11 @@ export default function Sellers() {
         }
     });
 
-    // Update seller mutation
+    // Update seller mutation - FULL UPDATE
     const updateMutation = useMutation({
         mutationFn: async ({ id, data }) => {
-            const res = await fetch(`/api/sellers/${id}/status`, {
-                method: 'PATCH',
+            const res = await fetch(`/api/sellers/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
