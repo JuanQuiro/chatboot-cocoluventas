@@ -81,7 +81,7 @@ temp
 
 # Dashboard development files
 dashboard/node_modules
-dashboard/build
+# dashboard/build
 dashboard/coverage
 dashboard/.env.local
 
