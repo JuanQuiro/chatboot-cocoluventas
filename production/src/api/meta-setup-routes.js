@@ -827,7 +827,7 @@ body {
                     <button class="copy-button" onclick="copyToClipboard('verifyToken', 'Verify Token')">
                         📋 Copiar
                     </button>
-                    <button class="copy-button" onclick="openEditModal('META_VERIFY_TOKEN', 'Token de Verificación', '${verifyToken}')" style="background: var(--secondary-600); margin-left: 8px;">
+                    <button class="copy-button" onclick="openEditModal('META_VERIFY_TOKEN', 'Token de Verificación', '')" style="background: var(--secondary-600); margin-left: 8px;">
                         ✏️ Editar
                     </button>
                 </div>
@@ -862,7 +862,7 @@ body {
                         <div class="config-item-label">JWT Token</div>
                         <div class="config-item-value">${config.jwtToken ? config.jwtToken.substring(0, 20) + '...' : 'No configurado'}</div>
                     </div>
-                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_JWT_TOKEN', 'JWT Token', '${config.jwtToken}')">
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_JWT_TOKEN', 'JWT Token', '')">
                         ✏️ Editar
                     </button>
                 </div>
@@ -872,7 +872,7 @@ body {
                         <div class="config-item-label">Number ID</div>
                         <div class="config-item-value">${config.numberId || 'No configurado'}</div>
                     </div>
-                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_NUMBER_ID', 'Number ID', '${config.numberId}')">
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_NUMBER_ID', 'Number ID', '')">
                         ✏️ Editar
                     </button>
                 </div>
@@ -882,7 +882,7 @@ body {
                         <div class="config-item-label">Business Account ID</div>
                         <div class="config-item-value">${config.businessId || 'No configurado'}</div>
                     </div>
-                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_BUSINESS_ACCOUNT_ID', 'Business Account ID', '${config.businessId}')">
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_BUSINESS_ACCOUNT_ID', 'Business Account ID', '')">
                         ✏️ Editar
                     </button>
                 </div>
@@ -892,7 +892,7 @@ body {
                         <div class="config-item-label">API Version</div>
                         <div class="config-item-value">${config.apiVersion}</div>
                     </div>
-                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_API_VERSION', 'API Version', '${config.apiVersion}')">
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('META_API_VERSION', 'API Version', '')">
                         ✏️ Editar
                     </button>
                 </div>
@@ -902,7 +902,7 @@ body {
                         <div class="config-item-label">Phone Number (Testing)</div>
                         <div class="config-item-value">${config.phoneNumber || 'No configurado'}</div>
                     </div>
-                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('PHONE_NUMBER', 'Phone Number', '${config.phoneNumber}')">
+                    <button class="btn btn-sm btn-secondary" onclick="openEditModal('PHONE_NUMBER', 'Phone Number', '')">
                         ✏️ Editar
                     </button>
                 </div>
