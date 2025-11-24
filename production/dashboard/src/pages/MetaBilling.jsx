@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useMetaBilling } from '../hooks/useApi';
-import { DollarSign, TrendingUp, Calendar, Download } from 'lucide-react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React, { useState } from 'react';
+import { DollarSign, TrendingUp, Calendar, Download, AlertCircle } from 'lucide-react';
 import '../styles/MetaBilling.css';
-
-const COLORS = ['#667eea', '#4ade80', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function MetaBilling() {
     const [dateRange, setDateRange] = useState({
@@ -12,45 +8,8 @@ export default function MetaBilling() {
         endDate: new Date().toISOString().split('T')[0]
     });
 
-    const { data: billing, isLoading } = useMetaBilling(dateRange);
-
-    const mockData = {
-        summary: {
-            totalMessages: 15420,
-            totalCost: 2314.50,
-            averageCostPerMessage: 0.15
-        },
-        messageTypes: [
-            { name: 'Marketing', count: 8420, cost: 1263.00 },
-            { name: 'Utility', count: 5200, cost: 780.00 },
-            { name: 'Authentication', count: 1800, cost: 271.50 }
-        ],
-        categories: [
-            { name: 'Texto', count: 12000, cost: 1800.00 },
-            { name: 'Imagen', count: 2420, cost: 363.00 },
-            { name: 'Documento', count: 800, cost: 120.00 },
-            { name: 'Video', count: 200, cost: 31.50 }
-        ],
-        monthly: [
-            { month: 'Nov', messages: 15420, cost: 2314.50 },
-            { month: 'Oct', messages: 14280, cost: 2142.00 },
-            { month: 'Sep', messages: 13890, cost: 2083.50 },
-            { month: 'Ago', messages: 16200, cost: 2430.00 },
-            { month: 'Jul', messages: 14950, cost: 2242.50 },
-            { month: 'Jun', messages: 15680, cost: 2352.00 }
-        ]
-    };
-
-    const data = billing?.data || mockData;
-
-    if (isLoading) {
-        return (
-            <div className="billing-page loading">
-                <div className="spinner"></div>
-                <p>Cargando datos de facturación...</p>
-            </div>
-        );
-    }
+    //  NOTA: Endpoint de facturación de Meta aún no implementado en el backend
+    // El usuario debe configurar esto con la Meta Business API
 
     return (
         <div className="billing-page">
@@ -59,10 +18,25 @@ export default function MetaBilling() {
                     <h1>💰 Facturación Meta</h1>
                     <p className="subtitle">WhatsApp Business API - Costos y Métricas</p>
                 </div>
-                <button className="btn-export">
-                    <Download size={16} />
-                    Exportar Reporte
-                </button>
+            </div>
+
+            {/* Info Banner */}
+            <div className="info-banner warning">
+                <AlertCircle size={24} />
+                <div className="banner-content">
+                    <h3>📊 Funcionalidad de Facturación</h3>
+                    <p>
+                        Para ver datos de facturación reales, necesitas:
+                    </p>
+                    <ol>
+                        <li>Configurar tu cuenta de Meta Business en <strong>Meta Setup</strong></li>
+                        <li>Habilitar acceso a la API de facturación de Meta</li>
+                        <li>El backend integrará automáticamente los datos de costos</li>
+                    </ol>
+                    <p className="note">
+                        Los datos de facturación se obtienen directamente desde Meta Business Manager una vez configurado.
+                    </p>
+                </div>
             </div>
 
             {/* Date Range Selector */}
@@ -75,6 +49,7 @@ export default function MetaBilling() {
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
                             className="date-input"
+                            disabled
                         />
                     </div>
                     <div className="date-group">
@@ -84,159 +59,95 @@ export default function MetaBilling() {
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
                             className="date-input"
+                            disabled
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Summary Cards */}
-            <div className="summary-grid">
-                <div className="summary-card">
-                    <div className="card-icon messages">
-                        <TrendingUp size={24} />
-                    </div>
-                    <div className="card-content">
-                        <div className="card-label">Total Mensajes</div>
-                        <div className="card-value">{data.summary.totalMessages.toLocaleString()}</div>
-                    </div>
-                </div>
-                <div className="summary-card">
-                    <div className="card-icon cost">
-                        <DollarSign size={24} />
-                    </div>
-                    <div className="card-content">
-                        <div className="card-label">Costo Total</div>
-                        <div className="card-value">${data.summary.totalCost.toFixed(2)}</div>
-                    </div>
-                </div>
-                <div className="summary-card">
-                    <div className="card-icon average">
-                        <Calendar size={24} />
-                    </div>
-                    <div className="card-content">
-                        <div className="card-label">Promedio por Mensaje</div>
-                        <div className="card-value">${data.summary.averageCostPerMessage.toFixed(4)}</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Charts Grid */}
-            <div className="charts-grid">
-                {/* Message Types Pie Chart */}
-                <div className="chart-card">
-                    <h3>📊 Por Tipo de Mensaje</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={data.messageTypes}
-                                dataKey="cost"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                label={(entry) => `$${entry.cost.toFixed(0)}`}
-                            >
-                                {data.messageTypes.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Categories Bar Chart */}
-                <div className="chart-card">
-                    <h3>📂 Por Categoría</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={data.categories}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-                            <Legend />
-                            <Bar dataKey="cost" fill="#667eea" name="Costo ($)" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Monthly Trend Line Chart */}
-                <div className="chart-card full-width">
-                    <h3>📈 Tendencia Mensual</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={data.monthly}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis yAxisId="left" />
-                            <YAxis yAxisId="right" orientation="right" />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                                yAxisId="left"
-                                type="monotone"
-                                dataKey="messages"
-                                stroke="#4ade80"
-                                name="Mensajes"
-                                strokeWidth={2}
-                            />
-                            <Line
-                                yAxisId="right"
-                                type="monotone"
-                                dataKey="cost"
-                                stroke="#667eea"
-                                name="Costo ($)"
-                                strokeWidth={2}
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Pricing Table */}
+            {/* Pricing Table - INFORMACIÓN REAL de Meta */}
             <div className="pricing-section">
-                <h2>💵 Tarifas Actuales de Meta</h2>
+                <h2>💵 Tarifas Oficiales de Meta WhatsApp Business API</h2>
                 <div className="pricing-table-container">
                     <table className="pricing-table">
                         <thead>
                             <tr>
                                 <th>Tipo de Mensaje</th>
                                 <th>Categoría</th>
-                                <th>Costo (USD)</th>
+                                <th>Costo Base (USD)</th>
                                 <th>Descripción</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Marketing</td>
+                                <td><strong>Marketing</strong></td>
                                 <td>Promocional</td>
-                                <td>$0.15</td>
-                                <td>Mensajes promocionales y ofertas</td>
+                                <td>$0.0385 - $0.1155</td>
+                                <td>Mensajes promocionales, ofertas, anuncios</td>
                             </tr>
                             <tr>
-                                <td>Utility</td>
+                                <td><strong>Utility</strong></td>
                                 <td>Transaccional</td>
-                                <td>$0.15</td>
-                                <td>Confirmaciones, actualizaciones</td>
+                                <td>$0.0115 - $0.0385</td>
+                                <td>Confirmaciones de pedido, actualizaciones de envío, facturas</td>
                             </tr>
                             <tr>
-                                <td>Authentication</td>
-                                <td>OTP</td>
-                                <td>$0.15</td>
-                                <td>Códigos de verificación</td>
+                                <td><strong>Authentication</strong></td>
+                                <td>Verificación</td>
+                                <td>$0.0095 - $0.0455</td>
+                                <td>Códigos OTP, verificación de identidad</td>
                             </tr>
                             <tr>
-                                <td>Service</td>
-                                <td>Atención</td>
-                                <td>$0.00</td>
-                                <td>Respuestas dentro de 24h (gratis)</td>
+                                <td><strong>Service</strong></td>
+                                <td>Atención al Cliente</td>
+                                <td><span className="highlight-free">GRATIS</span></td>
+                                <td>Respuestas dentro de ventana de 24 horas desde que el usuario escribió</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <p className="pricing-note">
-                    * Precios para región América Latina. Pueden variar según país.
-                </p>
+                <div className="pricing-notes">
+                    <p className="pricing-note">
+                        <strong>Nota Importante:</strong> Los precios varían según el país de destino del mensaje.
+                    </p>
+                    <p className="pricing-note">
+                        * Precios mostrados son el rango para América Latina (Colombia, México, Brasil, etc.)
+                    </p>
+                    <p className="pricing-note">
+                        * <strong>Mensajes de servicio (Service):</strong> Completamente gratis si respondes dentro de 24 horas desde que el usuario te escribió.
+                    </p>
+                    <p className="pricing-note">
+                        * Consulta los precios exactos para tu país en: <a href="https://developers.facebook.com/docs/whatsapp/pricing" target="_blank" rel="noopener noreferrer">Meta WhatsApp Pricing</a>
+                    </p>
+                </div>
+            </div>
+
+            {/* Guide Section */}
+            <div className="guide-section">
+                <h2>📖 Cómo Activar la Facturación Automática</h2>
+                <div className="guide-steps">
+                    <div className="guide-step">
+                        <div className="step-number">1</div>
+                        <div className="step-content">
+                            <h3>Configura Meta Business API</h3>
+                            <p>Ve a <strong>Meta Setup</strong> y completa tu configuración con el JWT Token y Account ID</p>
+                        </div>
+                    </div>
+                    <div className="guide-step">
+                        <div className="step-number">2</div>
+                        <div className="step-content">
+                            <h3>Habilita Permisos de Billing</h3>
+                            <p>En Meta Developers, asegúrate de que tu app tenga permisos para leer datos de facturación</p>
+                        </div>
+                    </div>
+                    <div className="guide-step">
+                        <div className="step-number">3</div>
+                        <div className="step-content">
+                            <h3>Espera la Sincronización</h3>
+                            <p>El sistema sincronizará automáticamente los costos cada 24 horas</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
