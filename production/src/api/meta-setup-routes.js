@@ -900,7 +900,7 @@ body {
                 <div class="config-item">
                     <div class="config-item-info">
                         <div class="config-item-label">Phone Number (Testing)</div>
-                        <div class="config-item-value">${config.phoneNumber || 'No configurado'}</div>
+                        <div class="config-item-value" id="display-phone-number">Cargando...</div>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="openEditModal('PHONE_NUMBER', 'Phone Number', '')">
                         ✏️ Editar
