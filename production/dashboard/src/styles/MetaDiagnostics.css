@@ -1,0 +1,21 @@
+.diagnostics-page { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+.diagnostic-section { background: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f3f4f6; }
+.section-header h2 { margin: 0; font-size: 1.25rem; }
+.btn-check, .btn-ping { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+.btn-check { background: #667eea; color: white; }
+.btn-ping { background: #f59e0b; color: white; }
+.checklist { display: flex; flex-direction: column; gap: 0.75rem; }
+.checklist-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 0.5rem; background: #f9fafb; }
+.checklist-item.success { background: #d1fae5; }
+.checklist-item.error { background: #fee2e2; }
+.check-icon { display: flex; }
+.test-result { padding: 1.5rem; border-radius: 0.75rem; margin-top: 1rem; }
+.test-result.success { background: #d1fae5; border-left: 4px solid #059669; }
+.test-result.error { background: #fee2e2; border-left: 4px solid #dc2626; }
+.result-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.result-details { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; }
+.troubleshooting-guide { display: grid; gap: 1.5rem; }
+.trouble-item h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+.trouble-item ul { padding-left: 1.5rem; }
+.trouble-item li { margin-bottom: 0.25rem; }
