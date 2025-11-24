@@ -58,8 +58,8 @@ export const dashboardApi = {
 // Analytics API
 export const analyticsApi = {
     getMetrics: () => api.get('/analytics/metrics'),
-    getSummary: () => api.get('/analytics/summary'),
-    getEvents: (limit = 50) => api.get(`/analytics/events?limit=${limit}`)
+    getSummary: () => api.get('/analytics/summary')
+    // getEvents removed - was being blocked by adblockers
 };
 
 // Logs API
