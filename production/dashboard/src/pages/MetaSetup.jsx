@@ -4,6 +4,7 @@ import { Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw, History } from '
 import toast from 'react-hot-toast';
 import CredentialHistory from '../components/CredentialHistory';
 import DebugConsole from '../components/DebugConsole';
+import { httpLogger } from '../utils/httpLogger';
 import '../styles/MetaSetup.css';
 
 export default function MetaSetup() {
@@ -18,6 +19,14 @@ export default function MetaSetup() {
             setFormData(config);
         }
     }, [config]);
+
+    // Subscribe to HTTP logger for automatic logging
+    React.useEffect(() => {
+        const unsubscribe = httpLogger.addListener((logEntry) => {
+            setDebugLogs(prev => [...prev, logEntry]);
+        });
+        return unsubscribe;
+    }, []);
 
     const addLog = (type, method, endpoint, data, message) => {
         const log = {

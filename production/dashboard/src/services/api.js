@@ -1,5 +1,6 @@
 // API Service Layer - Clean Architecture
 import axios from 'axios';
+import { httpLogger } from '../utils/httpLogger';
 
 const api = axios.create({
     baseURL: '/api',
@@ -9,22 +10,34 @@ const api = axios.create({
     }
 });
 
-// Request interceptor
+// Request interceptor with HTTP logging
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('cocolu_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        // Log request details
+        httpLogger.logRequest(config);
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        httpLogger.logError(error);
+        return Promise.reject(error);
+    }
 );
 
-// Response interceptor
+// Response interceptor with HTTP logging
 api.interceptors.response.use(
-    (response) => response.data,
+    (response) => {
+        // Log response details
+        httpLogger.logResponse(response);
+        // Return response data for consistency
+        return response.data;
+    },
     (error) => {
+        httpLogger.logError(error);
+
         if (error.response?.status === 401) {
             localStorage.removeItem('cocolu_token');
             window.location.href = '/login';
