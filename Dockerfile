@@ -18,9 +18,9 @@ COPY production/package*.json ./production/
 WORKDIR /app/production
 RUN npm install --omit=dev --legacy-peer-deps
 
-# Build React dashboard
+# Build React dashboard (needs ALL deps including devDependencies for react-scripts)
 WORKDIR /app/production/dashboard
-RUN npm install && npm run build
+RUN npm install --legacy-peer-deps && npm run build && npm prune --production
 
 # Back to app root
 WORKDIR /app
