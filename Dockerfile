@@ -18,18 +18,16 @@ COPY production/package*.json ./production/
 WORKDIR /app/production
 RUN npm install --omit=dev --legacy-peer-deps
 
-# Build React dashboard (needs ALL deps including devDependencies for react-scripts)
+# Volver al directorio principal y copiar TODO EL CÓDIGO FUENTE
+WORKDIR /app
+COPY . .
+
+# Build React dashboard (ahora que tenemos el código completo)
 WORKDIR /app/production/dashboard
 RUN npm install --legacy-peer-deps && npm run build && npm prune --production
 
 # Back to app root
 WORKDIR /app
-
-# Volver al directorio principal
-WORKDIR /app
-
-# Copiar código fuente completo (incluye carpeta production)
-COPY . .
 
 # Crear directorio de base de datos
 RUN mkdir -p database
