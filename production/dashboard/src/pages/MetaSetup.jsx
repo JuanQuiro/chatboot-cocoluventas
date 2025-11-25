@@ -148,9 +148,10 @@ export default function MetaSetup() {
                                 type="button"
                                 onClick={() => openHistory('META_JWT_TOKEN', 'JWT Token')}
                                 className="btn-history"
-                                title="Ver histórico"
+                                title="Ver histórico de cambios"
                             >
                                 <History size={16} />
+                                <span>Histórico</span>
                             </button>
                         </div>
                         <span className="help-text">
@@ -173,9 +174,10 @@ export default function MetaSetup() {
                                     type="button"
                                     onClick={() => openHistory('META_NUMBER_ID', 'Phone Number ID')}
                                     className="btn-history"
-                                    title="Ver histórico"
+                                    title="Ver histórico de cambios"
                                 >
                                     <History size={16} />
+                                    <span>Histórico</span>
                                 </button>
                             </div>
                         </div>
@@ -194,9 +196,10 @@ export default function MetaSetup() {
                                     type="button"
                                     onClick={() => openHistory('META_BUSINESS_ACCOUNT_ID', 'Business Account ID')}
                                     className="btn-history"
-                                    title="Ver histórico"
+                                    title="Ver histórico de cambios"
                                 >
                                     <History size={16} />
+                                    <span>Histórico</span>
                                 </button>
                             </div>
                         </div>
@@ -246,10 +249,10 @@ export default function MetaSetup() {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="btn-save"
+                            className="btn-save btn-save-primary"
                         >
-                            <Save size={16} />
-                            {isSaving ? 'Guardando...' : 'Guardar Configuración'}
+                            <Save size={20} />
+                            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                         </button>
                     </div>
                 </div>
