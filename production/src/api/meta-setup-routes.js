@@ -8,39 +8,52 @@ import path from 'path';
 
 const setupMetaRoutes = (app, metaConfigService) => {
 
-    // Endpoint para obtener configuración (Client-side fetching para evitar SyntaxError)
+    // GET endpoint - loads from DATABASE first, then falls back to env
     app.get('/api/meta/config', (req, res) => {
-        const verifyToken = process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta';
-        const config = {
-            webhookUrl: `https://${req.get('host')}/webhooks/whatsapp`,
-            verifyToken: verifyToken,
-            jwtToken: process.env.META_JWT_TOKEN || '',
-            numberId: process.env.META_NUMBER_ID || '',
-            businessId: process.env.META_BUSINESS_ACCOUNT_ID || '',
-            apiVersion: process.env.META_API_VERSION || 'v22.0',
-            phoneNumber: process.env.PHONE_NUMBER || ''
-        };
-        res.json(config);
+        try {
+            // Load from database
+            const dbConfig = metaConfigService.getAllConfigs();
+
+            // Merge with env vars (env has priority for missing values)
+            const verifyToken = dbConfig.META_VERIFY_TOKEN || process.env.META_VERIFY_TOKEN || 'cocolu_webhook_verify_2025_secure_token_meta';
+
+            const config = {
+                webhookUrl: `https://${req.get('host')}/webhooks/whatsapp`,
+                verifyToken: verifyToken,
+                jwtToken: dbConfig.META_JWT_TOKEN || process.env.META_JWT_TOKEN || '',
+                numberId: dbConfig.META_NUMBER_ID || process.env.META_NUMBER_ID || '',
+                businessId: dbConfig.META_BUSINESS_ACCOUNT_ID || process.env.META_BUSINESS_ACCOUNT_ID || '',
+                apiVersion: dbConfig.META_API_VERSION || process.env.META_API_VERSION || 'v22.0',
+                phoneNumber: dbConfig.PHONE_NUMBER || process.env.PHONE_NUMBER || ''
+            };
+
+            res.json(config);
+        } catch (error) {
+            console.error('Error loading Meta config:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
     });
 
-    // POST endpoint to save Meta configuration
+    // POST endpoint - saves to DATABASE permanently
     app.post('/api/meta/config', async (req, res) => {
         try {
-            const { META_JWT_TOKEN, META_NUMBER_ID, META_BUSINESS_ACCOUNT_ID, META_VERIFY_TOKEN, META_API_VERSION, PHONE_NUMBER } = req.body;
+            const { jwtToken, numberId, businessId, verifyToken, apiVersion, phoneNumber } = req.body;
 
-            // Update environment variables via metaConfigService
-            if (metaConfigService && typeof metaConfigService.updateConfig === 'function') {
-                await metaConfigService.updateConfig({
-                    META_JWT_TOKEN,
-                    META_NUMBER_ID,
-                    META_BUSINESS_ACCOUNT_ID,
-                    META_VERIFY_TOKEN,
-                    META_API_VERSION,
-                    PHONE_NUMBER
+            // Save to database using the correct method
+            if (metaConfigService && typeof metaConfigService.setConfigs === 'function') {
+                metaConfigService.setConfigs({
+                    META_JWT_TOKEN: jwtToken || '',
+                    META_NUMBER_ID: numberId || '',
+                    META_BUSINESS_ACCOUNT_ID: businessId || '',
+                    META_VERIFY_TOKEN: verifyToken || '',
+                    META_API_VERSION: apiVersion || 'v22.0',
+                    PHONE_NUMBER: phoneNumber || ''
                 });
-            }
 
-            res.json({ success: true, message: 'Configuración guardada exitosamente' });
+                res.json({ success: true, message: 'Configuración guardada exitosamente en base de datos' });
+            } else {
+                throw new Error('MetaConfigService not available');
+            }
         } catch (error) {
             console.error('Error guardando configuración Meta:', error);
             res.status(500).json({ success: false, error: error.message });
