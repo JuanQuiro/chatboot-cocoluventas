@@ -268,5 +268,19 @@ export default function MetaSetup() {
                 </ol>
             </div>
         </div>
+
+        {/* Credential History Modal */ }
+    {
+        historyField && (
+            <CredentialHistory
+                fieldKey={historyField.key}
+                fieldLabel={historyField.label}
+                isOpen={historyOpen}
+                onClose={closeHistory}
+                onRestore={handleRestoreValue}
+            />
+        )
+    }
+    </div >
     );
 }
