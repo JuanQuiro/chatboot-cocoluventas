@@ -1,12 +1,15 @@
 import React from 'react';
 import { useMetaConfig } from '../hooks/useApi';
-import { Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw } from 'lucide-react';
+import { Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw, History } from 'lucide-react';
 import toast from 'react-hot-toast';
+import CredentialHistory from '../components/CredentialHistory';
 import '../styles/MetaSetup.css';
 
 export default function MetaSetup() {
     const { config, saveConfig, testMessage, isSaving, isTesting } = useMetaConfig();
     const [formData, setFormData] = React.useState({});
+    const [historyOpen, setHistoryOpen] = React.useState(false);
+    const [historyField, setHistoryField] = React.useState(null);
 
     React.useEffect(() => {
         if (config) {
@@ -29,6 +32,33 @@ export default function MetaSetup() {
     const copyToClipboard = (text, label) => {
         navigator.clipboard.writeText(text);
         toast.success(`✅ ${label} copiado`);
+    };
+
+    const openHistory = (fieldKey, fieldLabel) => {
+        setHistoryField({ key: fieldKey, label: fieldLabel });
+        setHistoryOpen(true);
+    };
+
+    const closeHistory = () => {
+        setHistoryOpen(false);
+        setHistoryField(null);
+    };
+
+    const handleRestoreValue = (value) => {
+        if (historyField) {
+            // Map API keys to formData keys
+            const keyMap = {
+                'META_JWT_TOKEN': 'jwtToken',
+                'META_NUMBER_ID': 'numberId',
+                'META_BUSINESS_ACCOUNT_ID': 'businessId',
+                'META_VERIFY_TOKEN': 'verifyToken',
+                'META_API_VERSION': 'apiVersion',
+                'PHONE_NUMBER': 'phoneNumber'
+            };
+
+            const formKey = keyMap[historyField.key] || historyField.key;
+            setFormData({ ...formData, [formKey]: value });
+        }
     };
 
     if (!config) {
@@ -106,13 +136,23 @@ export default function MetaSetup() {
 
                     <div className="form-group">
                         <label>JWT Token (Access Token)</label>
-                        <input
-                            type="password"
-                            value={formData.jwtToken || ''}
-                            onChange={(e) => setFormData({ ...formData, jwtToken: e.target.value })}
-                            placeholder="EAAxxxxxxxxxxxxx..."
-                            className="form-input"
-                        />
+                        <div className="input-with-history">
+                            <input
+                                type="password"
+                                value={formData.jwtToken || ''}
+                                onChange={(e) => setFormData({ ...formData, jwtToken: e.target.value })}
+                                placeholder="EAAxxxxxxxxxxxxx..."
+                                className="form-input"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => openHistory('META_JWT_TOKEN', 'JWT Token')}
+                                className="btn-history"
+                                title="Ver histórico"
+                            >
+                                <History size={16} />
+                            </button>
+                        </div>
                         <span className="help-text">
                             Obtén tu Access Token desde Meta Developers → App Settings
                         </span>
@@ -121,24 +161,44 @@ export default function MetaSetup() {
                     <div className="form-row">
                         <div className="form-group">
                             <label>Phone Number ID</label>
-                            <input
-                                type="text"
-                                value={formData.numberId || ''}
-                                onChange={(e) => setFormData({ ...formData, numberId: e.target.value })}
-                                placeholder="123456789012345"
-                                className="form-input"
-                            />
+                            <div className="input-with-history">
+                                <input
+                                    type="text"
+                                    value={formData.numberId || ''}
+                                    onChange={(e) => setFormData({ ...formData, numberId: e.target.value })}
+                                    placeholder="123456789012345"
+                                    className="form-input"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => openHistory('META_NUMBER_ID', 'Phone Number ID')}
+                                    className="btn-history"
+                                    title="Ver histórico"
+                                >
+                                    <History size={16} />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="form-group">
                             <label>Business Account ID</label>
-                            <input
-                                type="text"
-                                value={formData.businessId || ''}
-                                onChange={(e) => setFormData({ ...formData, businessId: e.target.value })}
-                                placeholder="987654321098765"
-                                className="form-input"
-                            />
+                            <div className="input-with-history">
+                                <input
+                                    type="text"
+                                    value={formData.businessId || ''}
+                                    onChange={(e) => setFormData({ ...formData, businessId: e.target.value })}
+                                    placeholder="987654321098765"
+                                    className="form-input"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => openHistory('META_BUSINESS_ACCOUNT_ID', 'Business Account ID')}
+                                    className="btn-history"
+                                    title="Ver histórico"
+                                >
+                                    <History size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 

@@ -1,0 +1,56 @@
+/* Meta Setup Styles */
+
+/* ... existing styles ... */
+
+/* Input with History Button */
+.input-with-history {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-history .form-input {
+    flex: 1;
+}
+
+.btn-history {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: #4ade80;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 44px;
+}
+
+.btn-history:hover {
+    background: rgba(74, 222, 128, 0.2);
+    border-color: #4ade80;
+    transform: translateY(-1px);
+}
+
+.btn-history:active {
+    transform: translateY(0);
+}
+
+.btn-history svg {
+    flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .input-with-history {
+        flex-wrap: nowrap;
+    }
+
+    .btn-history {
+        min-width: 40px;
+        padding: 8px 10px;
+    }
+}
