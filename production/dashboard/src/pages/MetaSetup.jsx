@@ -66,7 +66,7 @@ export default function MetaSetup() {
 
             <div className="info-section">
                 <div className="info-card webhook">
-                    <div className="info-label">Webhook URL para Meta</div>
+                    <div className="info-label">Webhook URL para Meta (Read-Only)</div>
                     <div className="info-value-group">
                         <code className="info-value">{formData.webhookUrl}</code>
                         <button
@@ -76,13 +76,19 @@ export default function MetaSetup() {
                             <Copy size={16} />
                         </button>
                     </div>
-                    <p className="info-help">Configura este URL en Meta Developers</p>
+                    <p className="info-help">Configura este URL en Meta Developers (no editable)</p>
                 </div>
 
                 <div className="info-card token">
-                    <div className="info-label">Verify Token</div>
+                    <div className="info-label">Verify Token (Editable)</div>
                     <div className="info-value-group">
-                        <code className="info-value">{formData.verifyToken}</code>
+                        <input
+                            type="text"
+                            value={formData.verifyToken || ''}
+                            onChange={(e) => setFormData({ ...formData, verifyToken: e.target.value })}
+                            placeholder="cocolu_webhook_verify_..."
+                            className="form-input"
+                        />
                         <button
                             onClick={() => copyToClipboard(formData.verifyToken, 'Verify Token')}
                             className="btn-copy"
@@ -90,7 +96,7 @@ export default function MetaSetup() {
                             <Copy size={16} />
                         </button>
                     </div>
-                    <p className="info-help">Usa este token para verificar el webhook</p>
+                    <p className="info-help">Token personalizado para verificar el webhook</p>
                 </div>
             </div>
 

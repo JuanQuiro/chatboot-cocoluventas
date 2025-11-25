@@ -101,6 +101,29 @@ const setupMetaRoutes = (app, metaConfigService) => {
         }
     });
 
+    // GET endpoint - obtener histórico de una credencial
+    app.get('/api/meta/config/history/:key', (req, res) => {
+        try {
+            const { key } = req.params;
+            const limit = parseInt(req.query.limit) || 10;
+
+            if (metaConfigService && typeof metaConfigService.getHistory === 'function') {
+                const history = metaConfigService.getHistory(key, limit);
+                res.json({
+                    success: true,
+                    key,
+                    history,
+                    total: history.length
+                });
+            } else {
+                throw new Error('MetaConfigService not available');
+            }
+        } catch (error) {
+            console.error('Error getting config history:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    });
+
     // Legacy /meta-setup route removed - now handled by React Router
 
 };

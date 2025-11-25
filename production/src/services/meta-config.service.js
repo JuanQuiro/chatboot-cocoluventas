@@ -47,7 +47,7 @@ class MetaConfigService {
     }
 
     /**
-     * Inicializar tabla meta_config
+     * Inicializar tabla meta_config y meta_config_history
      */
     initializeDatabase() {
         this.db.exec(`
@@ -59,9 +59,20 @@ class MetaConfigService {
             );
             
             CREATE INDEX IF NOT EXISTS idx_meta_config_key ON meta_config(key);
+            
+            CREATE TABLE IF NOT EXISTS meta_config_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                key TEXT NOT NULL,
+                value TEXT,
+                changed_by TEXT DEFAULT 'admin',
+                changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            
+            CREATE INDEX IF NOT EXISTS idx_meta_config_history_key ON meta_config_history(key);
+            CREATE INDEX IF NOT EXISTS idx_meta_config_history_changed_at ON meta_config_history(changed_at);
         `);
 
-        console.log('✅ Tabla meta_config inicializada');
+        console.log('✅ Tablas meta_config y meta_config_history inicializadas');
     }
 
     /**
@@ -110,11 +121,11 @@ class MetaConfigService {
     }
 
     /**
-     * Guardar múltiples configuraciones en una transacción
+     * Guardar múltiples configuraciones en una transacción + histórico
      * @param {Object} configObj - Objeto con configs {key: value}
      */
     setConfigs(configObj) {
-        const stmt = this.db.prepare(`
+        const configStmt = this.db.prepare(`
             INSERT INTO meta_config (key, value, updated_at) 
             VALUES (?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(key) DO UPDATE SET 
@@ -122,14 +133,40 @@ class MetaConfigService {
                 updated_at = CURRENT_TIMESTAMP
         `);
 
+        const historyStmt = this.db.prepare(`
+            INSERT INTO meta_config_history (key, value, changed_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        `);
+
         const transaction = this.db.transaction((configs) => {
             for (const [key, value] of Object.entries(configs)) {
-                stmt.run(key, value || '');
+                // Guardar en meta_config
+                configStmt.run(key, value || '');
+                // Guardar en histórico
+                historyStmt.run(key, value || '');
             }
         });
 
         transaction(configObj);
-        console.log(`✅ ${Object.keys(configObj).length} configuraciones Meta actualizadas`);
+        console.log(`✅ ${Object.keys(configObj).length} configuraciones Meta actualizadas + histórico guardado`);
+    }
+
+    /**
+     * Obtener histórico de una configuración
+     * @param {string} key - Nombre de la variable
+     * @param {number} limit - Límite de registros (default: 10)
+     * @returns {Array} - Lista de cambios ordenados por fecha descendente
+     */
+    getHistory(key, limit = 10) {
+        const stmt = this.db.prepare(`
+            SELECT value, changed_at, changed_by
+            FROM meta_config_history 
+            WHERE key = ? 
+            ORDER BY changed_at DESC 
+            LIMIT ?
+        `);
+
+        return stmt.all(key, limit);
     }
 
     /**
