@@ -280,6 +280,9 @@
 .instructions-list a {
     color: #667eea;
     font-weight: 600;
+    text-decoration: none;
+}
+
 .instructions-list a:hover {
     text-decoration: underline;
 }
@@ -342,7 +345,7 @@
     .btn-history span {
         display: none;
     }
-    
+
     .btn-save-primary {
         padding: 0.875rem 1.5rem;
         font-size: 0.9rem;
