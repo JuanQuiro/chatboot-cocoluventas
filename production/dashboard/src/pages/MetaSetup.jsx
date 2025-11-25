@@ -267,20 +267,16 @@ export default function MetaSetup() {
                     <li>Haz una prueba enviando un mensaje de test</li>
                 </ol>
             </div>
+            {/* Credential History Modal */}
+            {historyField && (
+                <CredentialHistory
+                    fieldKey={historyField.key}
+                    fieldLabel={historyField.label}
+                    isOpen={historyOpen}
+                    onClose={closeHistory}
+                    onRestore={handleRestoreValue}
+                />
+            )}
         </div>
-
-        {/* Credential History Modal */ }
-    {
-        historyField && (
-            <CredentialHistory
-                fieldKey={historyField.key}
-                fieldLabel={historyField.label}
-                isOpen={historyOpen}
-                onClose={closeHistory}
-                onRestore={handleRestoreValue}
-            />
-        )
-    }
-    </div >
     );
 }
