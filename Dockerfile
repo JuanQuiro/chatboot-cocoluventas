@@ -22,9 +22,9 @@ RUN npm install --omit=dev --legacy-peer-deps
 WORKDIR /app
 COPY . .
 
-# Build React dashboard (ahora que tenemos el código completo)
-WORKDIR /app/production/dashboard
-RUN npm install --legacy-peer-deps && npm run build && npm prune --production
+# Build React dashboard (TEMPORARILY DISABLED - using existing build on server)
+# WORKDIR /app/production/dashboard
+# RUN npm install --legacy-peer-deps && npm run build && npm prune --production
 
 # Back to app root
 WORKDIR /app
