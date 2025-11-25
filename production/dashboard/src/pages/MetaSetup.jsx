@@ -3,6 +3,7 @@ import { useMetaConfig } from '../hooks/useApi';
 import { Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CredentialHistory from '../components/CredentialHistory';
+import DebugConsole from '../components/DebugConsole';
 import '../styles/MetaSetup.css';
 
 export default function MetaSetup() {
@@ -10,6 +11,7 @@ export default function MetaSetup() {
     const [formData, setFormData] = React.useState({});
     const [historyOpen, setHistoryOpen] = React.useState(false);
     const [historyField, setHistoryField] = React.useState(null);
+    const [debugLogs, setDebugLogs] = React.useState([]);
 
     React.useEffect(() => {
         if (config) {
@@ -17,24 +19,59 @@ export default function MetaSetup() {
         }
     }, [config]);
 
-    const handleSave = (e) => {
-        e.preventDefault();
-        saveConfig(formData);
+    const addLog = (type, method, endpoint, data, message) => {
+        const log = {
+            type,
+            method,
+            endpoint,
+            data,
+            message,
+            timestamp: new Date().toISOString()
+        };
+        setDebugLogs(prev => [...prev, log]);
     };
 
-    const handleTest = () => {
-        testMessage({
+    const clearLogs = () => {
+        setDebugLogs([]);
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        addLog('request', 'POST', '/api/meta/config', formData, 'Guardando configuración...');
+
+        try {
+            const response = await saveConfig(formData);
+            addLog('response', 'POST', '/api/meta/config', response, 'Configuración guardada exitosamente');
+            addLog('success', 'SAVE', '/api/meta/config', null, '✓ Configuración actualizada en base de datos');
+            toast.success('Configuración guardada exitosamente');
+        } catch (error) {
+            addLog('error', 'POST', '/api/meta/config', { error: error.message }, 'Error al guardar configuración');
+            toast.error(error.message || 'Error al guardar configuración');
+        }
+    };
+
+    const handleTest = async () => {
+        const testData = {
             to: formData.phoneNumber,
             message: '🧪 Test desde Dashboard - ' + new Date().toLocaleString()
-        });
+        };
+        addLog('request', 'POST', '/api/meta/test', testData, 'Enviando mensaje de prueba...');
+        try {
+            await testMessage(testData);
+            addLog('success', 'TEST', '/api/meta/test', null, '✓ Mensaje de prueba enviado');
+        } catch (error) {
+            addLog('error', 'TEST', '/api/meta/test', { error: error.message }, 'Error al enviar mensaje de prueba');
+        }
     };
 
     const copyToClipboard = (text, label) => {
+        addLog('info', 'COPY', '/clipboard', { text, label }, `Copiando ${label} al portapapeles`);
         navigator.clipboard.writeText(text);
         toast.success(`✅ ${label} copiado`);
     };
 
     const openHistory = (fieldKey, fieldLabel) => {
+        addLog('info', 'OPEN', '/history-modal', { fieldKey, fieldLabel }, `Abriendo histórico de ${fieldLabel}`);
         setHistoryField({ key: fieldKey, label: fieldLabel });
         setHistoryOpen(true);
     };
@@ -45,18 +82,20 @@ export default function MetaSetup() {
     };
 
     const handleRestoreValue = (value) => {
-        if (historyField) {
-            // Map API keys to formData keys
-            const keyMap = {
-                'META_JWT_TOKEN': 'jwtToken',
-                'META_NUMBER_ID': 'numberId',
-                'META_BUSINESS_ACCOUNT_ID': 'businessId',
-                'META_VERIFY_TOKEN': 'verifyToken',
-                'META_API_VERSION': 'apiVersion',
-                'PHONE_NUMBER': 'phoneNumber'
-            };
+        if (!historyField) return;
 
-            const formKey = keyMap[historyField.key] || historyField.key;
+        const fieldMap = {
+            'META_JWT_TOKEN': 'jwtToken',
+            'META_NUMBER_ID': 'numberId',
+            'META_BUSINESS_ACCOUNT_ID': 'businessId',
+            'META_VERIFY_TOKEN': 'verifyToken',
+            'META_API_VERSION': 'apiVersion',
+            'PHONE_NUMBER': 'phoneNumber'
+        };
+
+        const formKey = fieldMap[historyField.key];
+        if (formKey) {
+            addLog('success', 'RESTORE', `/history/${historyField.key}`, { field: historyField.label, value }, `✓ Valor restaurado: ${historyField.label}`);
             setFormData({ ...formData, [formKey]: value });
         }
     };
@@ -280,6 +319,8 @@ export default function MetaSetup() {
                     onRestore={handleRestoreValue}
                 />
             )}
+
+            <DebugConsole logs={debugLogs} onClear={clearLogs} />
         </div>
     );
 }
