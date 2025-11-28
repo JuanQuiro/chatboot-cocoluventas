@@ -54,6 +54,16 @@ export default function MetaDiagnostics() {
             check: () => fetch('/api/meta/config').then(r => r.json()).then(d => !!d.businessId)
         },
         {
+            id: 'chatbot',
+            label: 'Número del Chatbot (Emisor) verificado',
+            check: () => fetch('/api/meta/config').then(r => r.json()).then(d => !!d.chatbotNumber)
+        },
+        {
+            id: 'phone',
+            label: 'Número de Prueba (Receptor) configurado',
+            check: () => fetch('/api/meta/config').then(r => r.json()).then(d => !!d.phoneNumber)
+        },
+        {
             id: 'webhook',
             label: 'Webhook URL accesible',
             check: () => Promise.resolve(true) //fetch('/webhooks/whatsapp').then(r => r.ok)

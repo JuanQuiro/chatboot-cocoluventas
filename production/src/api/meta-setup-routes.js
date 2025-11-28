@@ -9,7 +9,7 @@ import path from 'path';
 const setupMetaRoutes = (app, metaConfigService) => {
 
     // GET endpoint - loads from DATABASE first, then falls back to env
-    app.get('/api/meta/config', (req, res) => {
+    app.get('/api/meta/config', async (req, res) => {
         try {
             // Load from database
             const dbConfig = metaConfigService.getAllConfigs();
@@ -24,7 +24,8 @@ const setupMetaRoutes = (app, metaConfigService) => {
                 numberId: dbConfig.META_NUMBER_ID || process.env.META_NUMBER_ID || '',
                 businessId: dbConfig.META_BUSINESS_ACCOUNT_ID || process.env.META_BUSINESS_ACCOUNT_ID || '',
                 apiVersion: dbConfig.META_API_VERSION || process.env.META_API_VERSION || 'v22.0',
-                phoneNumber: dbConfig.PHONE_NUMBER || process.env.PHONE_NUMBER || ''
+                phoneNumber: dbConfig.PHONE_NUMBER || process.env.PHONE_NUMBER || '', // Número receptor (para pruebas)
+                chatbotNumber: dbConfig.CHATBOT_NUMBER || '' // Número emisor (del chatbot) - EDITABLE
             };
 
             res.json(config);
@@ -34,10 +35,30 @@ const setupMetaRoutes = (app, metaConfigService) => {
         }
     });
 
+    // GET endpoint for DEFAULT values from ENV (backup/restore)
+    app.get('/api/meta/config/defaults', (req, res) => {
+        try {
+            const defaults = {
+                jwtToken: process.env.META_JWT_TOKEN || '',
+                numberId: process.env.META_NUMBER_ID || '',
+                businessId: process.env.META_BUSINESS_ACCOUNT_ID || '',
+                verifyToken: process.env.META_VERIFY_TOKEN || '',
+                apiVersion: process.env.META_API_VERSION || 'v18.0',
+                phoneNumber: process.env.PHONE_NUMBER || '',
+                chatbotNumber: process.env.CHATBOT_NUMBER || ''
+            };
+
+            res.json(defaults);
+        } catch (error) {
+            console.error('Error loading default Meta config:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    });
+
     // POST endpoint - saves to DATABASE permanently
     app.post('/api/meta/config', async (req, res) => {
         try {
-            const { jwtToken, numberId, businessId, verifyToken, apiVersion, phoneNumber } = req.body;
+            const { jwtToken, numberId, businessId, verifyToken, apiVersion, phoneNumber, chatbotNumber } = req.body;
 
             // Save to database using the correct method
             if (metaConfigService && typeof metaConfigService.setConfigs === 'function') {
@@ -47,7 +68,8 @@ const setupMetaRoutes = (app, metaConfigService) => {
                     META_BUSINESS_ACCOUNT_ID: businessId || '',
                     META_VERIFY_TOKEN: verifyToken || '',
                     META_API_VERSION: apiVersion || 'v22.0',
-                    PHONE_NUMBER: phoneNumber || ''
+                    PHONE_NUMBER: phoneNumber || '',
+                    CHATBOT_NUMBER: chatbotNumber || ''
                 });
 
                 res.json({ success: true, message: 'Configuración guardada exitosamente en base de datos' });
@@ -75,6 +97,18 @@ const setupMetaRoutes = (app, metaConfigService) => {
                 });
             }
 
+            // Obtener número de teléfono guardado en la configuración
+            const dbConfig = metaConfigService.getAllConfigs();
+            const phoneNumber = to || dbConfig.PHONE_NUMBER || '';
+
+            // Validar que haya un número de destino
+            if (!phoneNumber) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'No phone number configured. Please set a test phone number in Meta Setup.'
+                });
+            }
+
             const url = `https://graph.facebook.com/${version}/${numberId}/messages`;
             const response = await fetch(url, {
                 method: 'POST',
@@ -84,11 +118,11 @@ const setupMetaRoutes = (app, metaConfigService) => {
                 },
                 body: JSON.stringify({
                     messaging_product: 'whatsapp',
-                    to: to || process.env.PHONE_NUMBER,
+                    to: phoneNumber,
                     type: 'text',
                     text: {
                         preview_url: false,
-                        body: message || 'Test message from dashboard'
+                        body: message || '🧪 Test message from Cocolu Dashboard'
                     }
                 })
             });

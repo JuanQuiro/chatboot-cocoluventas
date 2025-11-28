@@ -14,9 +14,9 @@ RUN apk add --no-cache git python3 make g++
 # Copiar package.json de la app integrada en production (donde están TODAS las dependencias)
 COPY production/package*.json ./production/
 
-# Instalar dependencias de producción DESDE /app/production
+# Instalar dependencias de producción
 WORKDIR /app/production
-RUN npm install --omit=dev --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Volver al directorio principal y copiar TODO EL CÓDIGO FUENTE
 WORKDIR /app

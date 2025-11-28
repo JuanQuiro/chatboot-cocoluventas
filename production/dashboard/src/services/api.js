@@ -39,8 +39,16 @@ api.interceptors.response.use(
         httpLogger.logError(error);
 
         if (error.response?.status === 401) {
+            // Remove token first
             localStorage.removeItem('cocolu_token');
-            window.location.href = '/login';
+
+            // Only redirect if we're not already on login page
+            if (window.location.pathname !== '/login') {
+                // Small delay to ensure token is removed
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 100);
+            }
         }
         return Promise.reject(error);
     }

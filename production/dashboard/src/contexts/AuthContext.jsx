@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
      * Verificar si está autenticado
      */
     const isAuthenticated = useCallback(() => {
-        return !!user && !!localStorage.getItem('token');
+        return !!user && !!localStorage.getItem('cocolu_token');
     }, [user]);
 
     /**

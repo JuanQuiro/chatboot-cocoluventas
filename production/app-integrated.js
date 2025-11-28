@@ -6,7 +6,7 @@
 import 'dotenv/config';
 import { createBot, createProvider, createFlow } from '@builderbot/bot';
 import { JsonFileDB as Database } from '@builderbot/database-json';
-import { BaileysProvider } from '@builderbot/provider-baileys';
+import { MetaProvider } from '@builderbot/provider-meta';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -495,7 +495,7 @@ const main = async () => {
                 browser: providerConfig.browser[0]
             });
 
-            mainProvider = createProvider(BaileysProvider, providerConfig);
+            mainProvider = createProvider(MetaProvider, providerConfig);
         }
 
         // ============================================

@@ -18,3 +18,18 @@
 .status-badge { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; font-size: 0.875rem; }
 .status-badge.connected { background: #d1fae5; color: #065f46; }
 .status-badge.disconnected { background: #fee2e2; color: #991b1b; }
+
+/* Meta Redirect Card */
+.meta-redirect-card { max-width: 600px; margin: 2rem auto; padding: 3rem 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); color: white; text-align: center; }
+.meta-icon { font-size: 4rem; margin-bottom: 1rem; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+.meta-redirect-card h2 { font-size: 1.75rem; margin-bottom: 1rem; font-weight: 600; }
+.meta-message { font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; opacity: 0.95; }
+.meta-info { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 8px; backdrop-filter: blur(10px); }
+.meta-info span { font-size: 1rem; }
+.btn-meta-setup { background: white; color: #667eea; border: none; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 600; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); margin-bottom: 2rem; }
+.btn-meta-setup:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); background: #f0f0f0; }
+.meta-features { margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px; text-align: left; }
+.meta-features h3 { font-size: 1.1rem; margin-bottom: 1rem; text-align: center; }
+.meta-features ul { list-style: none; padding: 0; margin: 0; }
+.meta-features li { padding: 0.5rem 0; font-size: 1rem; }

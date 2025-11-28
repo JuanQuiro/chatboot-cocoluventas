@@ -3,8 +3,8 @@ import { useMetaConfig } from '../hooks/useApi';
 import { Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CredentialHistory from '../components/CredentialHistory';
-import DebugConsole from '../components/DebugConsole';
-import { httpLogger } from '../utils/httpLogger';
+// import DebugConsole from '../components/DebugConsole';
+// import { httpLogger } from '../utils/httpLogger';
 import '../styles/MetaSetup.css';
 
 export default function MetaSetup() {
@@ -12,7 +12,7 @@ export default function MetaSetup() {
     const [formData, setFormData] = React.useState({});
     const [historyOpen, setHistoryOpen] = React.useState(false);
     const [historyField, setHistoryField] = React.useState(null);
-    const [debugLogs, setDebugLogs] = React.useState([]);
+    // const [debugLogs, setDebugLogs] = React.useState([]);
 
     React.useEffect(() => {
         if (config) {
@@ -21,41 +21,40 @@ export default function MetaSetup() {
     }, [config]);
 
     // Subscribe to HTTP logger for automatic logging
-    React.useEffect(() => {
-        const unsubscribe = httpLogger.addListener((logEntry) => {
-            setDebugLogs(prev => [...prev, logEntry]);
-        });
-        return unsubscribe;
-    }, []);
-
-    const addLog = (type, method, endpoint, data, message) => {
-        const log = {
-            type,
-            method,
-            endpoint,
-            data,
-            message,
-            timestamp: new Date().toISOString()
-        };
-        setDebugLogs(prev => [...prev, log]);
-    };
-
-    const clearLogs = () => {
-        setDebugLogs([]);
-    };
+    // React.useEffect(() => {
+    //     const unsubscribe = httpLogger.addListener((logEntry) => {
+    //         setDebugLogs(prev => [...prev, logEntry]);
+    //     });
+    //     return unsubscribe;
+    // }, []);
 
     const handleSave = async (e) => {
         e.preventDefault();
-        addLog('request', 'POST', '/api/meta/config', formData, 'Guardando configuración...');
+        // addLog('request', 'POST', '/api/meta/config', formData, 'Guardando configuración...');
 
         try {
             const response = await saveConfig(formData);
-            addLog('response', 'POST', '/api/meta/config', response, 'Configuración guardada exitosamente');
-            addLog('success', 'SAVE', '/api/meta/config', null, '✓ Configuración actualizada en base de datos');
+            // addLog('success', 'SAVE', '/api/meta/config', null, '✓ Configuración actualizada en base de datos');
             toast.success('Configuración guardada exitosamente');
         } catch (error) {
-            addLog('error', 'POST', '/api/meta/config', { error: error.message }, 'Error al guardar configuración');
-            toast.error(error.message || 'Error al guardar configuración');
+            // addLog('error', 'POST', '/api/meta/config', error, 'Error al guardar configuración');
+            toast.error('Error al guardar la configuración');
+        }
+    };
+
+    const handleReset = async () => {
+        if (!window.confirm('¿Estás seguro de restablecer a los valores por defecto del servidor?\n\nEsto restaurará la configuración que funciona correctamente.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/meta/config/defaults');
+            const defaults = await response.json();
+            setFormData(defaults);
+            toast.success('✅ Configuración restablecida a valores por defecto');
+        } catch (error) {
+            console.error('Error loading defaults:', error);
+            toast.error('Error al cargar valores por defecto');
         }
     };
 
@@ -64,23 +63,23 @@ export default function MetaSetup() {
             to: formData.phoneNumber,
             message: '🧪 Test desde Dashboard - ' + new Date().toLocaleString()
         };
-        addLog('request', 'POST', '/api/meta/test', testData, 'Enviando mensaje de prueba...');
+        // addLog('request', 'POST', '/api/meta/test', testData, 'Enviando mensaje de prueba...');
         try {
             await testMessage(testData);
-            addLog('success', 'TEST', '/api/meta/test', null, '✓ Mensaje de prueba enviado');
+            // addLog('success', 'TEST', '/api/meta/test', null, '✓ Mensaje de prueba enviado');
         } catch (error) {
-            addLog('error', 'TEST', '/api/meta/test', { error: error.message }, 'Error al enviar mensaje de prueba');
+            // addLog('error', 'TEST', '/api/meta/test', { error: error.message }, 'Error al enviar mensaje de prueba');
         }
     };
 
     const copyToClipboard = (text, label) => {
-        addLog('info', 'COPY', '/clipboard', { text, label }, `Copiando ${label} al portapapeles`);
+        // addLog('info', 'COPY', '/clipboard', { text, label }, `Copiando ${label} al portapapeles`);
         navigator.clipboard.writeText(text);
         toast.success(`✅ ${label} copiado`);
     };
 
     const openHistory = (fieldKey, fieldLabel) => {
-        addLog('info', 'OPEN', '/history-modal', { fieldKey, fieldLabel }, `Abriendo histórico de ${fieldLabel}`);
+        // addLog('info', 'OPEN', '/history-modal', { fieldKey, fieldLabel }, `Abriendo histórico de ${fieldLabel}`);
         setHistoryField({ key: fieldKey, label: fieldLabel });
         setHistoryOpen(true);
     };
@@ -104,7 +103,7 @@ export default function MetaSetup() {
 
         const formKey = fieldMap[historyField.key];
         if (formKey) {
-            addLog('success', 'RESTORE', `/history/${historyField.key}`, { field: historyField.label, value }, `✓ Valor restaurado: ${historyField.label}`);
+            // addLog('success', 'RESTORE', `/history/${historyField.key}`, { field: historyField.label, value }, `✓ Valor restaurado: ${historyField.label}`);
             setFormData({ ...formData, [formKey]: value });
         }
     };
@@ -255,6 +254,20 @@ export default function MetaSetup() {
 
                     <div className="form-row">
                         <div className="form-group">
+                            <label>Verify Token (Webhook)</label>
+                            <input
+                                type="text"
+                                value={formData.verifyToken || ''}
+                                onChange={(e) => setFormData({ ...formData, verifyToken: e.target.value })}
+                                placeholder="cocolu-ventas123"
+                                className="form-input"
+                            />
+                            <span className="help-text">
+                                Token de verificación para el webhook de Meta
+                            </span>
+                        </div>
+
+                        <div className="form-group">
                             <label>API Version</label>
                             <select
                                 value={formData.apiVersion || 'v22.0'}
@@ -268,16 +281,37 @@ export default function MetaSetup() {
                                 <option value="v22.0">v22.0 (Latest)</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div className="form-row">
                         <div className="form-group">
-                            <label>Número de Teléfono (para pruebas)</label>
+                            <label>📞 Número del Chatbot (Emisor)</label>
+                            <input
+                                type="tel"
+                                value={formData.chatbotNumber || ''}
+                                onChange={(e) => setFormData({ ...formData, chatbotNumber: e.target.value })}
+                                placeholder="+58 412-3776165"
+                                className="form-input"
+                            />
+                            <span className="help-text">
+                                Número de WhatsApp Business desde donde el bot ENVÍA mensajes
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>📲 Número de Prueba (Receptor)</label>
                             <input
                                 type="tel"
                                 value={formData.phoneNumber || ''}
                                 onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                placeholder="+1xxxxxxxxxx"
+                                placeholder="+58 424-4155614"
                                 className="form-input"
                             />
+                            <span className="help-text">
+                                Tu número personal donde RECIBES los mensajes de prueba
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -286,8 +320,17 @@ export default function MetaSetup() {
                     <div className="actions-right">
                         <button
                             type="button"
+                            onClick={handleReset}
+                            className="btn-reset"
+                            style={{ marginRight: 'auto', background: '#6c757d' }}
+                        >
+                            <RefreshCw size={16} />
+                            Restablecer
+                        </button>
+                        <button
+                            type="button"
                             onClick={handleTest}
-                            disabled={!isConfigured || isTesting}
+                            disabled={!config || isTesting}
                             className="btn-test"
                         >
                             <TestTube size={16} />
@@ -329,7 +372,7 @@ export default function MetaSetup() {
                 />
             )}
 
-            <DebugConsole logs={debugLogs} onClear={clearLogs} />
+            {/* <DebugConsole logs={debugLogs} onClear={clearLogs} /> */}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { History, RefreshCw, Clock, X } from 'lucide-react';
+import { History, RefreshCw, Clock, X, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import '../styles/CredentialHistory.css';
 
@@ -41,9 +41,14 @@ export default function CredentialHistory({
     const handleRestore = (value) => {
         if (onRestore) {
             onRestore(value);
-            toast.success('Valor restaurado');
+            toast.success('✅ Valor restaurado');
             onClose();
         }
+    };
+
+    const handleCopy = (value) => {
+        navigator.clipboard.writeText(value);
+        toast.success('✅ Valor copiado al portapapeles');
     };
 
     const formatDate = (dateString) => {
@@ -117,15 +122,26 @@ export default function CredentialHistory({
                                         <span className="changed-by">
                                             por {item.changed_by || 'admin'}
                                         </span>
-                                        {index !== 0 && (
+                                        <div className="history-actions">
                                             <button
-                                                onClick={() => handleRestore(item.value)}
-                                                className="btn-restore"
+                                                onClick={() => handleCopy(item.value)}
+                                                className="btn-copy"
+                                                title="Copiar al portapapeles"
                                             >
-                                                <RefreshCw size={14} />
-                                                Restaurar
+                                                <Copy size={14} />
+                                                Copiar
                                             </button>
-                                        )}
+                                            {index !== 0 && (
+                                                <button
+                                                    onClick={() => handleRestore(item.value)}
+                                                    className="btn-restore"
+                                                    title="Restaurar este valor"
+                                                >
+                                                    <RefreshCw size={14} />
+                                                    Restaurar
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

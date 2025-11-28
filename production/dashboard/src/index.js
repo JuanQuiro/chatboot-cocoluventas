@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './force-light.css';
 import './index.css';
 import './styles/themes.css';
 import './styles/typography.css';
