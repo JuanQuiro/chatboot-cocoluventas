@@ -1,0 +1,117 @@
+/* SaleProgress.css - Estilos para indicador de progreso */
+
+.sale-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+}
+
+.sp-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.sp-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    background: #f9fafb;
+    transition: all 0.2s;
+    cursor: default;
+}
+
+.sp-step.current {
+    background: #eef2ff;
+    border: 2px solid #6366f1;
+}
+
+.sp-step.complete {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.sp-step-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: white;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.sp-step.current .sp-step-icon {
+    background: #6366f1;
+    color: white;
+}
+
+.sp-step.complete .sp-step-icon {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+.sp-step-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sp-step.complete .sp-step-label {
+    color: white;
+}
+
+/* Connector */
+.sp-connector {
+    width: 40px;
+    height: 3px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 4px;
+}
+
+.sp-connector-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+/* Summary */
+.sp-summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.sp-completed {
+    font-weight: 700;
+    color: #6366f1;
+    font-size: 18px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sale-progress {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .sp-step-label {
+        display: none;
+    }
+
+    .sp-connector {
+        width: 24px;
+    }
+}

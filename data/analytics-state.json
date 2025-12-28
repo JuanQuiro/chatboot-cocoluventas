@@ -1,0 +1,59 @@
+{
+  "metrics": {
+    "totalMessages": 0,
+    "incomingMessages": 0,
+    "outgoingMessages": 0,
+    "uniqueUsers": [],
+    "averageResponseTime": 0,
+    "responseTimes": [],
+    "totalConversations": 0,
+    "completedOrders": 0,
+    "abandonedCarts": 0,
+    "conversionRate": 0,
+    "supportTickets": 0,
+    "resolvedTickets": 0,
+    "averageResolutionTime": 0,
+    "productViews": [],
+    "productSearches": [],
+    "popularProducts": [],
+    "hourlyMetrics": {
+      "_type": "Map",
+      "value": []
+    },
+    "dailyMetrics": {
+      "_type": "Map",
+      "value": []
+    },
+    "messagesByHour": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "activeUsers": [],
+    "totalRevenue": 0,
+    "averageOrderValue": 0
+  },
+  "events": [],
+  "timestamp": "2025-11-04T09:23:16.504Z"
+}

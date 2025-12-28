@@ -1,0 +1,305 @@
+/* ShoppingCart.css - Premium Refactor */
+
+/* Empty Cart State */
+.empty-cart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    gap: 12px;
+    min-height: 220px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    background-color: #f9fafb;
+    /* Light gray background */
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.empty-cart:hover {
+    border-color: var(--primary-light);
+    background-color: #f3f4f6;
+}
+
+.empty-cart p {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.empty-cart span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Cart Items Container */
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* PREMIUM CART ITEM - Grid Layout */
+.cart-card-premium {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    /* Name/Meta | Controls | Total */
+    grid-template-rows: auto auto;
+    /* Row 1: Main Info, Row 2: Notes/Extras */
+    gap: 12px;
+    align-items: center;
+    /* Vertically align items */
+
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    /* For smooth corners */
+}
+
+.cart-card-premium:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+/* Column 1: Product Info (Name, Price, SKU) */
+.card-info-col {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+    /* Prevent text overflow break */
+}
+
+.item-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+.price-unit-tag {
+    cursor: pointer;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.price-unit-tag:hover {
+    background: #e5e7eb;
+    color: var(--primary);
+}
+
+.discount-tag {
+    color: #059669;
+    font-weight: 600;
+    font-size: 0.75rem;
+    background: #ecfdf5;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+/* Column 2: Quantity Stepper */
+.card-stepper-col {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+}
+
+.qty-stepper {
+    display: flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.qty-stepper:focus-within {
+    border-color: var(--primary-light);
+    background: white;
+}
+
+.stepper-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.stepper-btn:hover {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.stepper-btn:active {
+    transform: scale(0.95);
+}
+
+.stepper-value {
+    width: 40px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    padding: 0;
+    margin: 0;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.stepper-value::-webkit-inner-spin-button,
+.stepper-value::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    /* Fix: Standard property */
+}
+
+/* Column 3: Total & Actions */
+.card-total-col {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 80px;
+}
+
+.item-total-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+}
+
+.item-actions-row {
+    display: flex;
+    gap: 4px;
+    opacity: 0.4;
+    /* Fade out actions when not interacting */
+    transition: opacity 0.2s;
+}
+
+.cart-card-premium:hover .item-actions-row {
+    opacity: 1;
+    /* Show fully on hover */
+}
+
+.action-icon-btn {
+    padding: 4px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+    background: #f3f4f6;
+    color: var(--text-primary);
+}
+
+.action-icon-btn.danger:hover {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+/* Row 2: Notes (Spans full width if present) */
+.card-notes-row {
+    grid-column: 1 / -1;
+    border-top: 1px dashed var(--border-light);
+    margin-top: 4px;
+    padding-top: 8px;
+}
+
+.note-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.note-input-minimal {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    outline: none;
+    padding: 0;
+}
+
+.note-input-minimal::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+
+
+/* Smart Input (Price Editing) */
+.smart-input-compact {
+    width: 70px;
+    padding: 2px 4px;
+    font-size: 0.9rem;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+    text-align: right;
+}
+
+/* Status Badges */
+.manual-tag {
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

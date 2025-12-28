@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Rust API - Ultra-ligero
+  rust-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.hybrid-optimized
+      target: rust-builder
+    image: cocolu-rust-api:latest
+    container_name: cocolu-rust-api
+    ports:
+      - "3009:3009"
+    environment:
+      - API_PORT=3009
+      - AUTH_TOKEN=${AUTH_TOKEN:-cocolu_secret_token_2025}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3009/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - cocolu-network
+
+  # Node Flows - Flujos de conversación
+  node-flows:
+    build:
+      context: .
+      dockerfile: Dockerfile.hybrid-optimized
+      target: node-builder
+    image: cocolu-node-flows:latest
+    container_name: cocolu-node-flows
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+      - API_PORT=3009
+      - BOT_ADAPTER=${BOT_ADAPTER:-baileys}
+      - META_ACCESS_TOKEN=${META_ACCESS_TOKEN}
+      - META_PHONE_NUMBER_ID=${META_PHONE_NUMBER_ID}
+      - META_VERIFY_TOKEN=${META_VERIFY_TOKEN}
+    volumes:
+      - ./database:/app/database
+      - ./bot_sessions:/app/bot_sessions
+    depends_on:
+      - rust-api
+    restart: unless-stopped
+    networks:
+      - cocolu-network
+
+  # Nginx - Reverse proxy + Dashboard estático
+  nginx:
+    image: nginx:alpine
+    container_name: cocolu-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./dashboard/build:/usr/share/nginx/html:ro
+      - ./nginx/hybrid.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - rust-api
+      - node-flows
+    restart: unless-stopped
+    networks:
+      - cocolu-network
+
+networks:
+  cocolu-network:
+    driver: bridge
+

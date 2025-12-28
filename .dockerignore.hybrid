@@ -1,0 +1,91 @@
+# Archivos de desarrollo
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Rust builds (se compilan en Docker)
+**/target/
+*.rlib
+*.rmeta
+*.d
+Cargo.lock
+
+# Node
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+logs/
+**/*.log
+
+# Catálogos y archivos pesados
+catalogo-noviembre/
+presupuiestos/
+public/*.pdf
+public/catalogo*
+
+# Pruebas y desarrollo
+primera-prueba-flujo-chatboot/
+segunda-prueba-flujo/
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Sessions y tokens
+*_sessions/
+tokens/
+bot_principal_sessions/
+*.auth.json
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Base de datos local
+database/
+*.json.tmp
+
+# Documentación (opcional - comentar si quieres incluir)
+docs/
+*.md
+!README.md
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+*.backup
+
+# QR y archivos temporales
+bot.qr.png
+QR-WhatsApp.png
+QR-WhatsApp.html
+pairing-code.txt
+
+# TypeScript (no necesario para producción)
+src-ts/
+*.ts
+!*.d.ts
+
+# Legacy
+legacy/
+
+# DashOffice Rust completo (solo necesitamos src-rs-performance)
+dashoffice-rust/
+
+# Scripts de desarrollo
+scripts/
+!scripts/optimize-for-deployment.sh
+
+# Configuración local
+.env
+.env.local
+.env.*.local
+

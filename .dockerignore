@@ -1,0 +1,92 @@
+# ================================
+# DOCKERIGNORE OPTIMIZADO
+# Reduce el contexto de build para máxima velocidad
+# ================================
+
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Testing
+coverage
+.nyc_output
+*.test.js
+*.spec.js
+__tests__
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.project
+.settings
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Database
+database
+*.sqlite
+*.db
+
+# Build artifacts
+dist
+build
+.cache
+.parcel-cache
+.next
+.nuxt
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+!README.production.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+.circleci
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Dashboard development files
+dashboard/node_modules
+dashboard/build
+dashboard/coverage
+dashboard/.env.local
+
+# Archivos innecesarios
+*.zip
+*.tar
+*.gz
+*.rar

@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model abonos {
+  id                Int       @id @default(autoincrement())
+  pedido_id         Int
+  cliente_id        Int?
+  monto_abono_usd   Float?    @default(0)
+  monto_abono_ves   Float?    @default(0)
+  tasa_bcv          Float?    @default(36.50)
+  metodo_pago_abono String
+  referencia_pago   String?
+  tipo_abono        String?   @default("simple")
+  fecha_abono       DateTime? @default(now())
+  fecha_vencimiento DateTime?
+  estado_abono      String?   @default("confirmado")
+  comentarios       String?
+  created_at        DateTime? @default(now())
+  updated_at        DateTime? @default(now())
+  clientes          clientes? @relation(fields: [cliente_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pedidos           pedidos   @relation(fields: [pedido_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([fecha_abono], map: "idx_abonos_fecha")
+  @@index([cliente_id], map: "idx_abonos_cliente")
+  @@index([pedido_id], map: "idx_abonos_pedido")
+}
+
+model categorias_producto {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique(map: "sqlite_autoindex_categorias_producto_1")
+  descripcion String?
+  activo      Int?        @default(1)
+  created_at  DateTime?   @default(now())
+  productos   productos[]
+}
+
+model clientes {
+  id         Int       @id @default(autoincrement())
+  cedula     String    @unique(map: "sqlite_autoindex_clientes_1")
+  nombre     String
+  apellido   String
+  telefono   String?
+  email      String?
+  direccion  String?
+  activo     Int?      @default(1)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  abonos     abonos[]
+  pedidos    pedidos[]
+
+  @@index([telefono], map: "idx_clientes_telefono")
+  @@index([cedula], map: "idx_clientes_cedula")
+}
+
+model detalles_pedido {
+  id                  Int        @id @default(autoincrement())
+  pedido_id           Int
+  producto_id         Int?
+  cantidad            Int        @default(1)
+  precio_unitario_usd Float      @default(0)
+  nombre_producto     String
+  sku_producto        String?
+  created_at          DateTime?  @default(now())
+  productos           productos? @relation(fields: [producto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pedidos             pedidos    @relation(fields: [pedido_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([producto_id], map: "idx_detalles_producto")
+  @@index([pedido_id], map: "idx_detalles_pedido")
+}
+
+model meta_config {
+  id         Int       @id @default(autoincrement())
+  key        String    @unique(map: "sqlite_autoindex_meta_config_1")
+  value      String?
+  updated_at DateTime? @default(now())
+
+  @@index([key], map: "idx_meta_config_key")
+}
+
+model meta_config_history {
+  id         Int       @id @default(autoincrement())
+  key        String
+  value      String?
+  changed_by String?   @default("admin")
+  changed_at DateTime? @default(now())
+
+  @@index([changed_at], map: "idx_meta_config_history_changed_at")
+  @@index([key], map: "idx_meta_config_history_key")
+}
+
+model metodos_pago {
+  id         Int       @id @default(autoincrement())
+  nombre     String    @unique(map: "sqlite_autoindex_metodos_pago_1")
+  tipo       String
+  activo     Int?      @default(1)
+  created_at DateTime? @default(now())
+}
+
+model movimientos_stock {
+  id               Int       @id @default(autoincrement())
+  producto_id      Int
+  tipo_movimiento  String
+  cantidad         Int
+  stock_anterior   Int
+  stock_nuevo      Int
+  pedido_id        Int?
+  comentario       String?
+  fecha_movimiento DateTime? @default(now())
+  pedidos          pedidos?  @relation(fields: [pedido_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  productos        productos @relation(fields: [producto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([fecha_movimiento], map: "idx_movimientos_fecha")
+  @@index([producto_id], map: "idx_movimientos_producto")
+}
+
+model pedidos {
+  id                    Int                 @id @default(autoincrement())
+  cliente_id            Int?
+  cliente_cedula        String?
+  cliente_nombre        String
+  cliente_apellido      String
+  cliente_telefono      String?
+  cliente_email         String?
+  cliente_direccion     String?
+  subtotal_usd          Float               @default(0)
+  monto_descuento_usd   Float?              @default(0)
+  monto_iva_usd         Float?              @default(0)
+  monto_delivery_usd    Float?              @default(0)
+  total_usd             Float               @default(0)
+  aplica_iva            Int?                @default(0)
+  metodo_pago           String?             @default("efectivo")
+  referencia_pago       String?
+  es_abono              Int?                @default(0)
+  tipo_pago_abono       String?
+  metodo_pago_abono     String?
+  monto_abono_simple    Float?              @default(0)
+  monto_abono_usd       Float?              @default(0)
+  monto_abono_ves       Float?              @default(0)
+  total_abono_usd       Float?              @default(0)
+  fecha_vencimiento     DateTime?
+  es_pago_mixto         Int?                @default(0)
+  monto_mixto_usd       Float?              @default(0)
+  monto_mixto_ves       Float?              @default(0)
+  metodo_pago_mixto_usd String?
+  metodo_pago_mixto_ves String?
+  referencia_mixto_usd  String?
+  referencia_mixto_ves  String?
+  tasa_bcv              Float?              @default(36.50)
+  estado_entrega        String?             @default("pendiente")
+  comentarios_generales String?
+  comentarios_descuento String?
+  vendedor_id           Int?
+  fecha_pedido          DateTime?           @default(now())
+  fecha_anulacion       DateTime?
+  motivo_anulacion      String?
+  created_at            DateTime?           @default(now())
+  updated_at            DateTime?           @default(now())
+  abonos                abonos[]
+  detalles_pedido       detalles_pedido[]
+  movimientos_stock     movimientos_stock[]
+  sellers               sellers?            @relation(fields: [vendedor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  clientes              clientes?           @relation(fields: [cliente_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([fecha_pedido], map: "idx_pedidos_fecha")
+  @@index([estado_entrega], map: "idx_pedidos_estado")
+  @@index([cliente_id], map: "idx_pedidos_cliente")
+}
+
+model productos {
+  id                  Int                  @id @default(autoincrement())
+  sku                 String?              @unique(map: "sqlite_autoindex_productos_1")
+  nombre              String
+  descripcion         String?
+  precio_usd          Float                @default(0)
+  stock_actual        Int?                 @default(0)
+  stock_minimo        Int?                 @default(0)
+  stock_maximo        Int?                 @default(1000)
+  categoria_id        Int?                 @default(1)
+  activo              Int?                 @default(1)
+  created_at          DateTime?            @default(now())
+  updated_at          DateTime?            @default(now())
+  detalles_pedido     detalles_pedido[]
+  movimientos_stock   movimientos_stock[]
+  categorias_producto categorias_producto? @relation(fields: [categoria_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([categoria_id], map: "idx_productos_categoria")
+  @@index([nombre], map: "idx_productos_nombre")
+  @@index([sku], map: "idx_productos_sku")
+}
+
+model seller_assignments {
+  id          Int       @id @default(autoincrement())
+  user_id     String
+  seller_id   Int
+  status      String?   @default("active")
+  assigned_at DateTime? @default(now())
+  closed_at   DateTime?
+  notes       String?
+  sellers     sellers   @relation(fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([status], map: "idx_assignments_status")
+  @@index([seller_id], map: "idx_assignments_seller")
+  @@index([user_id], map: "idx_assignments_user")
+}
+
+model sellers {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  email              String               @unique(map: "sqlite_autoindex_sellers_1")
+  phone              String?
+  password           String?
+  active             Int?                 @default(1)
+  status             String?              @default("offline")
+  specialty          String?              @default("general")
+  max_clients        Int?                 @default(50)
+  current_clients    Int?                 @default(0)
+  rating             Float?               @default(5.0)
+  work_schedule      String?
+  days_off           String?
+  created_at         DateTime?            @default(now())
+  updated_at         DateTime?            @default(now())
+  pedidos            pedidos[]
+  seller_assignments seller_assignments[]
+}
+
+model tasa_cambio {
+  id         Int       @id @default(autoincrement())
+  fecha      DateTime  @unique(map: "sqlite_autoindex_tasa_cambio_1")
+  tasa_bcv   Float
+  created_at DateTime? @default(now())
+
+  @@index([fecha], map: "idx_tasa_fecha")
+}
+
+model users {
+  id            String    @id
+  email         String    @unique(map: "sqlite_autoindex_users_2")
+  password_hash String
+  name          String
+  role          String?   @default("user")
+  active        Int?      @default(1)
+  created_at    DateTime? @default(now())
+}

@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # MongoDB Development
+  mongodb-dev:
+    image: mongo:7.0
+    container_name: cocolu-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev_password
+      MONGO_INITDB_DATABASE: cocolu-ventas-dev
+    volumes:
+      - mongodb-dev-data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - cocolu-network
+
+  # Redis Development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: cocolu-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - cocolu-network
+
+  # API Development
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cocolu-api-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:dev_password@mongodb-dev:27017/cocolu-ventas-dev?authSource=admin
+      - REDIS_URL=redis://redis-dev:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb-dev
+      - redis-dev
+    networks:
+      - cocolu-network
+    command: npm run dev
+
+  # Dashboard Development
+  dashboard-dev:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile.dev
+    container_name: cocolu-dashboard-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_ENV=development
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    networks:
+      - cocolu-network
+    command: npm start
+
+volumes:
+  mongodb-dev-data:
+  redis-dev-data:
+
+networks:
+  cocolu-network:
+    driver: bridge

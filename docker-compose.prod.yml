@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  # MongoDB Production (Replica Set)
+  mongodb-primary:
+    image: mongo:7.0
+    container_name: cocolu-mongodb-primary
+    restart: always
+    command: mongod --replSet rs0 --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongodb-primary-data:/data/db
+      - mongodb-backup:/backup
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: test $$(echo "rs.status().ok || rs.initiate().ok" | mongosh -u $MONGO_USER -p $MONGO_PASSWORD --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+
+  # Redis Production (with persistence)
+  redis-prod:
+    image: redis:7-alpine
+    container_name: cocolu-redis-prod
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-prod-data:/data
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # API Production (múltiples replicas)
+  api-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    restart: always
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb-primary:27017/cocolu-ventas-prod?authSource=admin&replicaSet=rs0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis-prod:6379
+      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs:rw
+      - ./uploads:/app/uploads:rw
+    depends_on:
+      mongodb-primary:
+        condition: service_healthy
+      redis-prod:
+        condition: service_healthy
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Dashboard Production
+  dashboard-prod:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=https://api.cocolu-ventas.com
+        - REACT_APP_ENV=production
+    restart: always
+    deploy:
+      replicas: 2
+    networks:
+      - cocolu-network
+
+  # Nginx Load Balancer
+  nginx-prod:
+    image: nginx:alpine
+    container_name: cocolu-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/production.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./nginx/cache:/var/cache/nginx:rw
+    depends_on:
+      - api-prod
+      - dashboard-prod
+    networks:
+      - cocolu-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cocolu-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - cocolu-network
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cocolu-grafana
+    restart: always
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - cocolu-network
+
+volumes:
+  mongodb-primary-data:
+  mongodb-backup:
+  redis-prod-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  cocolu-network:
+    driver: bridge

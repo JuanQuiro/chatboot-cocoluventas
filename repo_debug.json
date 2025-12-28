@@ -1,0 +1,32 @@
+{
+  "cliente_id": 1,
+  "cliente_nombre": "alberto",
+  "cliente_apellido": "quiroz",
+  "cliente_cedula": "30391154",
+  "cliente_telefono": "04244374545",
+  "cliente_email": "",
+  "cliente_direccion": "",
+  "productos": [
+    {
+      "producto_id": 11,
+      "cantidad": 10,
+      "precio_unitario": 50,
+      "nombre": "manzana",
+      "es_manual": false,
+      "nombre_manual": null
+    }
+  ],
+  "total_usd": 510.4,
+  "subtotal": 500,
+  "descuento_total": 60,
+  "impuesto_total": 70.4,
+  "tipo_pago": "mixto",
+  "metodo_pago": "efectivo",
+  "es_pago_mixto": false,
+  "monto_mixto_usd": 5,
+  "monto_mixto_ves": 122,
+  "monto_recibido_usd": 5,
+  "monto_recibido_ves": 122,
+  "tasa_cambio": 36.5,
+  "comentarios_generales": "122"
+}

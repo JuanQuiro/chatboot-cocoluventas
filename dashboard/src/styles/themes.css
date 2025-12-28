@@ -1,0 +1,490 @@
+/**
+ * Theme Styles
+ * CSS Variables y estilos para todos los temas
+ */
+
+/* Variables globales por defecto (Light theme) */
+:root {
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-surfaceHover: #f3f4f6;
+  --color-text: #111827;
+  --color-textSecondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Theme Light */
+.theme-light {
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-surfaceHover: #f3f4f6;
+  --color-text: #111827;
+  --color-textSecondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Theme Dark */
+.theme-dark {
+  --color-primary: #60a5fa;
+  --color-secondary: #a78bfa;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #22d3ee;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surfaceHover: #334155;
+  --color-text: #f1f5f9;
+  --color-textSecondary: #94a3b8;
+  --color-border: #334155;
+  --color-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Theme Ocean */
+.theme-ocean {
+  --color-primary: #0ea5e9;
+  --color-secondary: #06b6d4;
+  --color-success: #14b8a6;
+  --color-warning: #f59e0b;
+  --color-danger: #f43f5e;
+  --color-info: #0891b2;
+  --color-background: #f0f9ff;
+  --color-surface: #e0f2fe;
+  --color-surfaceHover: #bae6fd;
+  --color-text: #0c4a6e;
+  --color-textSecondary: #075985;
+  --color-border: #7dd3fc;
+  --color-shadow: rgba(14, 165, 233, 0.2);
+}
+
+/* Theme Purple */
+.theme-purple {
+  --color-primary: #a855f7;
+  --color-secondary: #d946ef;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-background: #faf5ff;
+  --color-surface: #f3e8ff;
+  --color-surfaceHover: #e9d5ff;
+  --color-text: #581c87;
+  --color-textSecondary: #7c3aed;
+  --color-border: #d8b4fe;
+  --color-shadow: rgba(168, 85, 247, 0.2);
+}
+
+/* Theme Forest */
+.theme-forest {
+  --color-primary: #22c55e;
+  --color-secondary: #84cc16;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-background: #f0fdf4;
+  --color-surface: #dcfce7;
+  --color-surfaceHover: #bbf7d0;
+  --color-text: #14532d;
+  --color-textSecondary: #166534;
+  --color-border: #86efac;
+  --color-shadow: rgba(34, 197, 94, 0.2);
+}
+
+/* Theme Sunset */
+.theme-sunset {
+  --color-primary: #f97316;
+  --color-secondary: #fb923c;
+  --color-success: #10b981;
+  --color-warning: #eab308;
+  --color-danger: #dc2626;
+  --color-info: #06b6d4;
+  --color-background: #fff7ed;
+  --color-surface: #ffedd5;
+  --color-surfaceHover: #fed7aa;
+  --color-text: #7c2d12;
+  --color-textSecondary: #9a3412;
+  --color-border: #fdba74;
+  --color-shadow: rgba(249, 115, 22, 0.2);
+}
+
+/* Theme Midnight */
+.theme-midnight {
+  --color-primary: #6366f1;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-background: #0c0a09;
+  --color-surface: #1c1917;
+  --color-surfaceHover: #292524;
+  --color-text: #fafaf9;
+  --color-textSecondary: #a8a29e;
+  --color-border: #44403c;
+  --color-shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* Theme Rose */
+.theme-rose {
+  --color-primary: #f43f5e;
+  --color-secondary: #ec4899;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-info: #06b6d4;
+  --color-background: #fff1f2;
+  --color-surface: #ffe4e6;
+  --color-surfaceHover: #fecdd3;
+  --color-text: #881337;
+  --color-textSecondary: #9f1239;
+  --color-border: #fda4af;
+  --color-shadow: rgba(244, 63, 94, 0.2);
+}
+
+/* Aplicar colores del tema al body y elementos principales */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Clases utilitarias para usar con temas */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-success { background-color: var(--color-success); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-danger { background-color: var(--color-danger); }
+.bg-info { background-color: var(--color-info); }
+.bg-background { background-color: var(--color-background); }
+.bg-surface { background-color: var(--color-surface); }
+.bg-surfaceHover { background-color: var(--color-surfaceHover); }
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+.text-info { color: var(--color-info); }
+.text-main { color: var(--color-text); }
+.text-muted { color: var(--color-textSecondary); }
+
+.border-color { border-color: var(--color-border); }
+
+/* Hover effects con tema */
+.hover-surface:hover {
+  background-color: var(--color-surfaceHover);
+}
+
+/* Transiciones suaves para cambios de tema */
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease;
+}
+
+/* Scrollbar con tema */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-textSecondary);
+}
+
+/* Dark theme específico para inputs y formularios */
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.theme-dark input:focus,
+.theme-dark textarea:focus,
+.theme-dark select:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-surfaceHover);
+}
+
+.theme-midnight input,
+.theme-midnight textarea,
+.theme-midnight select {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.theme-midnight input:focus,
+.theme-midnight textarea:focus,
+.theme-midnight select:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-surfaceHover);
+}
+
+/* Sombras adaptativas */
+.shadow-theme {
+  box-shadow: 0 4px 6px -1px var(--color-shadow);
+}
+
+.shadow-theme-lg {
+  box-shadow: 0 10px 15px -3px var(--color-shadow);
+}
+
+/* Cards con tema */
+.card-theme {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.card-theme:hover {
+  background-color: var(--color-surfaceHover);
+  box-shadow: 0 10px 15px -3px var(--color-shadow);
+}
+
+/* Botones con tema */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+
+/* Links con tema */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* Efectos premium adicionales */
+.card-premium {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px var(--color-shadow);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 48px var(--color-shadow);
+  border-color: var(--color-primary);
+}
+
+/* Gradientes premium */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-primary) 100%);
+}
+
+.gradient-warning {
+  background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-danger) 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism adaptativo */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px var(--color-shadow);
+}
+
+/* Botones premium mejorados */
+.btn-premium {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px var(--color-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+.btn-premium:active {
+  transform: translateY(0);
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-premium:hover::before {
+  left: 100%;
+}
+
+/* Animaciones premium */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-surfaceHover) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Badges premium */
+.badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+/* Input premium */
+input.input-premium,
+textarea.input-premium,
+select.input-premium {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.875rem 1.25rem;
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+input.input-premium:focus,
+textarea.input-premium:focus,
+select.input-premium:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  background: var(--color-surfaceHover);
+}
+
+/* Toggle premium */
+.toggle-premium {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  background: var(--color-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-premium.active {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.toggle-premium::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-premium.active::after {
+  left: 32px;
+}

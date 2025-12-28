@@ -1,0 +1,237 @@
+/* FloatingSummary.css - Estilos para resumen flotante */
+
+.floating-summary {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 0;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-bottom: none;
+}
+
+/* Progress Bar */
+.fs-progress-bar {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+}
+
+.fs-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #10b981 100%);
+    transition: width 0.5s ease-out;
+}
+
+/* Content */
+.fs-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    gap: 24px;
+}
+
+/* Stats */
+.fs-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.fs-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.fs-stat svg {
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.fs-stat span.active {
+    color: #111827;
+    font-weight: 500;
+}
+
+.fs-stat span.active~svg,
+.fs-stat:has(span.active) svg {
+    color: #6366f1;
+}
+
+/* Total Section */
+.fs-total-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.fs-total {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.fs-total svg {
+    color: #6366f1;
+}
+
+.fs-total-amount {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Actions */
+.fs-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.fs-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.fs-btn-scroll {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 12px;
+}
+
+.fs-btn-scroll:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.fs-btn-submit {
+    background: #e5e7eb;
+    color: #9ca3af;
+    min-width: 140px;
+}
+
+.fs-btn-submit.ready {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.fs-btn-submit.ready:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.fs-btn-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+/* Spinner */
+.fs-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: fs-spin 0.7s linear infinite;
+}
+
+@keyframes fs-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Details */
+.fs-details {
+    padding: 0 24px;
+    overflow: hidden;
+    border-top: 1px solid #f3f4f6;
+}
+
+.fs-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 14px;
+    color: #6b7280;
+    border-bottom: 1px dashed #e5e7eb;
+}
+
+.fs-detail-row:last-child {
+    border-bottom: none;
+}
+
+.fs-detail-row.discount span {
+    color: #10b981;
+}
+
+/* Expand Toggle */
+.fs-expand-toggle {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    background: none;
+    border: none;
+    color: #6366f1;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.fs-expand-toggle:hover {
+    background: #f9fafb;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .floating-summary {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .fs-content {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .fs-stats {
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .fs-total-section {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .fs-btn-submit {
+        flex: 1;
+    }
+}

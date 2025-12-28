@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  chatbot:
+    build: .
+    container_name: chatbot-cocolu
+    restart: unless-stopped
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+    networks:
+      - chatbot-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3008/webhook"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  chatbot-network:
+    driver: bridge

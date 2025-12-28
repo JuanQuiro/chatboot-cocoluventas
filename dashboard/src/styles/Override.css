@@ -1,0 +1,457 @@
+/* ========================================
+   CREAR VENTA - POLISHED & ORGANIZED
+   Perfect Alignment & Consistency
+   ======================================== */
+
+/* ===== PAGE ===== */
+.crear-venta-page {
+  min-height: 100vh !important;
+  background: #f3f4f6 !important;
+  padding: 24px 0 48px 0 !important;
+}
+
+.crear-venta-container {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* ===== HEADER ===== */
+div.page-header {
+  text-align: center !important;
+  margin-bottom: 24px !important;
+  padding: 24px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25) !important;
+  color: white !important;
+}
+
+.page-header h1 {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  margin: 0 0 4px 0 !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.page-header p {
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin: 0 !important;
+}
+
+.btn-header-action {
+  margin-top: 12px !important;
+  padding: 8px 16px !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+}
+
+.btn-header-action:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* ===== LAYOUT GRID ===== */
+.venta-form {
+  display: block !important;
+}
+
+.venta-layout-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 380px !important;
+  gap: 20px !important;
+  align-items: start !important;
+}
+
+/* ===== LEFT COLUMN ===== */
+.venta-col-left {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.venta-col-left .form-section {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.venta-col-left .form-section h2,
+.venta-col-left .section-header h2 {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.venta-col-left .section-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+
+/* ===== RIGHT COLUMN ===== */
+.venta-col-right {
+  position: sticky !important;
+  top: 20px !important;
+}
+
+.venta-unified-card {
+  background: white !important;
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+}
+
+/* Sections inside unified card */
+.venta-unified-card .form-section {
+  padding: 16px 20px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.venta-unified-card>div:not(:last-child),
+.venta-unified-card .form-section:not(:last-child) {
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+/* Section headers in unified card */
+.venta-unified-card h2,
+.venta-unified-card .section-header h2 {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  margin: 0 0 12px 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.venta-unified-card .section-header {
+  margin-bottom: 12px !important;
+}
+
+/* ===== CART SECTION ===== */
+.venta-unified-card .cart-actions {
+  display: flex !important;
+  gap: 4px !important;
+}
+
+.cart-empty {
+  text-align: center !important;
+  padding: 32px 16px !important;
+  color: #9ca3af !important;
+}
+
+.cart-empty svg,
+.cart-empty-icon {
+  margin-bottom: 8px !important;
+  opacity: 0.4 !important;
+}
+
+.cart-empty p {
+  font-size: 14px !important;
+  margin: 0 0 4px 0 !important;
+  color: #6b7280 !important;
+}
+
+.cart-empty span {
+  font-size: 12px !important;
+  color: #9ca3af !important;
+}
+
+/* ===== INPUTS ===== */
+.search-input-wrapper {
+  position: relative !important;
+  margin-bottom: 12px !important;
+}
+
+.search-input-wrapper input {
+  width: 100% !important;
+  padding: 11px 14px 11px 40px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  background: #fafafa !important;
+  color: #1f2937 !important;
+  transition: all 0.15s !important;
+}
+
+.search-input-wrapper input:focus {
+  background: white !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08) !important;
+  outline: none !important;
+}
+
+.search-input-wrapper input::placeholder {
+  color: #9ca3af !important;
+}
+
+.search-icon {
+  position: absolute !important;
+  left: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #9ca3af !important;
+  font-size: 16px !important;
+  pointer-events: none !important;
+}
+
+/* ===== CHECKBOXES ===== */
+.venta-unified-card label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 14px !important;
+  color: #374151 !important;
+  padding: 6px 0 !important;
+  cursor: pointer !important;
+}
+
+.venta-unified-card input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: #6366f1 !important;
+}
+
+/* ===== SELECT ===== */
+.venta-unified-card select {
+  width: 100% !important;
+  padding: 10px 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  color: #374151 !important;
+  background: white !important;
+  cursor: pointer !important;
+}
+
+.venta-unified-card select:focus {
+  border-color: #6366f1 !important;
+  outline: none !important;
+}
+
+/* ===== TEXTAREA ===== */
+.venta-unified-card textarea {
+  width: 100% !important;
+  min-height: 70px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  resize: vertical !important;
+  background: #fafafa !important;
+}
+
+.venta-unified-card textarea:focus {
+  background: white !important;
+  border-color: #6366f1 !important;
+  outline: none !important;
+}
+
+/* ===== SALE SUMMARY ===== */
+.sale-summary {
+  background: #f9fafb !important;
+  padding: 16px 20px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.summary-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 13px !important;
+  color: #6b7280 !important;
+  padding: 4px 0 !important;
+}
+
+.summary-row.total {
+  margin-top: 8px !important;
+  padding-top: 10px !important;
+  border-top: 1px dashed #d1d5db !important;
+}
+
+.summary-row.total span:first-child {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+}
+
+.summary-row.total strong {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #6366f1 !important;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.form-actions {
+  padding: 16px 20px !important;
+  background: white !important;
+}
+
+.form-actions button {
+  width: 100% !important;
+  height: 48px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  background: #10b981 !important;
+  color: white !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: background 0.15s !important;
+}
+
+.form-actions button:hover:not(:disabled) {
+  background: #059669 !important;
+}
+
+.form-actions button:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== BUTTONS ===== */
+.btn-secondary,
+button.btn-secondary {
+  background: white !important;
+  color: #6366f1 !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 7px 14px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.15s !important;
+}
+
+.btn-secondary:hover {
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+.action-btn-ghost {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  color: #9ca3af !important;
+  transition: all 0.15s !important;
+}
+
+.action-btn-ghost:hover:not(:disabled) {
+  background: #f3f4f6 !important;
+  color: #6366f1 !important;
+}
+
+.action-btn-ghost:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== QUICK EXAMPLES (Tags) ===== */
+.search-examples,
+.quick-examples {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-top: 8px !important;
+}
+
+.search-examples span,
+.quick-examples button {
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 4px 10px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  color: #6b7280 !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+
+.search-examples span:hover,
+.quick-examples button:hover {
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #6366f1 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .venta-layout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .venta-col-right {
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .crear-venta-page {
+    padding: 16px 0 32px 0 !important;
+  }
+
+  .crear-venta-container {
+    padding: 0 12px !important;
+  }
+
+  .page-header {
+    border-radius: 12px !important;
+    padding: 20px 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .page-header h1 {
+    font-size: 18px !important;
+  }
+
+  .venta-col-left .form-section {
+    padding: 16px !important;
+    border-radius: 10px !important;
+  }
+
+  .venta-unified-card {
+    border-radius: 10px !important;
+  }
+}
