@@ -490,8 +490,11 @@ export function setupEnhancedRoutes(app) {
 
         const orders = await ordersService.getAllOrders();
 
+        // Ensure orders is an array
+        const ordersArray = Array.isArray(orders) ? orders : [];
+
         // Filter orders by date range
-        const filteredOrders = orders.filter(order => {
+        const filteredOrders = ordersArray.filter(order => {
             const orderDate = new Date(order.fecha_pedido);
             return orderDate >= startDate && orderDate <= endDate;
         });
