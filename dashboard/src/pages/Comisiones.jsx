@@ -78,12 +78,15 @@ const Comisiones = () => {
         });
     };
 
-    // Calculate totals
-    const totalCommissions = sellersSummary.reduce((acc, curr) => acc + (curr.total_comision_generada || 0), 0);
-    const totalOrders = sellersSummary.reduce((acc, curr) => acc + (curr.total_pedidos || 0), 0);
+    // Calculate totals - ensure arrays exist
+    const sellersArray = Array.isArray(sellersSummary) ? sellersSummary : [];
+    const manufacturersArray = Array.isArray(manufacturersSummary) ? manufacturersSummary : [];
 
-    const totalProductionCost = manufacturersSummary.reduce((acc, curr) => acc + (curr.total_ganado || 0), 0);
-    const totalPieces = manufacturersSummary.reduce((acc, curr) => acc + (curr.total_piezas || 0), 0);
+    const totalCommissions = sellersArray.reduce((acc, curr) => acc + (curr.total_comision_generada || 0), 0);
+    const totalOrders = sellersArray.reduce((acc, curr) => acc + (curr.total_pedidos || 0), 0);
+
+    const totalProductionCost = manufacturersArray.reduce((acc, curr) => acc + (curr.total_ganado || 0), 0);
+    const totalPieces = manufacturersArray.reduce((acc, curr) => acc + (curr.total_piezas || 0), 0);
 
     return (
         <div className="p-6 space-y-6">
@@ -156,7 +159,7 @@ const Comisiones = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {sellersSummary.map((seller) => (
+                                {sellersArray.map((seller) => (
                                     <tr key={seller.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
@@ -246,7 +249,7 @@ const Comisiones = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {manufacturersSummary.map((manufacturer) => (
+                                {manufacturersArray.map((manufacturer) => (
                                     <tr key={manufacturer.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
