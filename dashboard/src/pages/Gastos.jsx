@@ -7,7 +7,7 @@ import DataTable from '../components/common/DataTable';
 import Modal from '../components/common/Modal';
 import Pagination from '../components/common/Pagination';
 import StatusBadge from '../components/common/StatusBadge';
-import './GestionDeudas.css'; // Reutilizamos estilos
+import './CuotasProgramadas.css'; // Reutilizamos estilos
 
 const Gastos = () => {
     const [expenses, setExpenses] = useState([]);
