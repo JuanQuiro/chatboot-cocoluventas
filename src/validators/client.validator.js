@@ -4,17 +4,19 @@
 
 import { z } from 'zod';
 
-// Venezuelan cedula validation (7-8 digits)
+// Venezuelan cedula validation (flexible)
 const cedulaSchema = z.string()
-    .min(7, 'La cédula debe tener al menos 7 dígitos')
-    .max(8, 'La cédula debe tener máximo 8 dígitos')
+    .min(1, 'La cédula es requerida')
+    .max(15, 'La cédula es demasiado larga')
     .regex(/^\d+$/, 'La cédula solo debe contener números');
 
-// Phone validation (Venezuelan format - more flexible)
+// Phone validation (flexible - accepts any phone starting with 0)
 const phoneSchema = z.string()
-    .regex(/^(04\d{9,10}|0\d{10})$/, 'Formato de teléfono inválido (debe comenzar con 0 y tener 10-11 dígitos)')
+    .regex(/^0\d{7,15}$/, 'Formato de teléfono inválido (debe comenzar con 0 y tener 8-16 dígitos)')
     .optional()
-    .or(z.literal(''));
+    .or(z.literal(''))
+    .or(z.null())
+    .or(z.undefined());
 
 export const createClientSchema = z.object({
     cedula: cedulaSchema,
