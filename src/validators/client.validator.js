@@ -10,9 +10,9 @@ const cedulaSchema = z.string()
     .max(8, 'La cédula debe tener máximo 8 dígitos')
     .regex(/^\d+$/, 'La cédula solo debe contener números');
 
-// Phone validation (Venezuelan format)
+// Phone validation (Venezuelan format - more flexible)
 const phoneSchema = z.string()
-    .regex(/^(0414|0424|0412|0416|0426)\d{7}$/, 'Formato de teléfono inválido')
+    .regex(/^(04\d{9,10}|0\d{10})$/, 'Formato de teléfono inválido (debe comenzar con 0 y tener 10-11 dígitos)')
     .optional()
     .or(z.literal(''));
 
