@@ -27,8 +27,10 @@ export const createClientSchema = z.object({
     telefono: phoneSchema,
     email: z.string()
         .email('Email inválido')
-        .optional()
-        .or(z.literal('')),
+        .or(z.literal(''))
+        .or(z.null())
+        .or(z.undefined())
+        .optional(),
     direccion: z.string()
         .max(500, 'La dirección es demasiado larga')
         .optional()
