@@ -111,13 +111,13 @@ const Reportes = () => {
     const productColumns = [
         { key: 'name', label: 'Producto' },
         { key: 'quantitySold', label: 'Vendidos' },
-        { key: (row) => `$${row.revenue?.toFixed(2) || '0.00'}`, label: 'Ingresos' }
+        { key: 'revenue', label: 'Ingresos', exportValue: (row) => `$${row.revenue?.toFixed(2) || '0.00'}` }
     ];
 
     const clientColumns = [
-        { key: (row) => `${row.nombre || row.name} ${row.apellido || ''}`, label: 'Cliente' },
-        { key: (row) => row.compras_count || row.purchaseCount || '-', label: 'Compras' },
-        { key: (row) => `$${(row.total_compras || row.totalSpent || 0).toFixed(2)}`, label: 'Total Gastado' }
+        { key: 'nombre', label: 'Cliente', exportValue: (row) => `${row.nombre || row.name} ${row.apellido || ''}` },
+        { key: 'compras_count', label: 'Compras', exportValue: (row) => row.compras_count || row.purchaseCount || '-' },
+        { key: 'total_compras', label: 'Total Gastado', exportValue: (row) => `$${(row.total_compras || row.totalSpent || 0).toFixed(2)}` }
     ];
 
     const chartOptions = {
