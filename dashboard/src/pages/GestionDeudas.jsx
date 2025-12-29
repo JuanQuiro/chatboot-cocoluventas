@@ -5,6 +5,7 @@ import SearchInput from '../components/common/SearchInput';
 import StatusBadge from '../components/common/StatusBadge';
 import Modal from '../components/common/Modal';
 import { useToast } from '../components/common/Toast';
+import ExportButton from '../components/common/ExportButton';
 import './GestionDeudas.css';
 
 const GestionDeudas = () => {
@@ -142,6 +143,19 @@ const GestionDeudas = () => {
                     placeholder="Buscar por cliente..."
                     onSearch={setSearchQuery}
                     icon="🔍"
+                />
+                <ExportButton
+                    data={debts}
+                    columns={[
+                        { key: 'clientName', label: 'Cliente' },
+                        { key: (row) => `$${row.totalDebt?.toFixed(2) || '0.00'}`, label: 'Deuda Total' },
+                        { key: (row) => new Date(row.dueDate).toLocaleDateString(), label: 'Vencimiento' },
+                        { key: (row) => getDaysOverdue(row.dueDate) > 30 ? 'Moroso' : getDaysOverdue(row.dueDate) > 0 ? 'Vencido' : 'Pendiente', label: 'Estado' },
+                        { key: (row) => row.hasPlan ? 'Sí' : 'No', label: 'Plan de Pago' }
+                    ]}
+                    filename={`gestion_deudas_${new Date().toISOString().split('T')[0]}`}
+                    title="Gestión de Deudas"
+                    formats={['pdf', 'excel', 'csv']}
                 />
             </div>
 

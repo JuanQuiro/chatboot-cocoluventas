@@ -11,6 +11,7 @@ import ordersService from '../services/orders.service.js';
 import paymentsService from '../services/payments.service.js';
 import inventoryService from '../services/inventory.service.js';
 import sellerPaymentService from '../services/seller-payments.service.js';
+import installmentsService from '../services/installmentsService.js';
 
 // Architecture improvements
 import { asyncHandler } from '../middleware/error-handler.js';
@@ -302,7 +303,60 @@ export function setupEnhancedRoutes(app) {
                 throw new NotFoundError('Client', clientId);
             }
 
-            // 2. Adapt to Order Schema expected by ordersService
+            // 2. Process manual products BEFORE creating sale
+            for (const item of saleData.items) {
+                if (item.es_manual || item.isManual) {
+                    const productCode = item.codigo || item.code || item.sku || `MANUAL-${Date.now()}`;
+                    const productName = item.nombre || item.name || 'Producto Manual';
+                    const quantitySold = item.cantidad || item.quantity || 1;
+                    const initialStock = item.stock_inicial || quantitySold; // Default to quantity sold if not specified
+
+                    try {
+                        // Check if manual product already exists
+                        const existingProduct = await db.get(
+                            'SELECT * FROM productos WHERE codigo = ? OR nombre = ?',
+                            [productCode, productName]
+                        );
+
+                        if (existingProduct) {
+                            // Product exists - verify stock and update
+                            const newStock = (existingProduct.stock || 0) + initialStock - quantitySold;
+                            if (newStock < 0) {
+                                throw new Error(`Stock insuficiente para ${productName}. Disponible: ${existingProduct.stock}, Solicitado: ${quantitySold}`);
+                            }
+
+                            await db.run(
+                                'UPDATE productos SET stock = ? WHERE id = ?',
+                                [newStock, existingProduct.id]
+                            );
+
+                            // Update item to reference existing product
+                            item.producto_id = existingProduct.id;
+                            logger.info(`Manual product ${productName} updated. Stock: ${existingProduct.stock} -> ${newStock}`);
+                        } else {
+                            // Create new manual product
+                            const result = await db.run(`
+                                INSERT INTO productos (nombre, codigo, precio, stock, categoria, es_manual)
+                                VALUES (?, ?, ?, ?, ?, 1)
+                            `, [
+                                productName,
+                                productCode,
+                                item.precio_unitario || item.price || 0,
+                                initialStock - quantitySold, // Remaining stock after this sale
+                                'Manual'
+                            ]);
+
+                            item.producto_id = result.lastID;
+                            logger.info(`Manual product ${productName} created with ID ${result.lastID}. Initial stock: ${initialStock}, Sold: ${quantitySold}, Remaining: ${initialStock - quantitySold}`);
+                        }
+                    } catch (error) {
+                        logger.error(`Error processing manual product ${productName}:`, error);
+                        throw error;
+                    }
+                }
+            }
+
+            // 3. Adapt to Order Schema expected by ordersService
             const orderPayload = {
                 cliente_id: client.id,
                 cliente_nombre: client.nombre,
@@ -365,6 +419,38 @@ export function setupEnhancedRoutes(app) {
             };
 
             const newOrder = await ordersService.createOrder(orderPayload);
+
+            // 4. Auto-register income for this sale
+            try {
+                const incomeData = {
+                    concepto: `Venta #${newOrder.id} - ${client.nombre}`,
+                    monto: saleData.total_usd || saleData.total || 0,
+                    fecha: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                    categoria: 'Ventas',
+                    metodo_pago: saleData.paymentMethod || 'efectivo',
+                    referencia: `PEDIDO-${newOrder.id}`,
+                    descripcion: `Ingreso automático por venta. Productos: ${saleData.items.length}`
+                };
+
+                await db.run(`
+                    INSERT INTO ingresos (concepto, monto, fecha, categoria, metodo_pago, referencia, descripcion)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    incomeData.concepto,
+                    incomeData.monto,
+                    incomeData.fecha,
+                    incomeData.categoria,
+                    incomeData.metodo_pago,
+                    incomeData.referencia,
+                    incomeData.descripcion
+                ]);
+
+                logger.info({ orderId: newOrder.id, amount: incomeData.monto }, '💰 Income auto-registered');
+            } catch (incomeError) {
+                // Log but don't fail the sale if income registration fails
+                logger.error('Failed to register income for sale:', incomeError);
+            }
+
             res.status(201).json({ success: true, data: newOrder });
 
         } catch (error) {
@@ -379,11 +465,49 @@ export function setupEnhancedRoutes(app) {
         }
     }));
 
-    // Get Sales by Period
+    // Get Sales by Period - Fixed to return actual data
     app.get('/api/sales/by-period', asyncHandler(async (req, res) => {
         const { period } = req.query;
-        const data = await ordersService.getSalesByPeriod(period);
-        res.json({ success: true, data });
+
+        let startDate, endDate = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        switch (period) {
+            case 'daily':
+                startDate = new Date(today);
+                break;
+            case 'weekly':
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                break;
+            case 'monthly':
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
+                break;
+            default:
+                startDate = new Date(today);
+        }
+
+        const orders = await ordersService.getAllOrders();
+
+        // Filter orders by date range
+        const filteredOrders = orders.filter(order => {
+            const orderDate = new Date(order.fecha_pedido);
+            return orderDate >= startDate && orderDate <= endDate;
+        });
+
+        // Calculate total
+        const total = filteredOrders.reduce((sum, order) => sum + (parseFloat(order.total_usd) || 0), 0);
+
+        res.json({
+            success: true,
+            data: {
+                sales: filteredOrders,
+                total: total,
+                count: filteredOrders.length,
+                period: period
+            }
+        });
     }));
 
     // Duplicate Sale/Order
@@ -976,6 +1100,117 @@ export function setupEnhancedRoutes(app) {
         const { default: commissionsService } = await import('../services/commissions.service.js');
         const result = await commissionsService.updateRate(req.body);
         res.json({ success: true, data: result });
+    }));
+
+    // ============================================
+    // ACCOUNTS RECEIVABLE
+    // ============================================
+
+    app.get('/api/accounts-receivable/stats', asyncHandler(async (req, res) => {
+        // Reuse installment stats for now as it tracks pending payments
+        const result = await installmentsService.getStats();
+        res.json({
+            success: true,
+            data: {
+                totalReceivable: result.data.total_por_cobrar,
+                overdueTotal: result.data.monto_vencido,
+                overdueCount: result.data.cuotas_vencidas,
+                upcomingTotal: result.data.monto_proximo
+            }
+        });
+    }));
+
+    app.get('/api/accounts-receivable', asyncHandler(async (req, res) => {
+        // Return clients with pending installments
+        // This is a simplified version, ideally we group installments by client
+        const filters = { status: 'pendiente', limit: 100 };
+        const result = await installmentsService.getAllInstallments(filters);
+
+        // Group by client
+        const clientsMap = new Map();
+        result.data.forEach(inst => {
+            if (!clientsMap.has(inst.cliente_id)) {
+                clientsMap.set(inst.cliente_id, {
+                    id: inst.cliente_id,
+                    nombre: inst.cliente_nombre,
+                    apellido: inst.cliente_apellido,
+                    telefono: inst.cliente_telefono,
+                    total_debt: 0,
+                    installments_count: 0
+                });
+            }
+            const client = clientsMap.get(inst.cliente_id);
+            client.total_debt += parseFloat(inst.monto_cuota) - parseFloat(inst.monto_pagado || 0);
+            client.installments_count++;
+        });
+
+        res.json({
+            success: true,
+            data: Array.from(clientsMap.values()),
+            meta: { total: clientsMap.size }
+        });
+    }));
+
+    // ============================================
+    // INSTALL MENTS / CUOTAS PROGRAMADAS
+    // ============================================
+
+    // Get all installments with filters
+    app.get('/api/installments', asyncHandler(async (req, res) => {
+        const filters = {
+            status: req.query.status || 'all',
+            cliente_id: req.query.cliente_id,
+            pedido_id: req.query.pedido_id,
+            start_date: req.query.start_date,
+            end_date: req.query.end_date,
+            page: req.query.page || 1,
+            limit: req.query.limit || 50
+        };
+        const result = await installmentsService.getAllInstallments(filters);
+        res.json(result);
+    }));
+
+    // Get installment statistics
+    app.get('/api/installments/stats', asyncHandler(async (req, res) => {
+        const result = await installmentsService.getStats();
+        res.json(result);
+    }));
+
+    // Mark installment as paid
+    app.post('/api/installments/:id/pay', asyncHandler(async (req, res) => {
+        const id = parseInt(req.params.id);
+        const paymentData = {
+            fecha_pago: req.body.fecha_pago,
+            monto_pagado: parseFloat(req.body.monto_pagado),
+            metodo_pago: req.body.metodo_pago,
+            referencia: req.body.referencia,
+            notas: req.body.notas
+        };
+        const result = await installmentsService.markAsPaid(id, paymentData);
+        logger.info({ installmentId: id }, 'Installment marked as paid');
+        res.json(result);
+    }));
+
+    // Get complete payment plan by order ID
+    app.get('/api/installments/plan/:pedidoId', asyncHandler(async (req, res) => {
+        const pedidoId = parseInt(req.params.pedidoId);
+        const result = await installmentsService.getPlanByOrder(pedidoId);
+        res.json(result);
+    }));
+
+    // Create installments for an order (manual creation)
+    app.post('/api/installments/create', asyncHandler(async (req, res) => {
+        const planData = {
+            pedido_id: req.body.pedido_id,
+            cliente_id: req.body.cliente_id,
+            total: parseFloat(req.body.total),
+            cuotas: parseInt(req.body.cuotas),
+            fecha_inicio: req.body.fecha_inicio,
+            frecuencia: req.body.frecuencia || 'monthly'
+        };
+        const result = await installmentsService.createInstallments(planData);
+        logger.info({ pedidoId: planData.pedido_id, cuotas: planData.cuotas }, 'Installments created');
+        res.status(201).json(result);
     }));
 
     logger.info('✅ Enhanced API routes configured');

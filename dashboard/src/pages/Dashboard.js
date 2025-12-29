@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import bcvService from '../services/bcvService';
+import SalesBreakdownModal from '../components/modals/SalesBreakdownModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -12,6 +13,12 @@ const Dashboard = () => {
   const [editingRate, setEditingRate] = useState(false);
   const [newRate, setNewRate] = useState('');
   const [rateLoading, setRateLoading] = useState(false);
+
+  // Sales Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalPeriod, setModalPeriod] = useState('daily');
+  const [modalSales, setModalSales] = useState([]);
+  const [modalTotal, setModalTotal] = useState(0);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -78,6 +85,22 @@ const Dashboard = () => {
     }
   };
 
+  const handleOpenSalesModal = async (period) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3008/api'}/sales/by-period?period=${period}`);
+      const data = await response.json();
+      if (data.success) {
+        setModalSales(data.data.sales || []);
+        setModalTotal(data.data.total || 0);
+        setModalPeriod(period);
+        setModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching sales:', error);
+      alert('Error cargando datos de ventas');
+    }
+  };
+
   if (loading) {
     return <div className="loading">Cargando dashboard...</div>;
   }
@@ -94,7 +117,12 @@ const Dashboard = () => {
 
       {/* --- KPIs FINANCIEROS --- */}
       <div className="metrics-grid" style={{ marginBottom: '20px' }}>
-        <div className="metric-card" style={{ borderColor: '#4caf50' }}>
+        <div
+          className="metric-card clickable-card"
+          style={{ borderColor: '#4caf50', cursor: 'pointer' }}
+          onClick={() => handleOpenSalesModal('daily')}
+          title="Click para ver detalles"
+        >
           <div className="metric-icon">💵</div>
           <div className="metric-content">
             <h3>Ventas Diario (USD)</h3>
@@ -102,7 +130,12 @@ const Dashboard = () => {
             <small>{analytics.daily?.orders || 0} pedidos</small>
           </div>
         </div>
-        <div className="metric-card" style={{ borderColor: '#2196f3' }}>
+        <div
+          className="metric-card clickable-card"
+          style={{ borderColor: '#2196f3', cursor: 'pointer' }}
+          onClick={() => handleOpenSalesModal('weekly')}
+          title="Click para ver detalles"
+        >
           <div className="metric-icon">📅</div>
           <div className="metric-content">
             <h3>Ventas Semanal (USD)</h3>
@@ -110,7 +143,12 @@ const Dashboard = () => {
             <small>Sáb - Vie</small>
           </div>
         </div>
-        <div className="metric-card" style={{ borderColor: '#9c27b0' }}>
+        <div
+          className="metric-card clickable-card"
+          style={{ borderColor: '#9c27b0', cursor: 'pointer' }}
+          onClick={() => handleOpenSalesModal('monthly')}
+          title="Click para ver detalles"
+        >
           <div className="metric-icon">📆</div>
           <div className="metric-content">
             <h3>Ventas Mensual (USD)</h3>
@@ -119,6 +157,15 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Sales Breakdown Modal */}
+      <SalesBreakdownModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        period={modalPeriod}
+        sales={modalSales}
+        total={modalTotal}
+      />
 
       {/* --- TASA BCV EDITABLE --- */}
       <div className="metrics-grid" style={{ marginBottom: '20px' }}>

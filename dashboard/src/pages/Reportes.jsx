@@ -4,6 +4,7 @@ import { salesService } from '../services/salesService';
 import { inventoryService } from '../services/inventoryService';
 import { clientsService } from '../services/clientsService';
 import { useToast } from '../components/common/Toast';
+import ExportButton from '../components/common/ExportButton';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -95,11 +96,29 @@ const Reportes = () => {
         }
     };
 
-    const exportToExcel = () => {
-        toast.info('Exportando reporte...');
-        // TODO: Implement actual export logic with jspdf-autotable or xlsx
-        setTimeout(() => toast.success('Reporte exportado (Simulación)'), 1000);
-    };
+    // Prepare data for exports
+    const salesData = [
+        { metric: 'Ingresos Totales', value: `$${stats.totalRevenue.toFixed(2)}` },
+        { metric: 'Ventas Realizadas', value: stats.totalSales },
+        { metric: 'Promedio por Venta', value: `$${stats.averageTicket.toFixed(2)}` }
+    ];
+
+    const salesColumns = [
+        { key: 'metric', label: 'Métrica' },
+        { key: 'value', label: 'Valor' }
+    ];
+
+    const productColumns = [
+        { key: 'name', label: 'Producto' },
+        { key: 'quantitySold', label: 'Vendidos' },
+        { key: (row) => `$${row.revenue?.toFixed(2) || '0.00'}`, label: 'Ingresos' }
+    ];
+
+    const clientColumns = [
+        { key: (row) => `${row.nombre || row.name} ${row.apellido || ''}`, label: 'Cliente' },
+        { key: (row) => row.compras_count || row.purchaseCount || '-', label: 'Compras' },
+        { key: (row) => `$${(row.total_compras || row.totalSpent || 0).toFixed(2)}`, label: 'Total Gastado' }
+    ];
 
     const chartOptions = {
         responsive: true,
@@ -140,11 +159,15 @@ const Reportes = () => {
                     <h1>📊 Reportes y Analytics</h1>
                     <p>Visión general del negocio en tiempo real</p>
                 </div>
-                {/* 
-                <button onClick={exportToExcel} className="btn-primary">
-                    📄 Exportar PDF
-                </button>
-                */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <ExportButton
+                        data={salesData}
+                        columns={salesColumns}
+                        filename={`ventas_resumen_${new Date().toISOString().split('T')[0]}`}
+                        title="Resumen de Ventas"
+                        formats={['pdf', 'excel', 'csv']}
+                    />
+                </div>
             </div>
 
             {/* Estadísticas Cards */}

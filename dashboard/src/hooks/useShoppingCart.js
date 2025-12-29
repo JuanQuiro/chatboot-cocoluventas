@@ -118,8 +118,17 @@ export const useShoppingCart = () => {
     }, [cart, getItemPrice]);
 
     const clearCart = useCallback(() => {
-        setCart([]);
-    }, []);
+        // Confirmación antes de limpiar
+        if (cart.length === 0) return;
+
+        const confirmed = window.confirm(
+            `🗑️ ¿Está seguro de limpiar el carrito?\n\nSe perderán ${cart.length} producto${cart.length === 1 ? '' : 's'}`
+        );
+
+        if (confirmed) {
+            setCart([]);
+        }
+    }, [cart.length]);
 
     return {
         cart,

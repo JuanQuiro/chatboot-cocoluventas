@@ -7,6 +7,7 @@ import DataTable from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
 import Pagination from '../components/common/Pagination';
 import { Download, DollarSign } from 'lucide-react';
+import ExportButton from '../components/common/ExportButton';
 import './CuentasPorCobrar.css';
 
 const CuentasPorCobrar = () => {
@@ -273,10 +274,19 @@ const CuentasPorCobrar = () => {
           <option value="overdue">Vencidas (+30 días)</option>
         </select>
 
-        <button onClick={handleExport} className="export-btn">
-          <Download size={18} />
-          Exportar CSV
-        </button>
+        <ExportButton
+          data={accounts}
+          columns={[
+            { key: 'clientName', label: 'Cliente' },
+            { key: 'clientPhone', label: 'Teléfono' },
+            { key: 'totalPendingOrders', label: 'Pedidos Pendientes' },
+            { key: (row) => `$${row.totalAmount?.toFixed(2) || '0.00'}`, label: 'Deuda Total' },
+            { key: (row) => `$${row.balance?.toFixed(2) || '0.00'}`, label: 'Saldo Pendiente' }
+          ]}
+          filename={`cuentas_por_cobrar_${new Date().toISOString().split('T')[0]}`}
+          title="Cuentas por Cobrar"
+          formats={['pdf', 'excel', 'csv']}
+        />
       </div>
 
 

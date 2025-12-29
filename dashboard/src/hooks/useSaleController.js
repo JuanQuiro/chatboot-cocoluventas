@@ -183,20 +183,80 @@ const useSaleController = () => {
     const handleSubmit = useCallback(async (e) => {
         e?.preventDefault();
 
+        // === VALIDATION 1: Cliente Obligatorio (mejorado) ===
         if (!clientSearch.client) {
-            toast.error('Selecciona un cliente');
+            toast.error('⚠️ Debe seleccionar un cliente para continuar', {
+                duration: 4000,
+                style: { background: '#fee2e2', color: '#991b1b', border: '1px solid #f87171' }
+            });
             return;
         }
 
+        // === VALIDATION 2: Carrito No Vacío (mejorado) ===
         if (cart.cart.length === 0) {
-            toast.error('Agrega al menos un producto');
+            toast.error('🛍️ Debe agregar al menos un producto al carrito', {
+                duration: 4000,
+                icon: '⚠️'
+            });
             return;
         }
 
-        if (!paymentType) {
-            toast.error('Selecciona un tipo de pago');
+        // === VALIDATION 3: Precios > 0 ===
+        const invalidPrices = cart.cart.filter(item => {
+            const price = item.precio_venta || item.price || 0;
+            return price <= 0;
+        });
+        if (invalidPrices.length > 0) {
+            toast.error(
+                `💰 Productos con precio inválido (precio = 0):\n${invalidPrices.map(i => i.nombre).join(', ')}`,
+                { duration: 5000 }
+            );
             return;
         }
+
+        // === VALIDATION 4: Método de Pago (mejorado) ===
+        if (!paymentType) {
+            toast.error('💳 Debe seleccionar un tipo de pago (Contado/Crédito/Mixto)', {
+                duration: 4000
+            });
+            return;
+        }
+
+        // === VALIDATION 5: Descuento no excede subtotal ===
+        const subtotal = cart.calculateSubtotal();
+        const discountValue = calculations.discountValue || 0;
+        if (discountValue > subtotal) {
+            toast.error(
+                `🚫 El descuento ($${discountValue.toFixed(2)}) no puede ser mayor que el subtotal ($${subtotal.toFixed(2)})`,
+                { duration: 5000 }
+            );
+            return;
+        }
+
+        // === VALIDATION 6: Pago Mixto suma correcta ===
+        if (paymentType === 'mixto' || paymentType === 'abono_mixto') {
+            const totalUSD = Number(mixedPaymentUSD) + (Number(mixedPaymentVES) / exchangeRate);
+            const expectedTotal = calculations.calculateTotal();
+            const difference = Math.abs(totalUSD - expectedTotal);
+
+            if (difference > 0.01) {
+                toast.error(
+                    `💵 Pago mixto NO coincide:\n\nTotal esperado: $${expectedTotal.toFixed(2)}\nTotal pagado: $${totalUSD.toFixed(2)}\nDiferencia: $${difference.toFixed(2)}`,
+                    { duration: 6000 }
+                );
+                return;
+            }
+        }
+
+        // === WARNING: Cliente sin teléfono ===
+        if (!clientSearch.client.telefono || clientSearch.client.telefono.trim() === '') {
+            toast.warn(
+                '📱 Cliente sin teléfono registrado\n\nNo se podrá enviar confirmación por WhatsApp',
+                { duration: 3000 }
+            );
+        }
+
+        // === Continuar con la lógica original ===
 
         setLoading(true);
         try {

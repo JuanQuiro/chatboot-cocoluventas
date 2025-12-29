@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Link, NavLink, Navigate } from 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { queryClient } from './lib/queryClient';
+import { isModuleEnabled, getModuleInfo } from './config/moduleConfig';
+import toast from 'react-hot-toast';
 import './App.css';
+import './styles/DisabledModules.css';
 
 // Contextos
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -47,7 +50,7 @@ const ClientHistory = lazy(() => import('./pages/ClientHistory'));
 const CambiarContraseña = lazy(() => import('./pages/CambiarContraseña'));
 const EditarPedido = lazy(() => import('./pages/EditarPedido'));
 const MovimientosInventario = lazy(() => import('./pages/MovimientosInventario'));
-const GestionDeudas = lazy(() => import('./pages/GestionDeudas'));
+const CuotasProgramadas = lazy(() => import('./pages/CuotasProgramadas'));
 const Ingresos = lazy(() => import('./pages/Ingresos'));
 const Gastos = lazy(() => import('./pages/Gastos'));
 const GestionInterna = lazy(() => import('./pages/GestionInterna')); // NEW IMPORT
@@ -152,6 +155,24 @@ function AuthenticatedLayout() {
     return expandedSections[sectionKey] || sidebarCollapsed;
   };
 
+  // Handle navigation to disabled modules
+  const handleDisabledClick = (e, moduleName, badge = 'Próximamente') => {
+    e.preventDefault();
+    toast.error(
+      `${moduleName} - ${badge}`,
+      {
+        duration: 3000,
+        icon: '🔒',
+        style: {
+          background: '#fef3c7',
+          color: '#92400e',
+          border: '1px solid #fbbf24',
+          fontWeight: '500'
+        }
+      }
+    );
+  };
+
   // Check if nav item matches search query
   const searchMatches = (label) => {
     if (!searchQuery) return true;
@@ -242,18 +263,18 @@ function AuthenticatedLayout() {
             <>
               <SectionHeader icon="💬" title="Chatbot" sectionKey="chatbot" disabled={true} />
               <div className={`nav-section ${isSectionExpanded('chatbot') ? 'expanded' : 'collapsed'}`}>
-                <NavLink to="/messages" className="nav-item disabled" onClick={(e) => e.preventDefault()} data-tooltip="Mensajes">
+                <div className="nav-item disabled sidebar-link disabled" onClick={(e) => handleDisabledClick(e, 'Mensajes', 'Próximamente')} data-tooltip="Mensajes">
                   <span className="nav-icon">💬</span>
                   <span className="nav-label">Mensajes</span>
-                </NavLink>
-                <NavLink to="/analytics" className="nav-item disabled" onClick={(e) => e.preventDefault()} data-tooltip="Análisis">
+                </div>
+                <div className="nav-item disabled sidebar-link disabled" onClick={(e) => handleDisabledClick(e, 'Análisis', 'Próximamente')} data-tooltip="Análisis">
                   <span className="nav-icon">📊</span>
                   <span className="nav-label">Análisis</span>
-                </NavLink>
-                <NavLink to="/connection" className="nav-item disabled" onClick={(e) => e.preventDefault()} data-tooltip="Conexión">
+                </div>
+                <div className="nav-item disabled sidebar-link disabled" onClick={(e) => handleDisabledClick(e, 'Conexión', 'En desarrollo')} data-tooltip="Conexión">
                   <span className="nav-icon">📲</span>
                   <span className="nav-label">Conexión</span>
-                </NavLink>
+                </div>
               </div>
             </>
           )}
@@ -280,9 +301,9 @@ function AuthenticatedLayout() {
               </NavLink>
             )}
             {searchMatches('Deudas') && (
-              <NavLink to="/gestion-deudas" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} data-tooltip="Gestión Deudas">
-                <span className="nav-icon">💳</span>
-                <span className="nav-label">Gestión Deudas</span>
+              <NavLink to="/cuotas-programadas" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} data-tooltip="Cuotas Programadas">
+                <span className="nav-icon">📅</span>
+                <span className="nav-label">Cuotas Programadas</span>
               </NavLink>
             )}
             {searchMatches('Reportes') && (
@@ -469,7 +490,7 @@ function AuthenticatedLayout() {
               <Route path="/cambiar-contraseña" element={<CambiarContraseña />} />
               <Route path="/editar-pedido/:id" element={<EditarPedido />} />
               <Route path="/movimientos-inventario" element={<MovimientosInventario />} />
-              <Route path="/gestion-deudas" element={<GestionDeudas />} />
+              <Route path="/cuotas-programadas" element={<CuotasProgramadas />} />
               <Route path="/ingresos" element={<Ingresos />} />
               <Route path="/gastos" element={<Gastos />} /> {/* NEW ROUTE */}
               <Route path="/gestion-interna" element={<GestionInterna />} /> {/* NEW ROUTE */}

@@ -283,7 +283,6 @@ export default function Products() {
                                 totalItems={meta.total}
                                 itemsPerPage={meta.limit}
                                 onPageChange={setPage}
-                                onLimitChange={setLimit}
                             />
                         </div>
                     )}
