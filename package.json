@@ -35,7 +35,7 @@
     "dashboard:install": "cd dashboard && npm install",
     "install:all": "npm install && npm run dashboard:install",
     "build:all": "npm run dashboard:build",
-    "build": "npm run dashboard:build",
+    "build": "npm run dashboard:install && npm run dashboard:build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
