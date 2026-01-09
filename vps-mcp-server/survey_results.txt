@@ -1,0 +1,8 @@
+drwxr-xr-x 26 root root   7168 2025-11-25 21:53 /root/apps/chatboot-cocoluventas
+drwxr-xr-x 14 root root   5120 2025-12-29 07:26 /root/chatboot-cocoluventas
+-rw-r--r--  1 root root 221184 2025-12-29 13:48 /root/data/cocolu.db
+-rw-r--r--  1 root root  32768 2025-12-29 20:57 /root/data/cocolu.db-shm
+-rw-r--r--  1 root root 238992 2025-12-29 20:57 /root/data/cocolu.db-wal
+drwxr-xr-x 15 root root   6144 2025-12-29 13:38 /var/www/cocolu-chatbot
+drwxr-xr-x  3 root root   1024 2025-12-29 17:52 /var/www/cocolu-frontend
+drwxr-xr-x  3 root root   1024 2025-12-11 20:28 /var/www/cocolu-frontend.bak

@@ -4,6 +4,9 @@
   "description": "DashOffice - Sistema Central Empresarial con Multi-Bot WhatsApp - Ember Drago",
   "main": "app-integrated.js",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node iniciar-bot-profesional.js",
     "rs:build": "cargo build --manifest-path src-rs-performance/Cargo.toml --release",
@@ -35,7 +38,7 @@
     "dashboard:install": "cd dashboard && npm install",
     "install:all": "npm install && npm run dashboard:install",
     "build:all": "npm run dashboard:build",
-    "build": "npm run dashboard:install && npm run dashboard:build",
+    "build": "CI=false npm run dashboard:install && CI=false npm run dashboard:build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -120,10 +123,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
-  },
-  "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=9.0.0"
   },
   "optionalDependencies": {
     "compression": "^1.7.4",

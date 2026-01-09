@@ -1,0 +1,3 @@
+Checking domain cocolu.emberdrago.com...
+❌ Domain cocolu.emberdrago.com is NOT configured for this project.
+Configured domains: chatboot-cocoluventas.vercel.app
