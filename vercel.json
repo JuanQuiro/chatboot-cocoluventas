@@ -1,12 +1,9 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/node"
-        }
-    ],
+    "buildCommand": "npm run build",
     "outputDirectory": "dashboard/build",
+    "devCommand": "cd dashboard && npm start",
+    "installCommand": "npm install && npm run dashboard:install",
+    "framework": null,
     "rewrites": [
         {
             "source": "/(.*)",
