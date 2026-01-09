@@ -28,7 +28,12 @@ export default function Sellers() {
     const { data: sellers, isLoading, isError, error } = useQuery({
         queryKey: ['sellers'],
         queryFn: async () => {
-            const res = await fetch('/api/sellers');
+            const API_URL = process.env.REACT_APP_API_URL || '/api';
+            const res = await fetch(`${API_URL}/sellers`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('cocolu_token')}`
+                }
+            });
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || res.statusText);
@@ -41,8 +46,12 @@ export default function Sellers() {
     // Delete seller mutation
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            const res = await fetch(`/api/sellers/${id}`, {
-                method: 'DELETE'
+            const API_URL = process.env.REACT_APP_API_URL || '/api';
+            const res = await fetch(`${API_URL}/sellers/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('cocolu_token')}`
+                }
             });
             if (!res.ok) throw new Error('Error eliminando vendedor');
             return res.json();
