@@ -156,7 +156,7 @@ export const setupDashboardRoutes = (app) => {
       const db = new Database(dbPath);
 
       const users = db.prepare(`
-        SELECT id, name, email, role, active, last_login, created_at 
+        SELECT id, name, email, role, active, created_at 
         FROM users 
         ORDER BY created_at DESC
       `).all();
@@ -259,7 +259,7 @@ export const setupDashboardRoutes = (app) => {
       params.push(id);
       db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...params);
 
-      const updatedUser = db.prepare('SELECT id, name, email, role, active, last_login FROM users WHERE id = ?').get(id);
+      const updatedUser = db.prepare('SELECT id, name, email, role, active FROM users WHERE id = ?').get(id);
       db.close();
 
       res.json({
