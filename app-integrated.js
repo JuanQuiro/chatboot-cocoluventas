@@ -46,6 +46,8 @@ import setupMetaRoutes from './src/api/meta-setup-routes.js';
 import MetaConfigService from './src/services/meta-config.service.js';
 import { setupEnhancedRoutes } from './src/api/enhanced-routes.js';
 import financeRouter from './src/api/finance.routes.js';
+import { setupInstallmentsRoutes } from './src/api/installments.routes.js';
+import { setupAccountsReceivableRoutes } from './src/api/accounts-receivable.routes.js';
 import databaseService from './src/config/database.service.js'; // NUEVO: Importar rutas financieras
 
 // NUEVO: Importar bot-manager y flow-manager para integración con dashboard
@@ -219,6 +221,12 @@ const main = async () => {
 
         // Configurar rutas mejoradas (Clientes, Inventario, Pagos)
         setupEnhancedRoutes(apiApp);
+
+        // Configurar rutas de Cuotas/Installments
+        setupInstallmentsRoutes(apiApp);
+
+        // Configurar rutas de Cuentas por Cobrar
+        setupAccountsReceivableRoutes(apiApp);
 
         // Mount Finance & Internal Management Routes (V2)
         apiApp.use('/api/finance', financeRouter);
