@@ -12,6 +12,7 @@ import paymentsService from '../services/payments.service.js';
 import inventoryService from '../services/inventory.service.js';
 import sellerPaymentService from '../services/seller-payments.service.js';
 import installmentsService from '../services/installmentsService.js';
+import databaseService from '../config/database.service.js';
 
 // Architecture improvements
 import { asyncHandler } from '../middleware/error-handler.js';
@@ -468,49 +469,88 @@ export function setupEnhancedRoutes(app) {
     // Get Sales by Period - Fixed to return actual data
     app.get('/api/sales/by-period', asyncHandler(async (req, res) => {
         const { period } = req.query;
+        const db = databaseService.getDatabase();
 
-        let startDate, endDate = new Date();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Logic matches AnalyticsService.getExecutiveSummary using SQLite native date functions
+        // This ensures the Modal Details match the Dashboard Cards
 
-        switch (period) {
-            case 'daily':
-                startDate = new Date(today);
-                break;
-            case 'weekly':
-                startDate = new Date(today);
-                startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
-                break;
-            case 'monthly':
-                startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
-                break;
-            default:
-                startDate = new Date(today);
-        }
+        let query = `
+            SELECT p.*, 
+                   c.nombre as cliente_nombre_join, 
+                   c.apellido as cliente_apellido_join
+            FROM pedidos p
+            LEFT JOIN clientes c ON p.cliente_id = c.id
+            WHERE p.estado_entrega != 'anulado'
+        `;
+        const params = [];
 
-        const orders = await ordersService.getAllOrders();
-
-        // Ensure orders is an array
-        const ordersArray = Array.isArray(orders) ? orders : [];
-
-        // Filter orders by date range
-        const filteredOrders = ordersArray.filter(order => {
-            const orderDate = new Date(order.fecha_pedido);
-            return orderDate >= startDate && orderDate <= endDate;
-        });
-
-        // Calculate total
-        const total = filteredOrders.reduce((sum, order) => sum + (parseFloat(order.total_usd) || 0), 0);
-
-        res.json({
-            success: true,
-            data: {
-                sales: filteredOrders,
-                total: total,
-                count: filteredOrders.length,
-                period: period
+        try {
+            if (period === 'daily') {
+                query += ` AND date(p.fecha_pedido) >= date('now', 'localtime')`;
             }
-        });
+            else if (period === 'weekly') {
+                // Logic: Saturday to Friday cycle
+                const d = new Date();
+                const day = d.getDay(); // 0 (Sun) to 6 (Sat)
+                const diff = day === 6 ? 0 : -(day + 1);
+
+                const start = new Date(d);
+                start.setDate(d.getDate() + diff);
+
+                // Format YYYY-MM-DD
+                const startStr = start.toISOString().split('T')[0];
+
+                query += ` AND date(p.fecha_pedido) >= date(?)`;
+                params.push(startStr);
+            }
+            else if (period === 'monthly') {
+                const today = new Date();
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthStartStr = monthStart.toISOString().split('T')[0];
+
+                query += ` AND date(p.fecha_pedido) >= date(?)`;
+                params.push(monthStartStr);
+            }
+            // If explicit date range provided (optional future proofing)
+            else if (period === 'manual' && req.query.startDate && req.query.endDate) {
+                query += ` AND date(p.fecha_pedido) >= date(?) AND date(p.fecha_pedido) <= date(?)`;
+                params.push(req.query.startDate, req.query.endDate);
+            }
+            else {
+                // Default to today if unknown period
+                query += ` AND date(p.fecha_pedido) >= date('now', 'localtime')`;
+            }
+
+            query += ` ORDER BY p.fecha_pedido DESC`;
+
+            const sales = db.prepare(query).all(...params);
+
+            // Enrich sales with client names if JOIN worked
+            const enrichedSales = sales.map(s => ({
+                ...s,
+                cliente_nombre: s.cliente_nombre_join || s.cliente_nombre,
+                cliente_apellido: s.cliente_apellido_join || s.cliente_apellido
+            }));
+
+            // Calculate totals
+            const total = enrichedSales.reduce((sum, order) => sum + (parseFloat(order.total_usd) || 0), 0);
+
+            res.json({
+                success: true,
+                data: {
+                    sales: enrichedSales,
+                    total: total,
+                    count: enrichedSales.length,
+                    period: period
+                }
+            });
+        } catch (error) {
+            console.error('Error in sales/by-period:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
     }));
 
     // Duplicate Sale/Order

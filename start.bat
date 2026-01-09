@@ -13,11 +13,22 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [1/3] Iniciando Backend en puerto 3008...
-start "Backend - Cocolu" cmd /k "cd /d %~dp0 && npm run dev"
-timeout /t 3 /nobreak >nul
+echo [0/4] Actualizando base de datos local...
+node update-local-db.js
+if %ERRORLEVEL% NEQ 0 (
+    echo ADVERTENCIA: No se pudo actualizar la base de datos
+    echo El sistema intentará continuar...
+)
 
-echo [2/3] Iniciando Frontend en puerto 3000...
+echo [1/4] Configurando sistema de autenticación...
+node setup-auth.js
+timeout /t 2 /nobreak >nul
+
+echo [2/4] Iniciando Backend en puerto 3009...
+start "Backend - Cocolu" cmd /k "cd /d %~dp0 && npm run dev"
+timeout /t 5 /nobreak >nul
+
+echo [3/4] Iniciando Frontend en puerto 3000...
 start "Frontend - Cocolu" cmd /k "cd /d %~dp0dashboard && npm start"
 timeout /t 3 /nobreak >nul
 
@@ -26,8 +37,13 @@ echo ========================================
 echo   Sistema Iniciado Correctamente
 echo ========================================
 echo.
-echo Backend:  http://localhost:3008
+echo Backend:  http://localhost:3009
+echo API:      http://localhost:3009/api
 echo Frontend: http://localhost:3000
+echo.
+echo CREDENCIALES DE ACCESO:
+echo   Email: admin@cocolu.com
+echo   Password: admin123
 echo.
 echo Presiona cualquier tecla para abrir el navegador...
 pause >nul

@@ -75,7 +75,10 @@ class ClientRepository {
                 nombre LIKE ? OR 
                 apellido LIKE ? OR 
                 cedula LIKE ? OR 
-                telefono LIKE ?
+                telefono LIKE ? OR
+                email LIKE ? OR
+                instagram LIKE ? OR
+                ciudad LIKE ?
             )
             LIMIT ? OFFSET ?
         `;
@@ -86,32 +89,59 @@ class ClientRepository {
                 nombre LIKE ? OR 
                 apellido LIKE ? OR 
                 cedula LIKE ? OR 
-                telefono LIKE ?
+                telefono LIKE ? OR
+                email LIKE ? OR
+                instagram LIKE ? OR
+                ciudad LIKE ?
             )
         `;
 
-        const items = this.db.prepare(sql).all(term, term, term, term, limit, offset);
-        const count = this.db.prepare(countSql).get(term, term, term, term);
+        const items = this.db.prepare(sql).all(term, term, term, term, term, term, term, limit, offset);
+        const count = this.db.prepare(countSql).get(term, term, term, term, term, term, term);
 
         return { items, total: count.count };
     }
 
     create(data) {
         const stmt = this.db.prepare(`
-            INSERT INTO clientes (cedula, nombre, apellido, telefono, email, instagram, direccion)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO clientes (cedula, nombre, apellido, telefono, email, instagram, direccion, ciudad, tipo_precio, limite_credito, dias_credito)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
-        const info = stmt.run(data.cedula, data.nombre, data.apellido, data.telefono, data.email, data.instagram || null, data.direccion);
+        const info = stmt.run(
+            data.cedula,
+            data.nombre,
+            data.apellido,
+            data.telefono,
+            data.email,
+            data.instagram || null,
+            data.direccion,
+            data.ciudad || null,
+            data.tipo_precio || 'detal',
+            data.limite_credito || 0,
+            data.dias_credito || 0
+        );
         return this.getById(info.lastInsertRowid);
     }
 
     update(id, data) {
         const stmt = this.db.prepare(`
             UPDATE clientes 
-            SET nombre = ?, apellido = ?, telefono = ?, email = ?, instagram = ?, direccion = ?, updated_at = CURRENT_TIMESTAMP
+            SET nombre = ?, apellido = ?, telefono = ?, email = ?, instagram = ?, direccion = ?, ciudad = ?, tipo_precio = ?, limite_credito = ?, dias_credito = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
-        stmt.run(data.nombre, data.apellido, data.telefono, data.email, data.instagram || null, data.direccion, id);
+        stmt.run(
+            data.nombre,
+            data.apellido,
+            data.telefono,
+            data.email,
+            data.instagram || null,
+            data.direccion,
+            data.ciudad || null,
+            data.tipo_precio || 'detal',
+            data.limite_credito || 0,
+            data.dias_credito || 0,
+            id
+        );
         return this.getById(id);
     }
 

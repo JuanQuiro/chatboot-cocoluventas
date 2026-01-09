@@ -42,46 +42,34 @@ export const AuthProvider = ({ children }) => {
     }, [initializeAuth]);
 
     /**
-     * Login - Usa mock en desarrollo, backend en producción
+     * Login - SIEMPRE usa backend REAL
      */
     const login = async (email, password) => {
         try {
             setLoading(true);
 
-            // En desarrollo, usar siempre mock
-            const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+            console.log('🔐 [AUTH] Intentando login con backend REAL:', email);
 
-            let result;
-
-            if (isDevelopment) {
-                // Modo desarrollo - usar mock directo
-                result = await authService.loginMock(email, password);
-            } else {
-                // Modo producción - intentar backend real
-                result = await authService.login(email, password);
-
-                // Fallback a mock si falla
-                if (!result.success) {
-                    result = await authService.loginMock(email, password);
-                }
-            }
+            // SIEMPRE usar backend real - NO MOCK
+            const result = await authService.login(email, password);
 
             if (result.success) {
                 setUser(result.user);
                 setPermissions(result.user.permissions || []);
+                console.log('✅ [AUTH] Login exitoso con backend real');
+            } else {
+                console.error('❌ [AUTH] Login fallido:', result.error);
             }
 
             setLoading(false);
             return result;
         } catch (error) {
-            // Fallback a mock en caso de error
-            const mockResult = await authService.loginMock(email, password);
-            if (mockResult.success) {
-                setUser(mockResult.user);
-                setPermissions(mockResult.user.permissions || []);
-            }
+            console.error('❌ [AUTH] Error en login:', error);
             setLoading(false);
-            return mockResult;
+            return {
+                success: false,
+                error: error.message || 'Error de conexión con el servidor'
+            };
         }
     };
 

@@ -478,7 +478,7 @@ class ErrorMonitor {
                 return; // Silenciosamente no enviar si no hay token
             }
 
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3008/api';
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3009/api';
             const response = await fetch(`${apiUrl}/logs/batch`, {
                 method: 'POST',
                 headers: {

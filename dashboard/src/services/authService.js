@@ -11,12 +11,14 @@ class AuthService {
      */
     async login(email, password) {
         try {
+            // apiClient interceptor ya retorna response.data, así que response ES el data
             const response = await apiClient.post('/auth/login', {
                 email,
                 password,
             });
 
-            const { token, refreshToken, user } = response.data;
+            // response ya es el objeto { success, token, user }
+            const { token, refreshToken, user } = response;
 
             // Guardar en localStorage
             if (token) {
@@ -38,9 +40,10 @@ class AuthService {
                 token,
             };
         } catch (error) {
+            console.error('❌ [authService] Login error:', error);
             return {
                 success: false,
-                error: error.response?.data?.message || 'Error al iniciar sesión',
+                error: error.response?.data?.error || error.message || 'Error al iniciar sesión',
             };
         }
     }

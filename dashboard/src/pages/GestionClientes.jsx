@@ -84,6 +84,25 @@ const GestionClientes = () => {
         },
         { key: 'telefono', label: 'Teléfono', sortable: true },
         {
+            key: 'ciudad',
+            label: 'Ciudad',
+            sortable: true,
+            render: (value) => value || '-'
+        },
+        {
+            key: 'tipo_precio',
+            label: 'Precio',
+            sortable: true,
+            render: (value) => (
+                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                    ${value === 'vip' ? 'bg-purple-100 text-purple-700' :
+                        value === 'mayor' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`
+                }>
+                    {value || 'Detal'}
+                </span>
+            )
+        },
+        {
             key: 'total_spent',
             label: 'Total Comprado',
             sortable: true,

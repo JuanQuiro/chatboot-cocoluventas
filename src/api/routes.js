@@ -17,6 +17,7 @@ import botsRouter from './bots.routes.js';
 import flowsRouter from './flows.routes.js';
 import manufacturersRouter from './manufacturers.routes.js';
 import authRouter from './auth.routes.js';
+import simpleUsersRouter from './simple-users.routes.js';
 // import logsRouter from '../routes/logs.routes.js';
 import { messageLog, globalState } from '../core/global-state.js';
 import sellerController from '../controllers/seller.controller.js';
@@ -83,6 +84,11 @@ export const setupRoutes = (app) => {
     // AUTH - Autenticación de Usuarios
     // ============================================
     app.use('/api/auth', authRouter);
+
+    // ============================================
+    // USERS - Gestión de Usuarios (SQLite)
+    // ============================================
+    app.use('/api/users', simpleUsersRouter);
 
     // ============================================
     // LOGS - Sistema de logs persistente

@@ -15,7 +15,11 @@ const clientSchema = z.object({
     telefono: z.string().min(10, "Ingrese un teléfono válido (min 10 dígitos)"),
     email: z.string().email("Ingrese un email válido").optional().or(z.literal('')),
     instagram: z.string().optional(),
-    direccion: z.string().optional()
+    direccion: z.string().optional(),
+    ciudad: z.string().optional(),
+    tipo_precio: z.enum(['detal', 'mayor', 'vip']).default('detal'),
+    limite_credito: z.any().optional(), // Allow string/number, parse locally
+    dias_credito: z.any().optional()
 });
 
 const CreateClientModal = ({ isOpen, onClose, onClientCreated, clientToEdit = null }) => {
@@ -35,7 +39,11 @@ const CreateClientModal = ({ isOpen, onClose, onClientCreated, clientToEdit = nu
             telefono: '',
             email: '',
             instagram: '',
-            direccion: ''
+            direccion: '',
+            ciudad: 'Valencia',
+            tipo_precio: 'detal',
+            limite_credito: '0',
+            dias_credito: '0'
         }
     });
 
@@ -51,7 +59,11 @@ const CreateClientModal = ({ isOpen, onClose, onClientCreated, clientToEdit = nu
                     telefono: clientToEdit.phone || clientToEdit.telefono || '',
                     email: clientToEdit.email || '',
                     instagram: clientToEdit.instagram || '',
-                    direccion: clientToEdit.address || clientToEdit.direccion || ''
+                    direccion: clientToEdit.address || clientToEdit.direccion || '',
+                    ciudad: clientToEdit.ciudad || 'Valencia',
+                    tipo_precio: clientToEdit.tipo_precio || 'detal',
+                    limite_credito: clientToEdit.limite_credito || '0',
+                    dias_credito: clientToEdit.dias_credito || '0'
                 });
             } else {
                 // Reset for new client
@@ -62,7 +74,11 @@ const CreateClientModal = ({ isOpen, onClose, onClientCreated, clientToEdit = nu
                     telefono: '',
                     email: '',
                     instagram: '',
-                    direccion: ''
+                    direccion: '',
+                    ciudad: 'Valencia',
+                    tipo_precio: 'detal',
+                    limite_credito: '0',
+                    dias_credito: '0'
                 });
             }
         }
@@ -263,6 +279,47 @@ const CreateClientModal = ({ isOpen, onClose, onClientCreated, clientToEdit = nu
                                 className={`resize-none ${getInputClass(errors.direccion)}`}
                                 {...register('direccion')}
                             ></textarea>
+                        </div>
+
+                        {/* City & Price Type */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Ciudad</label>
+                                <input
+                                    type="text"
+                                    className={getInputClass(errors.ciudad)}
+                                    {...register('ciudad')}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo Precio</label>
+                                <select className={getInputClass(errors.tipo_precio)} {...register('tipo_precio')}>
+                                    <option value="detal">Detal</option>
+                                    <option value="mayor">Mayor</option>
+                                    <option value="vip">VIP</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Credit Limits */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Límite Crédito ($)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    className={getInputClass(errors.limite_credito)}
+                                    {...register('limite_credito')}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Días Crédito</label>
+                                <input
+                                    type="number"
+                                    className={getInputClass(errors.dias_credito)}
+                                    {...register('dias_credito')}
+                                />
+                            </div>
                         </div>
                     </div>
 

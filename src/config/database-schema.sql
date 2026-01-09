@@ -263,3 +263,10 @@ CREATE TABLE IF NOT EXISTS ingresos_varios (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+
+-- Schema Updates
+ALTER TABLE clientes ADD COLUMN ciudad TEXT;
+ALTER TABLE clientes ADD COLUMN tipo_precio TEXT DEFAULT 'detal';
+ALTER TABLE clientes ADD COLUMN limite_credito REAL DEFAULT 0;
+ALTER TABLE clientes ADD COLUMN dias_credito INTEGER DEFAULT 0;
+ALTER TABLE clientes ADD COLUMN instagram TEXT;

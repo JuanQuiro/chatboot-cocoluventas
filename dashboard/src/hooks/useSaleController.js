@@ -325,7 +325,7 @@ const useSaleController = () => {
 
     const resetForm = useCallback(() => {
         clientSearch.clearClient(); // Correct method name
-        cart.clearCart();
+        cart.clearCart(true); // Force clear without confirmation
         setPaymentType('');
         setPaymentMethod('efectivo');
         calculations.setHasDelivery(false);

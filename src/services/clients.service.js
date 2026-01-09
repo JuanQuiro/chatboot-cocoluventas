@@ -124,6 +124,17 @@ class ClientsService {
                 throw new Error('Nombre y apellido son requeridos');
             }
 
+            // Check if cedula is being changed and if it conflicts
+            if (clientData.cedula && clientData.cedula !== existing.cedula) {
+                const cedulaSearch = this.validateCedula(clientData.cedula);
+                if (cedulaSearch.valid) {
+                    const conflict = clientRepository.getByCedula(cedulaSearch.cedula);
+                    if (conflict && conflict.id !== id) {
+                        throw new Error('Ya existe otro cliente con esta cédula');
+                    }
+                }
+            }
+
             const updated = clientRepository.update(id, clientData);
             console.log(`✅ Cliente actualizado: ${updated.nombre} ${updated.apellido}`);
             return updated;

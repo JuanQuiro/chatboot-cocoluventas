@@ -3,8 +3,8 @@ import axios from 'axios';
 import { httpLogger } from '../utils/httpLogger';
 
 const api = axios.create({
-    baseURL: '/api',
-    timeout: 10000,
+    baseURL: process.env.REACT_APP_API_URL || '/api',
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json'
     }

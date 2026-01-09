@@ -33,10 +33,15 @@ export const createClientSchema = z.object({
         .or(z.null())
         .or(z.undefined())
         .optional(),
+    instagram: z.string().optional().or(z.literal('')),
     direccion: z.string()
         .max(500, 'La dirección es demasiado larga')
         .optional()
-        .or(z.literal(''))
+        .or(z.literal('')),
+    ciudad: z.string().optional().or(z.literal('')),
+    tipo_precio: z.enum(['detal', 'mayor', 'vip']).default('detal').optional(),
+    limite_credito: z.coerce.number().min(0).default(0).optional(),
+    dias_credito: z.coerce.number().int().min(0).default(0).optional()
 });
 
 export const updateClientSchema = createClientSchema.partial();

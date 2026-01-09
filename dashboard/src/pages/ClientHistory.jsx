@@ -119,11 +119,29 @@ const ClientHistory = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">{clientData.name}</h1>
-                        <div className="flex items-center gap-4 mt-2 text-gray-500 text-sm">
-                            <span className="flex items-center gap-1"><span className="text-indigo-500">🆔</span> {clientData.cedula || 'Sin Cédula'}</span>
-                            <span className="flex items-center gap-1"><span className="text-indigo-500">📞</span> {clientData.phone || 'Sin Teléfono'}</span>
-                            <span className="flex items-center gap-1"><span className="text-indigo-500">✉️</span> {clientData.email || 'Sin Email'}</span>
+                        <div className="flex flex-wrap gap-4 mt-3 text-gray-500 text-sm">
+                            <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"><span className="text-indigo-500">🆔</span> {clientData.cedula || 'Sin Cédula'}</span>
+                            <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"><span className="text-indigo-500">📞</span> {clientData.phone || clientData.telefono || 'Sin Teléfono'}</span>
+                            <span className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded"><span className="text-indigo-500">✉️</span> {clientData.email || 'Sin Email'}</span>
+                            {clientData.instagram && (
+                                <a href={`https://instagram.com/${clientData.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 bg-pink-50 text-pink-700 px-2 py-1 rounded hover:bg-pink-100">
+                                    <span>📸</span> {clientData.instagram}
+                                </a>
+                            )}
                         </div>
+                        <div className="flex flex-wrap gap-4 mt-2 text-gray-500 text-sm">
+                            <span className="flex items-center gap-1"><span className="text-indigo-500">📍</span> {clientData.ciudad || 'Ciudad no registrada'}</span>
+                            <span className="flex items-center gap-1"><span className="text-indigo-500">🏠</span> {clientData.direccion || 'Dirección no registrada'}</span>
+                            <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold uppercase ${clientData.tipo_precio === 'vip' ? 'bg-purple-100 text-purple-700' : clientData.tipo_precio === 'mayor' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                                🏷️ {clientData.tipo_precio || 'Detal'}
+                            </span>
+                        </div>
+                        {(clientData.limite_credito > 0 || clientData.dias_credito > 0) && (
+                            <div className="mt-2 text-xs font-semibold text-gray-400 flex gap-4">
+                                <span>💳 Crédito: ${clientData.limite_credito || 0}</span>
+                                <span>📅 Plazo: {clientData.dias_credito || 0} días</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import DataTable from '../components/common/DataTable';
 import Modal from '../components/common/Modal';
 import { useToast } from '../components/common/Toast';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import userService from '../services/userService';
 import './GestionUsuarios.css';
 
 const GestionUsuarios = () => {
@@ -35,35 +36,14 @@ const GestionUsuarios = () => {
     const loadUsers = async () => {
         setLoading(true);
         try {
-            // Simular datos
-            const mockUsers = [
-                {
-                    id: 1,
-                    name: 'Juan Pérez',
-                    email: 'juan@empresa.com',
-                    role: 'admin',
-                    active: true,
-                    lastLogin: '2024-01-15'
-                },
-                {
-                    id: 2,
-                    name: 'María García',
-                    email: 'maria@empresa.com',
-                    role: 'vendedor',
-                    active: true,
-                    lastLogin: '2024-01-14'
-                },
-                {
-                    id: 3,
-                    name: 'Carlos López',
-                    email: 'carlos@empresa.com',
-                    role: 'almacen',
-                    active: false,
-                    lastLogin: '2024-01-10'
-                }
-            ];
-            setUsers(mockUsers);
+            const response = await userService.getUsers();
+            if (response.success) {
+                setUsers(response.users);
+            } else {
+                toast.error(response.error || 'Error al cargar usuarios');
+            }
         } catch (error) {
+            console.error('Error loading users:', error);
             toast.error('Error al cargar usuarios');
         } finally {
             setLoading(false);
@@ -99,13 +79,29 @@ const GestionUsuarios = () => {
         setShowDeleteDialog(true);
     };
 
+    const handleToggleStatus = async (user) => {
+        try {
+            const response = await userService.updateUser(user.id, { active: !user.active });
+            if (response.success) {
+                toast.success(`Usuario ${user.active ? 'desactivado' : 'activado'} correctamente`);
+                loadUsers();
+            } else {
+                toast.error(response.error || 'Error al cambiar estado');
+            }
+        } catch (error) {
+            console.error('Error toggling user status:', error);
+            toast.error('Error al cambiar estado');
+        }
+    };
+
     const confirmDelete = async () => {
         try {
-            // await userService.deleteUser(selectedUser.id);
-            setUsers(users.filter(u => u.id !== selectedUser.id));
+            await userService.deleteUser(selectedUser.id);
             toast.success('Usuario eliminado exitosamente');
             setShowDeleteDialog(false);
+            loadUsers(); // Reload list
         } catch (error) {
+            console.error('Error deleting user:', error);
             toast.error('Error al eliminar usuario');
         }
     };
@@ -116,25 +112,28 @@ const GestionUsuarios = () => {
         try {
             if (selectedUser) {
                 // Editar
-                const updatedUsers = users.map(u =>
-                    u.id === selectedUser.id
-                        ? { ...u, ...formData }
-                        : u
-                );
-                setUsers(updatedUsers);
-                toast.success('Usuario actualizado exitosamente');
+                const response = await userService.updateUser(selectedUser.id, formData);
+                if (response.success) {
+                    toast.success('Usuario actualizado exitosamente');
+                    loadUsers(); // Reload list
+                } else {
+                    toast.error(response.error || 'Error al actualizar usuario');
+                    return; // Don't close modal on error
+                }
             } else {
                 // Crear
-                const newUser = {
-                    id: users.length + 1,
-                    ...formData,
-                    lastLogin: null
-                };
-                setUsers([...users, newUser]);
-                toast.success('Usuario creado exitosamente');
+                const response = await userService.createUser(formData);
+                if (response.success) {
+                    toast.success('Usuario creado exitosamente');
+                    loadUsers(); // Reload list
+                } else {
+                    toast.error(response.error || 'Error al crear usuario');
+                    return; // Don't close modal on error
+                }
             }
             setShowModal(false);
         } catch (error) {
+            console.error('Error saving user:', error);
             toast.error('Error al guardar usuario');
         }
     };
@@ -164,36 +163,49 @@ const GestionUsuarios = () => {
         {
             key: 'role',
             label: 'Rol',
-            render: (user) => getRoleBadge(user.role)
+            render: (role) => getRoleBadge(role)
         },
         {
             key: 'active',
             label: 'Estado',
-            render: (user) => (
-                <span className={`status-badge ${user.active ? 'active' : 'inactive'}`}>
-                    {user.active ? 'Activo' : 'Inactivo'}
+            render: (active) => (
+                <span className={`status-badge ${active ? 'active' : 'inactive'}`}>
+                    {active ? 'Activo' : 'Inactivo'}
                 </span>
             )
         },
         {
-            key: 'lastLogin',
+            key: 'last_login',
             label: 'Último Acceso',
-            render: (user) => user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Nunca'
+            render: (date) => date ? new Date(date).toLocaleDateString() : 'Nunca'
         }
     ];
 
-    const actions = [
-        {
-            label: 'Editar',
-            onClick: handleEdit,
-            className: 'action-edit'
-        },
-        {
-            label: 'Eliminar',
-            onClick: handleDelete,
-            className: 'action-delete'
-        }
-    ];
+    const renderActions = (user) => (
+        <div className="table-actions">
+            <button
+                onClick={() => handleEdit(user)}
+                className="btn-icon edit"
+                title="Editar"
+            >
+                ✏️
+            </button>
+            <button
+                onClick={() => handleToggleStatus(user)}
+                className={`btn-icon ${user.active ? 'deactivate' : 'activate'}`}
+                title={user.active ? 'Desactivar' : 'Activar'}
+            >
+                {user.active ? '🚫' : '✅'}
+            </button>
+            <button
+                onClick={() => handleDelete(user)}
+                className="btn-icon delete"
+                title="Eliminar"
+            >
+                🗑️
+            </button>
+        </div>
+    );
 
     return (
         <div className="gestion-usuarios-page">
@@ -244,7 +256,7 @@ const GestionUsuarios = () => {
                 <DataTable
                     columns={columns}
                     data={users}
-                    actions={actions}
+                    actions={renderActions}
                     loading={loading}
                     emptyMessage="No hay usuarios registrados"
                 />

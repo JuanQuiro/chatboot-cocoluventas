@@ -117,9 +117,14 @@ export const useShoppingCart = () => {
         }, 0);
     }, [cart, getItemPrice]);
 
-    const clearCart = useCallback(() => {
-        // Confirmación antes de limpiar
+    const clearCart = useCallback((force = false) => {
+        // Confirmación antes de limpiar (solo si no es forzado)
         if (cart.length === 0) return;
+
+        if (force) {
+            setCart([]);
+            return;
+        }
 
         const confirmed = window.confirm(
             `🗑️ ¿Está seguro de limpiar el carrito?\n\nSe perderán ${cart.length} producto${cart.length === 1 ? '' : 's'}`

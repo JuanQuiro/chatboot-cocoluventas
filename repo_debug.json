@@ -8,25 +8,24 @@
   "cliente_direccion": "",
   "productos": [
     {
-      "producto_id": 11,
-      "cantidad": 10,
-      "precio_unitario": 50,
-      "nombre": "manzana",
+      "cantidad": 15,
+      "precio_unitario": 500,
+      "nombre": "Producto Sin Nombre",
+      "codigo": "PROD-undefined",
       "es_manual": false,
       "nombre_manual": null
     }
   ],
-  "total_usd": 510.4,
-  "subtotal": 500,
-  "descuento_total": 60,
-  "impuesto_total": 70.4,
-  "tipo_pago": "mixto",
-  "metodo_pago": "efectivo",
+  "total_usd": 7500,
+  "subtotal": 7500,
+  "descuento_total": 0,
+  "impuesto_total": 0,
   "es_pago_mixto": false,
-  "monto_mixto_usd": 5,
-  "monto_mixto_ves": 122,
-  "monto_recibido_usd": 5,
-  "monto_recibido_ves": 122,
-  "tasa_cambio": 36.5,
-  "comentarios_generales": "122"
+  "monto_mixto_usd": 0,
+  "monto_mixto_ves": 0,
+  "monto_recibido_usd": 0,
+  "monto_recibido_ves": 0,
+  "tasa_cambio": 0,
+  "fabricante_id": 1,
+  "estado_entrega": "pendiente"
 }

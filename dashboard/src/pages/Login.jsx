@@ -61,7 +61,9 @@ function Login() {
 
     const quickLogin = (demoEmail) => {
         setEmail(demoEmail);
-        setPassword('demo123');
+        // Las claves en la DB son 'admin123' y 'test123' (según setup-auth.js)
+        const password = demoEmail.includes('admin') ? 'admin123' : 'test123';
+        setPassword(password);
     };
 
     return (
@@ -293,7 +295,7 @@ function Login() {
                                 </button>
                             </div>
                             <p className="text-xs text-gray-500 mt-3 text-center">
-                                💡 Cualquier contraseña funciona en modo desarrollo
+                                🔐 Usa las credenciales reales del sistema
                             </p>
                         </div>
                     </div>

@@ -137,8 +137,9 @@ const main = async () => {
             'http://127.0.0.1:3000',
             'http://127.0.0.1:3009',
             'https://cocolu.emberdrago.com',
-            'https://api-cocolu.emberdrago.com'
-        ];
+            'https://api-cocolu.emberdrago.com',
+            process.env.FRONTEND_URL // Allow custom frontend URL from env
+        ].filter(Boolean); // Clean undefined values
 
         apiApp.use(cors({
             origin: function (origin, callback) {

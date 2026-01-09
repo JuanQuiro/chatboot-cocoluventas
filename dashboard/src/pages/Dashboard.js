@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3008/api'}/dashboard`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3009/api'}/dashboard`);
       const data = await response.json();
       if (data.success) {
         setDashboardData(data.data);
@@ -87,7 +87,7 @@ const Dashboard = () => {
 
   const handleOpenSalesModal = async (period) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3008/api'}/sales/by-period?period=${period}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3009/api'}/sales/by-period?period=${period}`);
       const data = await response.json();
       if (data.success) {
         setModalSales(data.data.sales || []);
