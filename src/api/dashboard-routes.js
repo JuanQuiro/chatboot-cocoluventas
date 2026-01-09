@@ -141,6 +141,156 @@ export const setupDashboardRoutes = (app) => {
     }
   });
 
+  // GET /api/users - Listar usuarios
+  app.get('/api/users', async (req, res) => {
+    try {
+      const Database = (await import('better-sqlite3')).default;
+      const dbPath = path.join(__dirname, '..', '..', 'data', 'cocolu.db');
+      const db = new Database(dbPath);
+
+      const users = db.prepare(`
+        SELECT id, name, email, role, active, last_login, created_at 
+        FROM users 
+        ORDER BY created_at DESC
+      `).all();
+
+      const formattedUsers = users.map(u => ({
+        ...u,
+        active: Boolean(u.active)
+      }));
+
+      db.close();
+
+      res.json({
+        success: true,
+        users: formattedUsers,
+        total: formattedUsers.length
+      });
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ success: false, error: 'Error al obtener usuarios' });
+    }
+  });
+
+  // POST /api/users - Crear usuario
+  app.post('/api/users', async (req, res) => {
+    const { name, email, password, role, active } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ success: false, error: 'Faltan datos requeridos' });
+    }
+
+    try {
+      const bcrypt = (await import('bcryptjs')).default;
+      const Database = (await import('better-sqlite3')).default;
+      const dbPath = path.join(__dirname, '..', '..', 'data', 'cocolu.db');
+      const db = new Database(dbPath);
+
+      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+      if (existing) {
+        db.close();
+        return res.status(400).json({ success: false, error: 'El email ya está registrado' });
+      }
+
+      const passwordHash = bcrypt.hashSync(password, 12);
+      const isActive = active ? 1 : 0;
+      const id = 'user-' + Date.now();
+
+      db.prepare(`
+        INSERT INTO users (id, name, email, password_hash, role, active, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).run(id, name, email, passwordHash, role, isActive);
+
+      db.close();
+
+      const newUser = {
+        id, name, email, role, active: Boolean(isActive)
+      };
+
+      res.status(201).json({ success: true, user: newUser });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ success: false, error: 'Error al crear usuario' });
+    }
+  });
+
+  // PUT /api/users/:id - Actualizar usuario
+  app.put('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password, role, active } = req.body;
+
+    try {
+      const bcrypt = (await import('bcryptjs')).default;
+      const Database = (await import('better-sqlite3')).default;
+      const dbPath = path.join(__dirname, '..', '..', 'data', 'cocolu.db');
+      const db = new Database(dbPath);
+
+      const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+      if (!user) {
+        db.close();
+        return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+      }
+
+      let updates = [];
+      let params = [];
+
+      if (name) { updates.push('name = ?'); params.push(name); }
+      if (email) { updates.push('email = ?'); params.push(email); }
+      if (role) { updates.push('role = ?'); params.push(role); }
+      if (active !== undefined) { updates.push('active = ?'); params.push(active ? 1 : 0); }
+      if (password && password.trim() !== '') {
+        const passwordHash = bcrypt.hashSync(password, 12);
+        updates.push('password_hash = ?');
+        params.push(passwordHash);
+      }
+
+      if (updates.length === 0) {
+        db.close();
+        return res.json({ success: true, user });
+      }
+
+      params.push(id);
+      db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+
+      const updatedUser = db.prepare('SELECT id, name, email, role, active, last_login FROM users WHERE id = ?').get(id);
+      db.close();
+
+      res.json({
+        success: true,
+        user: {
+          ...updatedUser,
+          active: Boolean(updatedUser.active)
+        }
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ success: false, error: 'Error al actualizar usuario' });
+    }
+  });
+
+  // DELETE /api/users/:id - Eliminar usuario
+  app.delete('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const Database = (await import('better-sqlite3')).default;
+      const dbPath = path.join(__dirname, '..', '..', 'data', 'cocolu.db');
+      const db = new Database(dbPath);
+
+      const result = db.prepare('DELETE FROM users WHERE id = ?').run(id);
+      db.close();
+
+      if (result.changes === 0) {
+        return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+      }
+
+      res.json({ success: true, message: 'Usuario eliminado' });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ success: false, error: 'Error al eliminar usuario' });
+    }
+  });
+
   // Redirect /meta-settings → /meta-setup (nueva UI premium)
   app.get('/meta-settings', (req, res) => {
     res.redirect(301, '/meta-setup');

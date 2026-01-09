@@ -15,43 +15,44 @@ const config = {
     password: process.env.VPS_PASSWORD,
 };
 
-console.log(`Checking CORS Configuration on ${config.host}...`);
+console.log(`Comprehensive Login Test on ${config.host}...`);
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-        cd /var/www/cocolu-chatbot
-        
-        echo "=== CHECKING CORS IN app-integrated.js ==="
-        grep -A 20 "cors" app-integrated.js | head -30
-        
-        echo ""
-        echo ""
-        echo "=== TESTING CORS WITH ORIGIN HEADER ==="
-        curl -v -X OPTIONS https://api.emberdrago.com/api/login \\
-          -H "Origin: https://cocolu.emberdrago.com" \\
-          -H "Access-Control-Request-Method: POST" \\
-          -H "Access-Control-Request-Headers: content-type" \\
-          2>&1 | grep -i "access-control"
-        
-        echo ""
-        echo ""
-        echo "=== TESTING ACTUAL POST WITH ORIGIN ==="
-        curl -v -X POST https://api.emberdrago.com/api/login \\
-          -H "Origin: https://cocolu.emberdrago.com" \\
+        echo "=== TEST 1: Direct Backend Login (Internal) ==="
+        time curl -v -X POST http://127.0.0.1:3009/api/login \\
           -H "Content-Type: application/json" \\
           -d '{"username":"admin@cocolu.com","password":"password123"}' \\
-          --max-time 10 2>&1 | grep -E "(HTTP|access-control|success)"
+          --max-time 10 2>&1 | head -100
+        
+        echo ""
+        echo ""
+        echo "=== TEST 2: Nginx Proxy Login (External Domain) ==="
+        time curl -v -X POST https://api.emberdrago.com/api/login \\
+          -H "Content-Type: application/json" \\
+          -H "Origin: https://cocolu.emberdrago.com" \\
+          -d '{"username":"admin@cocolu.com","password":"password123"}' \\
+          --max-time 10 2>&1 | head -100
+        
+        echo ""
+        echo ""
+        echo "=== NGINX ACCESS LOG (last 10 lines) ==="
+        tail -10 /var/log/nginx/access.log 2>/dev/null || echo "No access log"
+        
+        echo ""
+        echo "=== NGINX ERROR LOG (last 10 lines) ==="
+        tail -10 /var/log/nginx/error.log 2>/dev/null || echo "No error log"
     `;
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on("close", (code: any) => {
-            console.log("\n✅ CORS check complete");
+            console.log("\n✅ Tests complete");
             conn.end();
         }).on("data", (data: any) => {
             console.log(data.toString());
         }).stderr.on("data", (data: any) => {
-            console.error("ERR:", data.toString());
+            console.error("STDERR:", data.toString());
         });
     });
 }).on("error", (err) => {
