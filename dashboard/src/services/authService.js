@@ -12,7 +12,7 @@ class AuthService {
     async login(email, password) {
         try {
             // apiClient interceptor ya retorna response.data, así que response ES el data
-            const response = await apiClient.post('/auth/login', {
+            const response = await apiClient.post('/login', {
                 email,
                 password,
             });
@@ -134,7 +134,7 @@ class AuthService {
     async logout() {
         try {
             // Llamar al backend para invalidar el token
-            await apiClient.post('/auth/logout');
+            await apiClient.post('/logout');
         } catch (error) {
             // No importa si falla, limpiamos localStorage de todos modos
         } finally {
