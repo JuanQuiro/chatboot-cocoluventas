@@ -12,7 +12,7 @@ class AuthService {
     async login(email, password) {
         try {
             // apiClient interceptor ya retorna response.data, así que response ES el data
-            const response = await apiClient.post('/login', {
+            const response = await apiClient.post('/auth/login', {
                 email,
                 password,
             });

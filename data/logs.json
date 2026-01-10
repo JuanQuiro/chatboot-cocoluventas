@@ -1,5 +1,742 @@
 [
   {
+    "id": "1767993093777",
+    "timestamp": "2026-01-09T21:11:29.909Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting sellers summary:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellersSummary (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1273:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "params": {},
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/summary/sellers",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:29.908Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/gastos",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993093764",
+    "timestamp": "2026-01-09T21:11:29.904Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting seller rate:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellerRate (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1212:24)\n    at async queryFn (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:341:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/seller/all",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:29.904Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/gastos",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993093751",
+    "timestamp": "2026-01-09T21:11:28.872Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting sellers summary:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellersSummary (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1273:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "params": {},
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/summary/sellers",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:28.871Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993093732",
+    "timestamp": "2026-01-09T21:11:28.866Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting seller rate:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellerRate (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1212:24)\n    at async queryFn (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:341:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/seller/all",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:28.865Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993083831",
+    "timestamp": "2026-01-09T21:11:20.789Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting sellers summary:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellersSummary (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1273:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "params": {},
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/summary/sellers",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:20.789Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993083813",
+    "timestamp": "2026-01-09T21:11:20.778Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting seller rate:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellerRate (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1212:24)\n    at async queryFn (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:341:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/seller/all",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:20.777Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993083796",
+    "timestamp": "2026-01-09T21:11:18.759Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting sellers summary:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellersSummary (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1273:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "params": {},
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/summary/sellers",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:18.759Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993083779",
+    "timestamp": "2026-01-09T21:11:18.756Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting seller rate:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellerRate (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1212:24)\n    at async queryFn (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:341:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/seller/all",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:18.755Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078833",
+    "timestamp": "2026-01-09T21:11:17.719Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting sellers summary: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting sellers summary:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellersSummary (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1273:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "params": {},
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/summary/sellers",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:17.719Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078819",
+    "timestamp": "2026-01-09T21:11:17.716Z",
+    "log_type": "ERROR",
+    "category": "FRONTEND",
+    "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+    "data": {
+      "type": "CONSOLE_ERROR",
+      "message": "Error getting seller rate: AxiosError: Request failed with status code 500",
+      "args": [
+        "Error getting seller rate:",
+        {
+          "message": "Request failed with status code 500",
+          "name": "AxiosError",
+          "stack": "AxiosError: Request failed with status code 500\n    at settle (http://localhost:3000/static/js/bundle.js:9967:12)\n    at XMLHttpRequest.onloadend (http://localhost:3000/static/js/bundle.js:8578:66)\n    at Axios.request (http://localhost:3000/static/js/bundle.js:9080:41)\n    at async Object.getSellerRate (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:1212:24)\n    at async queryFn (http://localhost:3000/static/js/src_pages_Comisiones_jsx.chunk.js:341:24)",
+          "config": {
+            "transitional": {
+              "silentJSONParsing": true,
+              "forcedJSONParsing": true,
+              "clarifyTimeoutError": false
+            },
+            "adapter": [
+              "xhr",
+              "http",
+              "fetch"
+            ],
+            "transformRequest": [
+              null
+            ],
+            "transformResponse": [
+              null
+            ],
+            "timeout": 0,
+            "xsrfCookieName": "XSRF-TOKEN",
+            "xsrfHeaderName": "X-XSRF-TOKEN",
+            "maxContentLength": -1,
+            "maxBodyLength": -1,
+            "env": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*"
+            },
+            "method": "get",
+            "url": "http://localhost:3009/api/finance/commissions/seller/all",
+            "allowAbsoluteUrls": true
+          },
+          "code": "ERR_BAD_RESPONSE",
+          "status": 500
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:17.715Z"
+    },
+    "severity": 3,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/comisiones",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078808",
+    "timestamp": "2026-01-09T21:11:14.535Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "Operación lenta: http://localhost:3000/movimientos-inventario",
+    "data": {
+      "type": "PERFORMANCE",
+      "message": "Operación lenta: http://localhost:3000/movimientos-inventario",
+      "duration": 1780.4000000003725,
+      "timestamp": "2026-01-09T21:11:14.535Z"
+    },
+    "severity": 2,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/movimientos-inventario",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078795",
+    "timestamp": "2026-01-09T21:11:14.535Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/movimientos-inventario (1780.4000000003725ms)",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/movimientos-inventario (1780.4000000003725ms)",
+      "args": [
+        "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/movimientos-inventario (1780.4000000003725ms)"
+      ],
+      "timestamp": "2026-01-09T21:11:14.535Z"
+    },
+    "severity": 2,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/movimientos-inventario",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078781",
+    "timestamp": "2026-01-09T21:11:13.848Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. Error Component Stack",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. Error Component Stack",
+      "args": [
+        "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
+        {
+          "name": "Error Component Stack"
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:13.848Z"
+    },
+    "severity": 2,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/movimientos-inventario",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993078763",
+    "timestamp": "2026-01-09T21:11:13.846Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. Error Component Stack",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. Error Component Stack",
+      "args": [
+        "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+        {
+          "name": "Error Component Stack"
+        }
+      ],
+      "timestamp": "2026-01-09T21:11:13.845Z"
+    },
+    "severity": 2,
+    "user_id": 8,
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/movimientos-inventario",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+  },
+  {
+    "id": "1767993049109",
+    "timestamp": "2026-01-09T21:10:45.534Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "Operación lenta: http://localhost:3000/",
+    "data": {
+      "type": "PERFORMANCE",
+      "message": "Operación lenta: http://localhost:3000/",
+      "duration": 13750.900000000373,
+      "timestamp": "2026-01-09T21:10:45.534Z"
+    },
+    "severity": 2,
+    "user_id": "1",
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/dashboard",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0 (Edition ms_store_gx)"
+  },
+  {
+    "id": "1767993049088",
+    "timestamp": "2026-01-09T21:10:45.533Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (13750.900000000373ms)",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (13750.900000000373ms)",
+      "args": [
+        "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (13750.900000000373ms)"
+      ],
+      "timestamp": "2026-01-09T21:10:45.533Z"
+    },
+    "severity": 2,
+    "user_id": "1",
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/dashboard",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0 (Edition ms_store_gx)"
+  },
+  {
+    "id": "1767993049063",
+    "timestamp": "2026-01-09T21:10:44.182Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
+      "args": [
+        "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+      ],
+      "timestamp": "2026-01-09T21:10:44.181Z"
+    },
+    "severity": 2,
+    "user_id": "1",
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0 (Edition ms_store_gx)"
+  },
+  {
+    "id": "1767993049040",
+    "timestamp": "2026-01-09T21:10:44.181Z",
+    "log_type": "WARNING",
+    "category": "FRONTEND",
+    "message": "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+    "data": {
+      "type": "CONSOLE_WARN",
+      "message": "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+      "args": [
+        "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition."
+      ],
+      "timestamp": "2026-01-09T21:10:44.180Z"
+    },
+    "severity": 2,
+    "user_id": "1",
+    "tenant_id": "cocolu",
+    "url": "http://localhost:3000/",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0 (Edition ms_store_gx)"
+  },
+  {
     "id": "1767953754256",
     "timestamp": "2026-01-09T10:15:48.262Z",
     "log_type": "WARNING",
@@ -23033,379 +23770,6 @@
     "user_id": "1",
     "tenant_id": "cocolu",
     "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223988",
-    "timestamp": "2025-12-15T15:22:36.386Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:36.386Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223976",
-    "timestamp": "2025-12-15T15:22:31.374Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:31.373Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223968",
-    "timestamp": "2025-12-15T15:22:26.375Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:26.375Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223956",
-    "timestamp": "2025-12-15T15:22:21.391Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:21.391Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223946",
-    "timestamp": "2025-12-15T15:22:16.371Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:16.371Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223939",
-    "timestamp": "2025-12-15T15:22:11.378Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:11.377Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223926",
-    "timestamp": "2025-12-15T15:22:06.379Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:06.379Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223910",
-    "timestamp": "2025-12-15T15:22:01.370Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:22:01.370Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223896",
-    "timestamp": "2025-12-15T15:21:56.375Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:56.375Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223889",
-    "timestamp": "2025-12-15T15:21:51.383Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:51.383Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223881",
-    "timestamp": "2025-12-15T15:21:46.394Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:46.394Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223875",
-    "timestamp": "2025-12-15T15:21:41.411Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:41.411Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223866",
-    "timestamp": "2025-12-15T15:21:36.390Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:36.390Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223853",
-    "timestamp": "2025-12-15T15:21:31.400Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:31.400Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223845",
-    "timestamp": "2025-12-15T15:21:26.547Z",
-    "log_type": "ERROR",
-    "category": "FRONTEND",
-    "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-    "data": {
-      "type": "CONSOLE_ERROR",
-      "message": "Error fetching dashboard data: TypeError: Failed to fetch",
-      "args": [
-        "Error fetching dashboard data:",
-        {}
-      ],
-      "timestamp": "2025-12-15T15:21:26.547Z"
-    },
-    "severity": 3,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223839",
-    "timestamp": "2025-12-15T15:21:24.225Z",
-    "log_type": "WARNING",
-    "category": "FRONTEND",
-    "message": "Operación lenta: http://localhost:3000/",
-    "data": {
-      "type": "PERFORMANCE",
-      "message": "Operación lenta: http://localhost:3000/",
-      "duration": 2644.4000000059605,
-      "timestamp": "2025-12-15T15:21:24.225Z"
-    },
-    "severity": 2,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223828",
-    "timestamp": "2025-12-15T15:21:24.224Z",
-    "log_type": "WARNING",
-    "category": "FRONTEND",
-    "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (2644.4000000059605ms)",
-    "data": {
-      "type": "CONSOLE_WARN",
-      "message": "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (2644.4000000059605ms)",
-      "args": [
-        "⚠️ [PERFORMANCE] Operación lenta detectada: http://localhost:3000/ (2644.4000000059605ms)"
-      ],
-      "timestamp": "2025-12-15T15:21:24.224Z"
-    },
-    "severity": 2,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/dashboard",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-  },
-  {
-    "id": "1765812223819",
-    "timestamp": "2025-12-15T15:21:23.862Z",
-    "log_type": "WARNING",
-    "category": "FRONTEND",
-    "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
-    "data": {
-      "type": "CONSOLE_WARN",
-      "message": "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
-      "args": [
-        "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
-      ],
-      "timestamp": "2025-12-15T15:21:23.862Z"
-    },
-    "severity": 2,
-    "user_id": "1",
-    "tenant_id": "cocolu",
-    "url": "http://localhost:3000/",
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
   }
 ]

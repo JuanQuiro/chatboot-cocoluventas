@@ -15,36 +15,43 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🔍 VERIFICANDO CONFIGURACIÓN NGINX...");
+console.log("🔧 FIX: Ruta absoluta de base de datos...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== 1. ARCHIVOS DE CONFIGURACIÓN NGINX ==="
-ls -la /etc/nginx/sites-enabled/
+cd /var/www/cocolu-chatbot/src/api
+
+echo "=== ACTUALIZAR auth-simple.routes.js ==="
+sed -i "s|new Database('\\./data/cocolu\\.db')|new Database('/var/www/cocolu-chatbot/data/cocolu.db')|g" auth-simple.routes.js
+
+echo "✅ Ruta actualizada"
 
 echo ""
-echo "=== 2. CONFIG DE API.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*api* 2>/dev/null || cat /etc/nginx/sites-enabled/default 2>/dev/null | head -100
+echo "=== VERIFICAR ==="
+grep "Database" auth-simple.routes.js
+
+cd /var/www/cocolu-chatbot
 
 echo ""
-echo "=== 3. CONFIG DE COCOLU.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*cocolu* 2>/dev/null | head -100
+echo "=== RESTART PM2 ==="
+pm2 restart cocolu-dashoffice
+sleep 10
 
 echo ""
-echo "=== 4. VERIFICAR QUE NGINX ESTÉ CORRIENDO ==="
-systemctl status nginx | grep -E "Active|running"
+echo "=== TEST LOGIN ==="
+curl -s -X POST http://127.0.0.1:3009/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@cocolu.com","password":"password123"}'
 
 echo ""
-echo "=== 5. PUERTOS EN USO ==="
-ss -tlnp | grep -E "80|443|3009"
+echo ""
+echo "🎯 DONE"
     `;
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on("data", (d: Buffer) => console.log(d.toString()));
         stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
         stream.on("close", () => {
-            console.log("\n✅ Verificación completada");
+            console.log("\n✅ Fix aplicado");
             conn.end();
         });
     });

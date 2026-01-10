@@ -15,36 +15,34 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🔍 VERIFICANDO CONFIGURACIÓN NGINX...");
+console.log("🔍 VERIFICANDO ERROR DE SINTAXIS...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== 1. ARCHIVOS DE CONFIGURACIÓN NGINX ==="
-ls -la /etc/nginx/sites-enabled/
+cd /var/www/cocolu-chatbot
+
+echo "=== ERROR EXACTO ==="
+node --check app-integrated.js 2>&1
 
 echo ""
-echo "=== 2. CONFIG DE API.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*api* 2>/dev/null || cat /etc/nginx/sites-enabled/default 2>/dev/null | head -100
+echo "=== LÍNEAS ALREDEDOR DE 243 ==="
+sed -n '238,248p' app-integrated.js
 
 echo ""
-echo "=== 3. CONFIG DE COCOLU.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*cocolu* 2>/dev/null | head -100
+echo "=== VERIFICAR SI auth-simple.routes.js EXISTE ==="
+ls -lh src/api/auth-simple.routes.js 2>&1 || echo "No existe"
 
 echo ""
-echo "=== 4. VERIFICAR QUE NGINX ESTÉ CORRIENDO ==="
-systemctl status nginx | grep -E "Active|running"
-
-echo ""
-echo "=== 5. PUERTOS EN USO ==="
-ss -tlnp | grep -E "80|443|3009"
+echo "=== CONTENIDO auth-simple.routes.js ==="
+head -20 src/api/auth-simple.routes.js 2>/dev/null || echo "No se puede leer"
     `;
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on("data", (d: Buffer) => console.log(d.toString()));
         stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
         stream.on("close", () => {
-            console.log("\n✅ Verificación completada");
+            console.log("\n✅ Diagnóstico completado");
             conn.end();
         });
     });

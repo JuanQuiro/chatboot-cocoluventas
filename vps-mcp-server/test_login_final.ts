@@ -15,36 +15,32 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🔍 VERIFICANDO CONFIGURACIÓN NGINX...");
+console.log("✅ TEST FINAL DEL LOGIN...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== 1. ARCHIVOS DE CONFIGURACIÓN NGINX ==="
-ls -la /etc/nginx/sites-enabled/
+echo "=== PM2 STATUS ==="
+pm2 list | grep cocolu
 
 echo ""
-echo "=== 2. CONFIG DE API.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*api* 2>/dev/null || cat /etc/nginx/sites-enabled/default 2>/dev/null | head -100
+echo "=== TEST LOGIN (con respuesta completa) ==="
+curl -v -X POST http://127.0.0.1:3009/api/auth/login \\
+    -H "Content-Type: application/json" \\
+    -d '{"email":"admin@cocolu.com","password":"password123"}' \\
+    2>&1 | grep -E "HTTP|success|token|error" | head -20
 
 echo ""
-echo "=== 3. CONFIG DE COCOLU.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*cocolu* 2>/dev/null | head -100
-
 echo ""
-echo "=== 4. VERIFICAR QUE NGINX ESTÉ CORRIENDO ==="
-systemctl status nginx | grep -E "Active|running"
-
-echo ""
-echo "=== 5. PUERTOS EN USO ==="
-ss -tlnp | grep -E "80|443|3009"
+echo "=== PM2 LOGS (si hay error) ==="
+pm2 logs cocolu-dashoffice --err --lines 10 --nostream 2>&1 | tail -10
     `;
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on("data", (d: Buffer) => console.log(d.toString()));
         stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
         stream.on("close", () => {
-            console.log("\n✅ Verificación completada");
+            console.log("\n✅ Test completado");
             conn.end();
         });
     });

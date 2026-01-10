@@ -15,29 +15,21 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🔍 VERIFICANDO CONFIGURACIÓN NGINX...");
+console.log("📋 VERIFICANDO ARCHIVOS EN VPS...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== 1. ARCHIVOS DE CONFIGURACIÓN NGINX ==="
-ls -la /etc/nginx/sites-enabled/
+echo "=== 1. ARCHIVOS EN src/api/ EN VPS ==="
+ls -la /var/www/cocolu-chatbot/src/api/*.js 2>/dev/null | awk '{print $9}'
 
 echo ""
-echo "=== 2. CONFIG DE API.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*api* 2>/dev/null || cat /etc/nginx/sites-enabled/default 2>/dev/null | head -100
+echo "=== 2. ERROR EXACTO ==="
+cat /root/.pm2/logs/cocolu-dashoffice-error.log 2>/dev/null | tail -20
 
 echo ""
-echo "=== 3. CONFIG DE COCOLU.EMBERDRAGO.COM ==="
-cat /etc/nginx/sites-enabled/*cocolu* 2>/dev/null | head -100
-
-echo ""
-echo "=== 4. VERIFICAR QUE NGINX ESTÉ CORRIENDO ==="
-systemctl status nginx | grep -E "Active|running"
-
-echo ""
-echo "=== 5. PUERTOS EN USO ==="
-ss -tlnp | grep -E "80|443|3009"
+echo "=== 3. IMPORTS EN APP-INTEGRATED.JS ==="
+grep "^import.*from '\\.\\./src/api\\|^import.*from '\\./src/api" /var/www/cocolu-chatbot/app-integrated.js 2>/dev/null | head -20
     `;
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
