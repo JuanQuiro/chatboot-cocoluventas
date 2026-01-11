@@ -1,8 +1,8 @@
 {
-    "buildCommand": "npm run build",
+    "buildCommand": "cd dashboard && rm -rf node_modules build && npm install && npm run build",
     "outputDirectory": "dashboard/build",
     "devCommand": "cd dashboard && npm start",
-    "installCommand": "npm install && npm run dashboard:install",
+    "installCommand": "echo 'Skipping root install'",
     "framework": null,
     "rewrites": [
         {
