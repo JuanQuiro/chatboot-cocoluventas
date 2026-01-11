@@ -15,11 +15,23 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 AGGRESSIVE DB FIX & RESTART...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+
+    // Sed to comment out db.close anywhere
+    const cmd = `
+find /var/www/cocolu-chatbot/src/api -name "*.js" -exec sed -i 's/db\\.close/\\/\\/ db.close/g' {} +
+echo "Fixed DB closures."
+
+# Restart PM2
+pm2 restart cocolu-dashoffice
+sleep 5
+echo "PM2 Restarted."
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

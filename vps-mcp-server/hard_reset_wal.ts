@@ -15,11 +15,26 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 NUCLEAR WAL RESET & SEED...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+pm2 stop all
+rm /var/www/cocolu-chatbot/data/cocolu.db-wal
+rm /var/www/cocolu-chatbot/data/cocolu.db-shm
+ls -l /var/www/cocolu-chatbot/data/
+
+cd /var/www/cocolu-chatbot/
+node seed_admin_safe.js
+
+pm2 start app-integrated.js --name cocolu-dashoffice -i max --no-autorestart
+pm2 save
+sleep 5
+pm2 list
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

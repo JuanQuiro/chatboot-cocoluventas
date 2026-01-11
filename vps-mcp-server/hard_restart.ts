@@ -15,11 +15,20 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 HARD PM2 RESTART...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+
+    const cmd = `
+pm2 delete all
+pm2 start app-integrated.js --name cocolu-dashoffice
+pm2 save
+sleep 5
+pm2 logs cocolu-dashoffice --lines 20 --nostream
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

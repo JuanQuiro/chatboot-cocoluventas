@@ -15,11 +15,20 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING CLIENT DETAIL ROUTE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We will test with ID 1 (likely exists) and ID 999 (likely doesn't, but should return JSON)
+    const cmd = `
+echo "=== REQUEST ID 1 ==="
+curl -v http://localhost:3009/api/clients/1
+
+echo ""
+echo "=== REQUEST ID 99999 ==="
+curl -v http://localhost:3009/api/clients/99999
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

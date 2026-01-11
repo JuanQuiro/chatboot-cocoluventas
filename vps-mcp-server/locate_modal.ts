@@ -12,14 +12,26 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 SEARCHING FOR MODAL TEXT...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+echo "=== SEARCH IN API ==="
+grep -r "Ventas - Hoy" /var/www/cocolu-chatbot/src/api/
+
+echo "=== SEARCH IN DASHBOARD BUILD ==="
+grep -r "Ventas - Hoy" /var/www/cocolu-chatbot/dashboard/build/ || echo "Not found in build (binary/minified?)"
+
+echo "=== LIST DASHBOARD DIR ==="
+ls -F /var/www/cocolu-chatbot/
+ls -F /var/www/cocolu-chatbot/dashboard/
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

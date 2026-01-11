@@ -15,11 +15,18 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ INSPECTING MODULE IMPORTS...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+head -n 5 /var/www/cocolu-chatbot/src/api/sales-fix.routes.js
+echo "---"
+head -n 5 /var/www/cocolu-chatbot/src/api/clients-fix.routes.js
+echo "---"
+head -n 5 /var/www/cocolu-chatbot/src/api/products-fix.routes.js
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

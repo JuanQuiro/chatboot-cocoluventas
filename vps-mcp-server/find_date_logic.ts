@@ -12,14 +12,20 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 FINDING DATE LOGIC...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // Search for any date related string
+    const cmd = `
+grep -n "new Date" /var/www/cocolu-chatbot/src/api/dashboard-routes.js | head -n 20
+grep -n "toISOString" /var/www/cocolu-chatbot/src/api/dashboard-routes.js | head -n 20
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

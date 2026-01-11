@@ -15,13 +15,18 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING DEBT SUMMARY ROUTE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We will test with ID 1
+    const cmd = `
+curl -v http://localhost:3009/api/clients/1/debt-summary
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
+        stream.stderr.on('data', d => console.error(d.toString())); // IMPORTANT: Capture stderr for curl -v
         stream.on('close', () => conn.end());
     });
 }).connect(config);

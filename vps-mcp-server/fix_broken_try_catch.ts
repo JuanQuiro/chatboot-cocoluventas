@@ -15,11 +15,24 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 FIXING BROKEN TRY/CATCH BLOCKS...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+
+    // Fix the broken syntax by replacing "try { // db.close();" with just "// db.close();"
+    const cmd = `
+find /var/www/cocolu-chatbot/src/api -name "*.js" -exec sed -i 's/try { \\/\\/ db\\.close();/\\/\\/ db.close();/g' {} +
+find /var/www/cocolu-chatbot/src/api -name "*.js" -exec sed -i 's/if (db) try { \\/\\/ db\\.close(); }/\\/\\/ if (db) db.close();/g' {} +
+echo "Fixed syntax."
+
+# Restart
+pm2 restart cocolu-dashoffice
+sleep 5
+pm2 logs cocolu-dashoffice --lines 10 --nostream
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

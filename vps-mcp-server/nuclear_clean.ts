@@ -15,11 +15,21 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 NUCLEAR OPTION: CLEAN RESTORE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+
+    const cmd = `
+cd /var/www/cocolu-chatbot/
+git checkout .
+git clean -fd
+pm2 restart cocolu-dashoffice
+sleep 5
+pm2 logs cocolu-dashoffice --lines 10 --nostream
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

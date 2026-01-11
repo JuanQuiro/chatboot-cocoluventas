@@ -15,11 +15,29 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ INSPECTING FULL SCHEMA...");
+
+const CHECK_SCRIPT = `
+import Database from 'better-sqlite3';
+const DB_PATH = '/var/www/cocolu-chatbot/data/cocolu.db';
+try {
+    const db = new Database(DB_PATH);
+    const cols = db.pragma('table_info(users)');
+    console.log(JSON.stringify(cols, null, 2));
+} catch (e) {
+    console.error(e);
+}
+`;
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const B64 = Buffer.from(CHECK_SCRIPT).toString('base64');
+    const cmd = `
+echo "${B64}" | base64 -d > /var/www/cocolu-chatbot/inspect_schema.js
+cd /var/www/cocolu-chatbot/
+node inspect_schema.js
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

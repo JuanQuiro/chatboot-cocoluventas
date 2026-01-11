@@ -15,11 +15,23 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ INSPECTING USERS TABLE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We use a small node script to inspect via better-sqlite3 to be consistent
+    const cmd = `
+node -e "
+const Database = require('better-sqlite3');
+const db = new Database('/var/www/cocolu-chatbot/data/cocolu.db');
+const cols = db.pragma('table_info(users)');
+console.log(JSON.stringify(cols, null, 2));
+const users = db.prepare('SELECT * FROM users LIMIT 1').all();
+console.log('--- DATA ---');
+console.log(JSON.stringify(users, null, 2));
+"
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

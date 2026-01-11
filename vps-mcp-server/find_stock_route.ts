@@ -15,11 +15,17 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 BUSCANDO RUTA DE STOCK...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // Search for "stock" in legacy routes
+    const cmd = `
+grep -C 5 "stock" /var/www/cocolu-chatbot/src/api/enhanced-routes.js
+grep -C 5 "add-stock" /var/www/cocolu-chatbot/src/api/enhanced-routes.js
+grep -C 5 "movimientos_stock" /var/www/cocolu-chatbot/src/api/enhanced-routes.js
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

@@ -15,11 +15,20 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ DIAGNOSING NGINX 502...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We try to reload/restart nginx and read the last error
+    const cmd = `
+echo "--- NGINX TESTING ---"
+sudo nginx -t
+echo "--- NGINX RELOAD ---"
+sudo systemctl reload nginx
+echo "--- ERROR LOG (LAST 5) ---"
+tail -n 5 /var/log/nginx/error.log
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

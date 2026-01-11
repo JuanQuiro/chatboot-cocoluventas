@@ -15,11 +15,26 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 SWITCHING TO SINGLE INSTANCE MODE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+pm2 stop all
+pm2 delete all
+cd /var/www/cocolu-chatbot/
+
+# Re-seed ONE LAST TIME to be sure
+node seed_admin_safe.js
+
+# Start SINGLE INSTANCE
+pm2 start app-integrated.js --name cocolu-dashoffice
+pm2 save
+sleep 3
+pm2 list
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

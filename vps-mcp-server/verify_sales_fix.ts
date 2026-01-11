@@ -15,13 +15,30 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING SALES CREATION...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // 1. Get a product ID
+    // 2. Create Sale
+    const cmd = `
+PRODUCT_ID=$(sqlite3 /var/www/cocolu-chatbot/data/cocolu.db "SELECT id FROM productos LIMIT 1")
+echo "Using Product ID: $PRODUCT_ID"
+
+echo "=== CREATE SALE ==="
+curl -X POST http://localhost:3009/api/sales \\
+  -H "Content-Type: application/json" \\
+  -d "{
+    \\"client_id\\": 1,
+    \\"products\\": [{ \\"id\\": $PRODUCT_ID, \\"cantidad\\": 1, \\"precio_usd\\": 10 }],
+    \\"payment_method\\": \\"efectivo\\",
+    \\"total\\": 10
+  }"
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
+        stream.stderr.on('data', d => console.error(d.toString()));
         stream.on('close', () => conn.end());
     });
 }).connect(config);

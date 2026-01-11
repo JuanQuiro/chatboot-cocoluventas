@@ -12,16 +12,25 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 READING DASHBOARD ROUTES CHUNK 2...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // Read lines 300-600
+    const cmd = `
+head -n 600 /var/www/cocolu-chatbot/src/api/dashboard-routes.js | tail -n 300
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
-        stream.on('close', () => conn.end());
+        let data = '';
+        stream.on('data', d => data += d.toString());
+        stream.on('close', () => {
+            console.log(data);
+            conn.end();
+        });
     });
 }).connect(config);

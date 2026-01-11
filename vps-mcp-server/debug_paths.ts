@@ -15,13 +15,25 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 DIAGNOSING MODULE PATHS...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+cd /var/www/cocolu-chatbot
+ls -l src/api/
+
+echo ""
+echo "=== PM2 ERROR DETAILS ==="
+tail -n 20 /root/.pm2/logs/cocolu-dashoffice-error.log
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
-        stream.on('close', () => conn.end());
+        stream.on("data", (d: Buffer) => console.log(d.toString()));
+        stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
+        stream.on("close", () => {
+            console.log("\n✅ Done");
+            conn.end();
+        });
     });
 }).connect(config);

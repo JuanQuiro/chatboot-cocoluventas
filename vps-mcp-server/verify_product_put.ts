@@ -15,13 +15,25 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING PRODUCT UPDATE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // 1. Get Product ID
+    // 2. Update Name
+    const cmd = `
+PRODUCT_ID=$(sqlite3 /var/www/cocolu-chatbot/data/cocolu.db "SELECT id FROM productos LIMIT 1")
+echo "Using Product ID: $PRODUCT_ID"
+
+echo "=== UPDATE PRODUCT NAME ==="
+curl -X PUT http://localhost:3009/api/products/$PRODUCT_ID \\
+  -H "Content-Type: application/json" \\
+  -d '{"nombre": "Manzana Actualizada"}'
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
+        stream.stderr.on('data', d => console.error(d.toString())); // capture curl -v
         stream.on('close', () => conn.end());
     });
 }).connect(config);

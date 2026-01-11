@@ -15,13 +15,17 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("☁️ VERIFICANDO REMOTAMENTE CON CURL...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    conn.exec('curl -v http://localhost:3009/health', (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
-        stream.on('close', () => conn.end());
+        stream.on('data', (d) => console.log(d.toString()));
+        stream.stderr.on('data', (d) => console.error(d.toString()));
+        stream.on('close', () => {
+            console.log("\n✅ Done");
+            conn.end();
+        });
     });
 }).connect(config);

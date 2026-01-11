@@ -15,11 +15,20 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🚀 ACTIVATING MULTI-CORE CLUSTER MODE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We update the PM2 ecosystem to run instances: max
+    // Since we don't have an ecosystem.config.js file managing this usually (we used direct start)
+    // We will delete and restart with parameters.
+    const cmd = `
+pm2 delete cocolu-dashoffice
+pm2 start /var/www/cocolu-chatbot/app-integrated.js --name cocolu-dashoffice -i max --no-autorestart
+pm2 save
+pm2 list
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

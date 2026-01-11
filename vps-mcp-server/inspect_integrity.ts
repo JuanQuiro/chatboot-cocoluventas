@@ -15,11 +15,19 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ INSPECTING FILE INTEGRITY...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+echo "--- DB.JS ---"
+ls -l /var/www/cocolu-chatbot/src/api/lib/db.js
+cat /var/www/cocolu-chatbot/src/api/lib/db.js
+echo "--- AUTH.JS ---"
+ls -l /var/www/cocolu-chatbot/src/api/auth-simple.routes.js
+head -n 10 /var/www/cocolu-chatbot/src/api/auth-simple.routes.js
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

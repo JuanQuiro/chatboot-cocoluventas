@@ -12,14 +12,29 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 VERIFYING BCV RATE...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+echo "=== 1. TRIGGER SYNC ==="
+curl -X POST http://localhost:3009/api/bcv/sync -s
+
+echo ""
+echo ""
+echo "=== 2. GET CURRENT RATE ==="
+curl http://localhost:3009/api/bcv/rate -s
+
+echo ""
+echo ""
+echo "=== 3. CHECK CACHE FILE ==="
+cat /var/www/cocolu-chatbot/data/bcv_rate.json
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

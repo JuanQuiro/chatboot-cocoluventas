@@ -15,13 +15,25 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 DEBUG FINAL: HTML ERROR...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+# Ver respuesta exacta
+curl -v http://127.0.0.1:3009/api/installments 2>&1
+
+echo ""
+echo "=== LOGS ERROR (Ultimas 20) ==="
+cat /root/.pm2/logs/cocolu-dashoffice-error.log | tail -20
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
-        stream.on('close', () => conn.end());
+        stream.on("data", (d: Buffer) => console.log(d.toString()));
+        stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
+        stream.on("close", () => {
+            console.log("\n✅ Done");
+            conn.end();
+        });
     });
 }).connect(config);

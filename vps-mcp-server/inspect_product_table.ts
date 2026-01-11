@@ -15,11 +15,20 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 INSPECTING TABLES FOR PRODUCTS...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // Check tables and then columns for likely candidates
+    const cmd = `
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db ".tables"
+echo "=== SCHEMA CANDIDATES ==="
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db ".schema products"
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db ".schema productos"
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db ".schema items"
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db ".schema inventory"
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

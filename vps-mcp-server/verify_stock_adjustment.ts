@@ -15,13 +15,29 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING STOCK ADJUSTMENT...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // 1. Get product ID
+    // 2. Adjust Stock
+    const cmd = `
+PRODUCT_ID=$(sqlite3 /var/www/cocolu-chatbot/data/cocolu.db "SELECT id FROM productos LIMIT 1")
+echo "Using Product ID: $PRODUCT_ID"
+
+echo "=== ADJUST STOCK (+10) ==="
+curl -X POST http://localhost:3009/api/products/adjustment \\
+  -H "Content-Type: application/json" \\
+  -d "{
+    \\"producto_id\\": $PRODUCT_ID,
+    \\"cantidad\\": 10,
+    \\"comentario\\": \\"Test API Adjustment\\"
+  }"
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
+        stream.stderr.on('data', d => console.error(d.toString())); // capture curl -v
         stream.on('close', () => conn.end());
     });
 }).connect(config);

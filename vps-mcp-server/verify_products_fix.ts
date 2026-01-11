@@ -15,13 +15,26 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🕵️ TESTING PRODUCT ROUTES...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // 1. Create Product
+    // 2. List Products
+    const cmd = `
+echo "=== 1. CREATE PRODUCT ==="
+curl -X POST http://localhost:3009/api/products \\
+  -H "Content-Type: application/json" \\
+  -d '{"nombre": "Manzana Test", "precio_usd": 122, "stock_actual": 122, "sku": "TEST-SKU-001"}'
+
+echo ""
+echo "=== 2. LIST PRODUCTS ==="
+curl -s "http://localhost:3009/api/products?limit=5"
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
+        stream.stderr.on('data', d => console.error(d.toString()));
         stream.on('close', () => conn.end());
     });
 }).connect(config);

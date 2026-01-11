@@ -15,11 +15,19 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔍 REMOTE GREP APP INTEGRATED...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    const cmd = `
+echo "--- CHECKING DASHBOARD IMPORT ---"
+grep "dashboard-fix.routes.js" /var/www/cocolu-chatbot/app-integrated.js
+echo "--- CHECKING DASHBOARD MOUNT ---"
+grep "/api/dashboard" /var/www/cocolu-chatbot/app-integrated.js
+echo "--- CHECKING DB LIB ---"
+ls -l /var/www/cocolu-chatbot/src/api/lib/db.js
+    `;
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());

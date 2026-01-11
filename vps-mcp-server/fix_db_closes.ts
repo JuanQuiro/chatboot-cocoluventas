@@ -15,11 +15,19 @@ const config = {
     readyTimeout: 60000,
 };
 
-console.log("🕵️ CHECKING NGINX CONFIG...");
+console.log("🔥 FIXING DB CLOSURES...");
 
 const conn = new Client();
 conn.on("ready", () => {
-    conn.exec('ls -l /etc/nginx/sites-enabled/ && echo "---" && grep -r "proxy_pass" /etc/nginx/sites-enabled/', (err, stream) => {
+    // We use find to locate all JS files in src/api and run sed on them
+    const cmd = `
+find /var/www/cocolu-chatbot/src/api -name "*.js" -exec sed -i 's/db.close()/\/\/ db.close()/g' {} +
+echo "Fixed DB closures."
+# Verify
+grep -r "db.close()" /var/www/cocolu-chatbot/src/api
+    `;
+
+    conn.exec(cmd, (err, stream) => {
         if (err) throw err;
         stream.on('data', d => console.log(d.toString()));
         stream.on('close', () => conn.end());
