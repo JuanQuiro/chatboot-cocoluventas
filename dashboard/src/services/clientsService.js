@@ -27,6 +27,27 @@ export const clientsService = {
         return response.data; // Returns { success, data, meta }
     },
 
+    // ========== BÚSQUEDA MEJORADA (JOYERÍA) ==========
+    // Usa el nuevo endpoint que incluye apellido
+    searchClientsMejorado: async (query) => {
+        if (!query || query.length < 2) {
+            return { success: true, data: [] };
+        }
+        const response = await axios.get(`${API_URL}/clients-improved/search`, {
+            params: { q: query }
+        });
+        return response.data; // Returns { success, data } con nombre_completo
+    },
+
+    // Crear cliente con apellido obligatorio
+    createClientMejorado: async (clienteData) => {
+        if (!clienteData.apellido) {
+            throw new Error('El apellido es obligatorio');
+        }
+        const response = await axios.post(`${API_URL}/clients-improved`, clienteData);
+        return response.data;
+    },
+
     // Get client by ID
     getClientById: async (id) => {
         const response = await axios.get(`${API_URL}/clients/${id}`);

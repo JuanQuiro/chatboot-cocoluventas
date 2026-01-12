@@ -65,6 +65,18 @@ export const salesService = {
     duplicateSale: async (saleId) => {
         const response = await axios.post(`${API_URL}/sales/${saleId}/duplicate`);
         return response.data;
+    },
+
+    // ========== VENTAS MEJORADAS (JOYERÍA) ==========
+    // Usa el nuevo endpoint con cálculos correctos de IVA, delivery, descuento
+    createSaleMejorada: async (ventaData) => {
+        const response = await axios.post(`${API_URL}/sales-improved/nueva`, ventaData);
+        return response.data;
+    },
+
+    getSaleResumen: async (ventaId) => {
+        const response = await axios.get(`${API_URL}/sales-improved/${ventaId}/resumen`);
+        return response.data;
     }
 };
 
