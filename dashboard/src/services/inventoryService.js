@@ -191,12 +191,7 @@ export const inventoryService = {
         return response.data;
     },
 
-    // Advanced search
-    searchByBarcode: async (barcode) => {
-        const response = await axios.get(`${API_URL}/inventory/search/barcode`, { params: { barcode } });
-        return response.data;
-    },
-
+    // Advanced search by category
     searchByCategory: async (category) => {
         const response = await axios.get(`${API_URL}/inventory/search/category`, { params: { category } });
         return response.data;

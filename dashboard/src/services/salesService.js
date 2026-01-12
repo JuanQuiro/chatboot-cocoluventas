@@ -150,7 +150,9 @@ export const ordersService = {
     }
 };
 
-export default {
+const salesServices = {
     salesService,
     ordersService
 };
+
+export default salesServices;

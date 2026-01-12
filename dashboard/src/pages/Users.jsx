@@ -11,14 +11,14 @@ import { usePermissions } from '../hooks';
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
+    // const [showCreateModal, setShowCreateModal] = useState(false);
+    // const [showEditModal, setShowEditModal] = useState(false);
+    // const [selectedUser, setSelectedUser] = useState(null);
     const [roles, setRoles] = useState([]);
     const [filter, setFilter] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
-    
-    const { canCreate, canEdit, canDelete } = usePermissions();
+
+    // const { canCreate, canEdit, canDelete } = usePermissions();
 
     const loadUsers = useCallback(async () => {
         setLoading(true);
@@ -69,7 +69,7 @@ const Users = () => {
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.name?.toLowerCase().includes(filter.toLowerCase()) ||
-                            user.email?.toLowerCase().includes(filter.toLowerCase());
+            user.email?.toLowerCase().includes(filter.toLowerCase());
         const matchesRole = roleFilter === 'all' || user.role === roleFilter;
         return matchesSearch && matchesRole;
     });
@@ -188,11 +188,10 @@ const Users = () => {
                                                 <RoleBadge role={user.role} />
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    user.status === 'active' 
-                                                        ? 'bg-green-100 text-green-800' 
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active'
+                                                        ? 'bg-green-100 text-green-800'
                                                         : 'bg-red-100 text-red-800'
-                                                }`}>
+                                                    }`}>
                                                     {user.status === 'active' ? '✓ Activo' : '✗ Inactivo'}
                                                 </span>
                                             </td>
