@@ -4,8 +4,6 @@ import { X, DollarSign, Package, User, CreditCard, TrendingUp, Clock, ShoppingBa
 export default function SalesBreakdownModal({ isOpen, onClose, period, sales, total }) {
     const [activeTab, setActiveTab] = useState('overview'); // overview | products | payments
 
-    if (!isOpen) return null;
-
     const hasSales = sales && sales.length > 0;
     const safeTotal = total ? parseFloat(total).toFixed(2) : "0.00";
     const count = sales ? sales.length : 0;
@@ -17,7 +15,7 @@ export default function SalesBreakdownModal({ isOpen, onClose, period, sales, to
         'weekly': 'Esta Semana'
     }[period] || period;
 
-    // Calculate statistics
+    // Calculate statistics - MUST be before early return
     const stats = useMemo(() => {
         if (!hasSales) return null;
 
@@ -77,6 +75,9 @@ export default function SalesBreakdownModal({ isOpen, onClose, period, sales, to
             totalProducts: Object.values(productsMap).reduce((sum, p) => sum + p.quantity, 0)
         };
     }, [hasSales, sales, total, count]);
+
+    // Early return AFTER hooks
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
@@ -160,8 +161,8 @@ export default function SalesBreakdownModal({ isOpen, onClose, period, sales, to
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-all border-b-2 ${activeTab === tab.id
-                                            ? 'text-blue-600 border-blue-600'
-                                            : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+                                        ? 'text-blue-600 border-blue-600'
+                                        : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
                                     <tab.icon size={16} />
