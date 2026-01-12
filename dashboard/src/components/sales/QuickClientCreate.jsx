@@ -7,14 +7,17 @@ import Modal from '../common/Modal';
 import { useToast } from '../common/Toast';
 import { clientsService } from '../../services/clientsService';
 
-// Esquema de Validación Zod
+// Esquema de Validación Zod - ACTUALIZADO PARA JOYERÍA
 const clientSchema = z.object({
     cedula: z.string()
         .min(3, 'La cédula debe tener al menos 3 caracteres')
         .max(20, 'Cédula muy larga')
         .regex(/^[0-9]+$/, 'Solo números'),
-    name: z.string()
-        .min(3, 'El nombre debe ser más largo')
+    nombre: z.string()
+        .min(2, 'El nombre debe ser más largo')
+        .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, 'Solo letras'),
+    apellido: z.string()
+        .min(2, 'El apellido debe ser más largo')
         .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, 'Solo letras'),
     phone: z.string()
         .min(10, 'Teléfono incompleto (mínimo 10 dígitos)'),
@@ -26,7 +29,7 @@ const clientSchema = z.object({
     direccion: z.string().optional(),
     ciudad: z.string().optional(),
     tipo_precio: z.enum(['detal', 'mayor', 'vip']).default('detal'),
-    limite_credito: z.string().optional(), // Handle as string for input, convert later
+    limite_credito: z.string().optional(),
     dias_credito: z.string().optional()
 });
 
@@ -43,10 +46,11 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
         mode: 'onChange',
         defaultValues: {
             cedula: '',
-            name: '',
+            nombre: '',
+            apellido: '',
             phone: '',
             email: '',
-            instagram: '', // Default empty
+            instagram: '',
             direccion: '',
             ciudad: 'Valencia',
             tipo_precio: 'detal',
@@ -59,7 +63,8 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
         if (isOpen) {
             reset({
                 cedula: '',
-                name: '',
+                nombre: '',
+                apellido: '',
                 phone: '',
                 email: '',
                 instagram: '',
@@ -74,15 +79,11 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
 
     const onSubmit = async (data) => {
         try {
-            // Split logic se mantiene para compatibilidad con backend
-            const nameParts = data.name.trim().split(' ');
-            const nombre = nameParts[0];
-            const apellido = nameParts.slice(1).join(' ') || '.';
-
+            // Usamos los nuevos campos separados
             const payload = {
                 cedula: data.cedula,
-                nombre,
-                apellido,
+                nombre: data.nombre,
+                apellido: data.apellido,
                 telefono: data.phone,
                 email: data.email || null,
                 instagram: data.instagram || null,
@@ -93,14 +94,15 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
                 dias_credito: parseInt(data.dias_credito) || 0
             };
 
-            const newClient = await clientsService.quickCreate(payload);
+            // Usar el nuevo endpoint mejorado
+            const newClient = await clientsService.createClientMejorado(payload);
 
             toast.success('¡Cliente creado exitosamente!');
-            onClientCreated(newClient);
+            onClientCreated(newClient.data || newClient);
             onClose();
         } catch (error) {
             console.error('Error creating client:', error);
-            const msg = error.response?.data?.error || 'Error al guardar cliente';
+            const msg = error.response?.data?.error || error.message || 'Error al guardar cliente';
             toast.error(msg);
         }
     };
@@ -140,17 +142,31 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
                             <input
                                 type="text"
-                                className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:outline-none transition-all ${errors.name
+                                className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:outline-none transition-all ${errors.nombre
                                     ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
                                     : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-200'
                                     }`}
-                                placeholder="Ej: Juan Pérez"
-                                {...register('name')}
+                                placeholder="Ej: Juan"
+                                {...register('nombre')}
                             />
-                            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+                            {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre.message}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Apellido *</label>
+                            <input
+                                type="text"
+                                className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:outline-none transition-all ${errors.apellido
+                                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                                    : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-200'
+                                    }`}
+                                placeholder="Ej: Pérez"
+                                {...register('apellido')}
+                            />
+                            {errors.apellido && <p className="mt-1 text-xs text-red-500">{errors.apellido.message}</p>}
                         </div>
 
                         <div>
