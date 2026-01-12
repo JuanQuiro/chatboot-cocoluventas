@@ -85,11 +85,10 @@ export const clientsService = {
     },
 
     // Quick create (minimal fields)
+    // DEPRECATED: Use createClientMejorado instead
     quickCreate: async (minimalData) => {
-        // Fix: Use standard /clients endpoint as /quick does not exist
-        const response = await axios.post(`${API_URL}/clients`, minimalData);
-        // Unwrap response data.data if the backend wraps it
-        return response.data.data || response.data;
+        console.warn('⚠️ quickCreate is deprecated, use createClientMejorado instead');
+        return clientsService.createClientMejorado(minimalData);
     },
 
     // Statistics
