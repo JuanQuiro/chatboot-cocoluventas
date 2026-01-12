@@ -102,8 +102,22 @@ const QuickClientCreate = ({ isOpen, onClose, onClientCreated }) => {
             onClose();
         } catch (error) {
             console.error('Error creating client:', error);
-            const msg = error.response?.data?.error || error.message || 'Error al guardar cliente';
-            toast.error(msg);
+
+            // Mostrar error específico del backend
+            let errorMessage = 'Error al guardar cliente';
+
+            if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            // Si es error de validación, hacerlo más amigable
+            if (errorMessage.includes('ZodError')) {
+                errorMessage = 'Error de validación: Verifica que todos los campos estén correctos';
+            }
+
+            toast.error(errorMessage);
         }
     };
 
