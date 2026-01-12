@@ -19,60 +19,64 @@ export default function SalesBreakdownModal({ isOpen, onClose, period, sales, to
     const stats = useMemo(() => {
         if (!hasSales) return null;
 
+        // DEBUG: Ver estructura real de datos
+        console.log('📊 Sales data received:', sales);
+        console.log('📊 First sale structure:', sales[0]);
+
         // Average ticket
         const avgTicket = (parseFloat(total) / count).toFixed(2);
 
-        // Products breakdown
-        const productsMap = {};
-        const paymentsMap = { efectivo: 0, tarjeta: 0, transferencia: 0, credito: 0, mixto: 0 };
+        // Simplified - work with actual data structure
+        // If sales don't have products array, we can't show product breakdown
+        const hasProductsData = sales.some(s => s.products && Array.isArray(s.products) && s.products.length > 0);
 
+        let topProducts = [];
+        let totalProducts = 0;
+
+        if (hasProductsData) {
+            const productsMap = {};
+            sales.forEach(sale => {
+                if (sale.products && Array.isArray(sale.products)) {
+                    sale.products.forEach(p => {
+                        if (!productsMap[p.name]) {
+                            productsMap[p.name] = { quantity: 0, revenue: 0 };
+                        }
+                        productsMap[p.name].quantity += p.quantity || 1;
+                        productsMap[p.name].revenue += (p.price || 0) * (p.quantity || 1);
+                    });
+                }
+            });
+
+            topProducts = Object.entries(productsMap)
+                .map(([name, data]) => ({ name, ...data }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 5);
+
+            totalProducts = Object.values(productsMap).reduce((sum, p) => sum + p.quantity, 0);
+        }
+
+        // Payment methods - simplified
+        const paymentsMap = {};
         sales.forEach(sale => {
-            // Count products
-            if (sale.products && Array.isArray(sale.products)) {
-                sale.products.forEach(p => {
-                    if (!productsMap[p.name]) {
-                        productsMap[p.name] = { quantity: 0, revenue: 0 };
-                    }
-                    productsMap[p.name].quantity += p.quantity || 1;
-                    productsMap[p.name].revenue += (p.price || 0) * (p.quantity || 1);
-                });
-            }
-
-            // Count payment methods
-            const method = (sale.paymentMethod || 'efectivo').toLowerCase();
-            if (paymentsMap[method] !== undefined) {
-                paymentsMap[method] += parseFloat(sale.total || 0);
-            }
+            const method = sale.paymentMethod || sale.payment_method || sale.tipo_pago || 'Efectivo';
+            const normalizedMethod = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
+            paymentsMap[normalizedMethod] = (paymentsMap[normalizedMethod] || 0) + parseFloat(sale.total || 0);
         });
 
-        // Top products
-        const topProducts = Object.entries(productsMap)
-            .map(([name, data]) => ({ name, ...data }))
-            .sort((a, b) => b.revenue - a.revenue)
-            .slice(0, 5);
-
-        // Payment methods distribution
         const paymentsMethods = Object.entries(paymentsMap)
             .filter(([_, amount]) => amount > 0)
             .map(([method, amount]) => ({
-                method: method.charAt(0).toUpperCase() + method.slice(1),
+                method,
                 amount,
                 percentage: ((amount / parseFloat(total)) * 100).toFixed(1)
             }));
-
-        // Hourly distribution
-        const hourlyData = {};
-        sales.forEach(sale => {
-            const hour = new Date(sale.date || Date.now()).getHours();
-            hourlyData[hour] = (hourlyData[hour] || 0) + 1;
-        });
 
         return {
             avgTicket,
             topProducts,
             paymentsMethods,
-            hourlyData,
-            totalProducts: Object.values(productsMap).reduce((sum, p) => sum + p.quantity, 0)
+            totalProducts,
+            hasProductsData
         };
     }, [hasSales, sales, total, count]);
 
