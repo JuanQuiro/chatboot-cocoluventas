@@ -11,16 +11,18 @@ class AuthService {
      */
     async login(email, password) {
         try {
+            // apiClient interceptor ya retorna response.data, así que response ES el data
             const response = await apiClient.post('/auth/login', {
                 email,
                 password,
             });
 
-            const { token, refreshToken, user } = response.data;
+            // response ya es el objeto { success, token, user }
+            const { token, refreshToken, user } = response;
 
             // Guardar en localStorage
             if (token) {
-                localStorage.setItem('token', token);
+                localStorage.setItem('cocolu_token', token);
             }
             if (refreshToken) {
                 localStorage.setItem('refreshToken', refreshToken);
@@ -38,9 +40,10 @@ class AuthService {
                 token,
             };
         } catch (error) {
+            console.error('❌ [authService] Login error:', error);
             return {
                 success: false,
-                error: error.response?.data?.message || 'Error al iniciar sesión',
+                error: error.response?.data?.error || error.message || 'Error al iniciar sesión',
             };
         }
     }
@@ -67,7 +70,7 @@ class AuthService {
             const mockToken = 'mock-jwt-token-' + Date.now();
 
             localStorage.setItem('user', JSON.stringify(mockUser));
-            localStorage.setItem('token', mockToken);
+            localStorage.setItem('cocolu_token', mockToken);
             localStorage.setItem('tenantId', mockUser.tenantId);
 
             return { success: true, user: mockUser, token: mockToken };
@@ -94,10 +97,10 @@ class AuthService {
             'bots.view', 'bots.create', 'bots.manage', 'bots.delete', 'bots.send', 'bots.configure',
             'roles.view', 'roles.create', 'roles.edit', 'roles.delete',
         ];
-        
+
         // En desarrollo, todos son admin para facilitar testing
         return fullPermissions;
-        
+
         /* Para producción, descomentar esto:
         if (email.includes('admin')) {
             return fullPermissions;
@@ -131,7 +134,7 @@ class AuthService {
     async logout() {
         try {
             // Llamar al backend para invalidar el token
-            await apiClient.post('/auth/logout');
+            await apiClient.post('/logout');
         } catch (error) {
             // No importa si falla, limpiamos localStorage de todos modos
         } finally {
@@ -143,7 +146,7 @@ class AuthService {
      * Limpiar localStorage
      */
     clearLocalStorage() {
-        localStorage.removeItem('token');
+        localStorage.removeItem('cocolu_token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         localStorage.removeItem('tenantId');
@@ -165,7 +168,7 @@ class AuthService {
 
             const { token, user } = response.data;
 
-            localStorage.setItem('token', token);
+            localStorage.setItem('cocolu_token', token);
             if (user) {
                 localStorage.setItem('user', JSON.stringify(user));
             }
@@ -196,7 +199,7 @@ class AuthService {
      * Verificar si está autenticado
      */
     isAuthenticated() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('cocolu_token');
         const user = this.getCurrentUser();
         return !!(token && user);
     }

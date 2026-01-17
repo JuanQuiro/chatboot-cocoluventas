@@ -1,0 +1,508 @@
+/* CuotasProgramadas.css - Estilos para el módulo de Cuotas Programadas */
+
+.cuotas-programadas-page {
+    padding: 20px;
+}
+
+/* ===== FILTERS ===== */
+.filters-section {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 150px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.filter-select,
+.filter-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    height: 40px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    outline: none;
+    transition: all 0.2s;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ===== STATS DASHBOARD ===== */
+.stats-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 4px solid #3b82f6;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.danger {
+    border-left-color: #ef4444;
+}
+
+.stat-card.warning {
+    border-left-color: #f59e0b;
+}
+
+.stat-card.success {
+    border-left-color: #10b981;
+}
+
+.stat-card.info {
+    border-left-color: #6366f1;
+}
+
+.stat-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.stat-value small {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 400;
+    margin-top: 4px;
+}
+
+/* ===== STATUS BADGES ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.overdue {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.today {
+    background: #fef2f2;
+    color: #991b1b;
+    animation: pulse 2s infinite;
+}
+
+.status-badge.soon {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.pending {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ===== DAYS INDICATORS ===== */
+.overdue-days {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.today-days {
+    color: #ef4444;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+}
+
+.pending-days {
+    color: #6b7280;
+}
+
+/* ===== ACTIONS ===== */
+.installment-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-pay {
+    background: #10b981;
+    color: white;
+}
+
+.btn-pay:hover {
+    background: #059669;
+}
+
+.btn-view {
+    background: #6366f1;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #4f46e5;
+}
+
+/* ===== MODALS ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.3s;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: #9ca3af;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer,
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ===== PAYMENT MODAL ===== */
+.installment-info {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.installment-info p {
+    margin: 8px 0;
+    color: #374151;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.text-success {
+    color: #10b981;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+.text-warning {
+    color: #f59e0b;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+/* ===== PLAN DETAILS MODAL ===== */
+.plan-modal {
+    max-width: 700px;
+}
+
+.plan-section {
+    margin-bottom: 24px;
+}
+
+.plan-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.plan-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.plan-stats div {
+    font-size: 14px;
+    color: #374151;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar-container {
+    width: 100%;
+    height: 32px;
+    background: #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, #10b981, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    transition: width 0.5s ease;
+}
+
+/* ===== TIMELINE ===== */
+.installments-timeline {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 16px 0;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    border-left: 2px solid #e5e7eb;
+    margin-left: 16px;
+    padding-left: 24px;
+    position: relative;
+}
+
+.timeline-item.pagada {
+    border-left-color: #10b981;
+}
+
+.timeline-item.vencida {
+    border-left-color: #ef4444;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -13px;
+    font-size: 20px;
+    background: white;
+}
+
+.timeline-content {
+    flex: 1;
+}
+
+.timeline-title {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.timeline-date {
+    margin: 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.timeline-paid {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 500;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    background: #6366f1;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #4f46e5;
+}
+
+.btn-secondary {
+    background: white;
+    color: #374151;
+    padding: 10px 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}

@@ -8,11 +8,7 @@ import Bots from './Bots';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const BotsWrapper = () => {
-    console.log('🛡️ [BotsWrapper] Inicializando wrapper de Bots');
-    
     try {
-        console.log('🛡️ [BotsWrapper] Intentando renderizar componente Bots');
-        
         return (
             <ErrorBoundary>
                 <Bots />
@@ -20,7 +16,7 @@ const BotsWrapper = () => {
         );
     } catch (error) {
         console.error('🔴 [BotsWrapper] ERROR CRÍTICO al renderizar Bots:', error);
-        
+
         return (
             <div style={{
                 padding: '40px',

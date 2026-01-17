@@ -1,0 +1,43 @@
+import { Client } from "ssh2";
+import dotenv from "dotenv";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, ".env") });
+
+const config = {
+    host: process.env.VPS_HOST,
+    port: parseInt(process.env.VPS_PORT || "22"),
+    username: process.env.VPS_USERNAME,
+    password: process.env.VPS_PASSWORD,
+    readyTimeout: 60000,
+};
+
+console.log("📋 VERIFICANDO ARCHIVOS EN VPS...");
+
+const conn = new Client();
+conn.on("ready", () => {
+    const cmd = `
+echo "=== 1. ARCHIVOS EN src/api/ EN VPS ==="
+ls -la /var/www/cocolu-chatbot/src/api/*.js 2>/dev/null | awk '{print $9}'
+
+echo ""
+echo "=== 2. ERROR EXACTO ==="
+cat /root/.pm2/logs/cocolu-dashoffice-error.log 2>/dev/null | tail -20
+
+echo ""
+echo "=== 3. IMPORTS EN APP-INTEGRATED.JS ==="
+grep "^import.*from '\\.\\./src/api\\|^import.*from '\\./src/api" /var/www/cocolu-chatbot/app-integrated.js 2>/dev/null | head -20
+    `;
+    conn.exec(cmd, (err, stream) => {
+        if (err) throw err;
+        stream.on("data", (d: Buffer) => console.log(d.toString()));
+        stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
+        stream.on("close", () => {
+            console.log("\n✅ Verificación completada");
+            conn.end();
+        });
+    });
+}).connect(config);

@@ -13,7 +13,7 @@ class TestingCommandsService {
         this.debugMode = false;
         this.timerOverride = null; // Override de tiempos para testing
         this.commandHistory = [];
-        
+
         console.log('🧪 TestingCommandsService inicializado');
         this.printAvailableCommands();
     }
@@ -25,19 +25,19 @@ class TestingCommandsService {
         console.log('   • ACTIVAR BOT COCOLU AHORA');
         console.log('   • BOT PAUSA YA');
         console.log('   • BOT ACTIVA YA');
-        
+
         console.log('\n🧪 MODO TESTING:');
         console.log('   • MODO TEST ACTIVAR');
         console.log('   • MODO TEST DESACTIVAR');
         console.log('   • TEST MODE ON');
         console.log('   • TEST MODE OFF');
-        
+
         console.log('\n🐛 MODO DEBUG:');
         console.log('   • DEBUG MODE ON');
         console.log('   • DEBUG MODE OFF');
         console.log('   • ACTIVAR DEBUG');
         console.log('   • DESACTIVAR DEBUG');
-        
+
         console.log('\n⏱️  CONTROL DE TIMERS:');
         console.log('   • TIMER 30SEG       → Timers de 30 segundos');
         console.log('   • TIMER 1MIN        → Timers de 1 minuto');
@@ -46,7 +46,7 @@ class TestingCommandsService {
         console.log('   • VER TIMERS        → Ver timers activos');
         console.log('   • FORZAR TIMER      → Ejecutar timer inmediatamente');
         console.log('   • LIMPIAR TIMERS    → Cancelar todos los timers');
-        
+
         console.log('\n📊 INFORMACIÓN Y ESTADO:');
         console.log('   • ESTADO BOT        → Ver estado completo del sistema');
         console.log('   • BOT STATUS        → Alias de ESTADO BOT');
@@ -54,13 +54,13 @@ class TestingCommandsService {
         console.log('   • SHOW SELLERS      → Alias de VER VENDEDORAS');
         console.log('   • VER USUARIOS      → Ver usuarios activos');
         console.log('   • ESTADISTICAS      → Ver estadísticas del bot');
-        
+
         console.log('\n🧹 LIMPIEZA Y RESET:');
         console.log('   • LIMPIAR ESTADO    → Limpiar estado del usuario');
         console.log('   • CLEAR STATE       → Alias de LIMPIAR ESTADO');
         console.log('   • RESET VENDEDORAS  → Resetear asignaciones');
-        console.log('   • RESET TODO        → Reset completo del sistema');
-        
+        // REMOVED: RESET TODO (unsafe for production)
+
         console.log('\n🔍 SIMULACIÓN Y PRUEBAS:');
         console.log('   • SIMULAR ASESOR    → Simular flujo de asesor');
         console.log('   • SIMULAR CATALOGO  → Simular flujo de catálogo');
@@ -68,7 +68,7 @@ class TestingCommandsService {
         console.log('   • TEST FLUJO 1      → Test flujo hablar con asesor');
         console.log('   • TEST FLUJO 2      → Test flujo catálogo');
         console.log('   • TEST FLUJO 3      → Test flujo info pedido');
-        
+
         console.log('\n📝 AYUDA:');
         console.log('   • HELP TESTING      → Ver esta ayuda');
         console.log('   • COMANDOS          → Lista de todos los comandos');
@@ -80,7 +80,7 @@ class TestingCommandsService {
      */
     checkTestingCommand(message) {
         const msg = message.toUpperCase().trim();
-        
+
         // CONTROL DEL BOT
         if (msg.includes('PAUSAR BOT COCOLU AHORA') || msg.includes('BOT PAUSA YA')) {
             return 'pause';
@@ -88,7 +88,7 @@ class TestingCommandsService {
         if (msg.includes('ACTIVAR BOT COCOLU AHORA') || msg.includes('BOT ACTIVA YA')) {
             return 'activate';
         }
-        
+
         // MODO TESTING
         if (msg.includes('MODO TEST ACTIVAR') || msg.includes('TEST MODE ON')) {
             return 'test_on';
@@ -96,7 +96,7 @@ class TestingCommandsService {
         if (msg.includes('MODO TEST DESACTIVAR') || msg.includes('TEST MODE OFF')) {
             return 'test_off';
         }
-        
+
         // MODO DEBUG
         if (msg.includes('DEBUG MODE ON') || msg.includes('ACTIVAR DEBUG')) {
             return 'debug_on';
@@ -104,7 +104,7 @@ class TestingCommandsService {
         if (msg.includes('DEBUG MODE OFF') || msg.includes('DESACTIVAR DEBUG')) {
             return 'debug_off';
         }
-        
+
         // TIMERS
         if (msg.includes('TIMER 30SEG') || msg.includes('TIMER 30SEGUNDOS')) {
             return 'timer_30sec';
@@ -127,7 +127,7 @@ class TestingCommandsService {
         if (msg.includes('LIMPIAR TIMERS') || msg.includes('CLEAR TIMERS')) {
             return 'clear_timers';
         }
-        
+
         // INFORMACIÓN
         if (msg.includes('ESTADO BOT') || msg.includes('BOT STATUS')) {
             return 'status';
@@ -141,7 +141,7 @@ class TestingCommandsService {
         if (msg.includes('ESTADISTICAS') || msg.includes('STATS')) {
             return 'statistics';
         }
-        
+
         // LIMPIEZA
         if (msg.includes('LIMPIAR ESTADO') || msg.includes('CLEAR STATE')) {
             return 'clear_state';
@@ -149,10 +149,10 @@ class TestingCommandsService {
         if (msg.includes('RESET VENDEDORAS') || msg.includes('RESET SELLERS')) {
             return 'reset_sellers';
         }
-        if (msg.includes('RESET TODO') || msg.includes('RESET ALL')) {
+        if (msg.includes('RESET ALL')) {
             return 'reset_all';
         }
-        
+
         // SIMULACIÓN
         if (msg.includes('SIMULAR ASESOR') || msg.includes('SIM ASESOR')) {
             return 'sim_asesor';
@@ -172,12 +172,12 @@ class TestingCommandsService {
         if (msg.includes('TEST FLUJO 3')) {
             return 'test_flow_3';
         }
-        
+
         // AYUDA
         if (msg.includes('HELP TESTING') || msg.includes('AYUDA TEST') || msg === 'COMANDOS') {
             return 'help';
         }
-        
+
         return null;
     }
 
@@ -371,7 +371,7 @@ class TestingCommandsService {
     getTimersStatus() {
         const activeTimers = timerService.activeTimers.size;
         const override = this.timerOverride ? `${this.timerOverride / 1000}seg` : 'Normal';
-        
+
         return this.buildResponse('⏱️ ESTADO DE TIMERS', [
             `📊 Timers activos: ${activeTimers}`,
             `🎚️ Override: ${override}`,
@@ -389,7 +389,7 @@ class TestingCommandsService {
         const currentState = await state.getMyState();
         const seller = sellersManager.getAssignedSeller(ctx.from);
         const activeTimers = timerService.activeTimers.size;
-        
+
         return this.buildResponse('📊 ESTADO DEL BOT', [
             `🧪 Modo Test: ${this.testMode ? 'ON ✅' : 'OFF'}`,
             `🐛 Modo Debug: ${this.debugMode ? 'ON ✅' : 'OFF'}`,
@@ -427,7 +427,7 @@ class TestingCommandsService {
     getSellersInfo() {
         const sellers = sellersManager.sellers;
         const assignments = Array.from(sellersManager.userSellerMap.entries());
-        
+
         let info = ['👩‍💼 VENDEDORAS DISPONIBLES:\n'];
         sellers.forEach((seller, index) => {
             const assignedTo = assignments.filter(([_, id]) => id === seller.id).length;
@@ -436,9 +436,9 @@ class TestingCommandsService {
             info.push(`   👥 Asignaciones: ${assignedTo}`);
             info.push('');
         });
-        
+
         info.push(`📊 Total asignaciones: ${assignments.length}`);
-        
+
         return this.buildResponse('👩‍💼 INFORMACIÓN DE VENDEDORAS', info);
     }
 
@@ -447,7 +447,7 @@ class TestingCommandsService {
      */
     getUsersInfo() {
         const assignments = Array.from(sellersManager.userSellerMap.entries());
-        
+
         return this.buildResponse('👥 USUARIOS ACTIVOS', [
             `📊 Total usuarios con vendedora: ${assignments.length}`,
             '',
@@ -489,7 +489,7 @@ class TestingCommandsService {
             '',
             '🧹 LIMPIEZA:',
             '• LIMPIAR ESTADO',
-            '• RESET TODO',
+            // '• RESET TODO',
             '',
             '💡 Para lista completa:',
             'Revisa los logs del servidor al iniciar'

@@ -1,0 +1,31 @@
+{
+  "cliente_id": 1,
+  "cliente_nombre": "alberto",
+  "cliente_apellido": "quiroz",
+  "cliente_cedula": "30391154",
+  "cliente_telefono": "04244374545",
+  "cliente_email": "",
+  "cliente_direccion": "",
+  "productos": [
+    {
+      "cantidad": 15,
+      "precio_unitario": 500,
+      "nombre": "Producto Sin Nombre",
+      "codigo": "PROD-undefined",
+      "es_manual": false,
+      "nombre_manual": null
+    }
+  ],
+  "total_usd": 7500,
+  "subtotal": 7500,
+  "descuento_total": 0,
+  "impuesto_total": 0,
+  "es_pago_mixto": false,
+  "monto_mixto_usd": 0,
+  "monto_mixto_ves": 0,
+  "monto_recibido_usd": 0,
+  "monto_recibido_ves": 0,
+  "tasa_cambio": 0,
+  "fabricante_id": 1,
+  "estado_entrega": "pendiente"
+}

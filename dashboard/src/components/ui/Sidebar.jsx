@@ -21,6 +21,9 @@ const Sidebar = ({ currentPage, onNavigate, onLogout }) => {
         { id: 'sellers', label: 'Vendedores', icon: Users },
         { id: 'products', label: 'Productos', icon: Package },
         { id: 'orders', label: 'Órdenes', icon: ShoppingCart },
+        { id: 'clients', label: 'Clientes', icon: Users }, // Added Clients
+        { id: 'ingresos', label: 'Ingresos', icon: BarChart3 }, // Added Income
+        { id: 'gastos', label: 'Gastos (CVP)', icon: BarChart3 }, // Added Expenses
         { id: 'conversations', label: 'Conversaciones', icon: MessageSquare },
         { id: 'analytics', label: 'Analytics', icon: BarChart3 },
         { id: 'settings', label: 'Configuración', icon: Settings },

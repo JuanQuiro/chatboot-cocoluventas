@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import './styles/themes.css';
 import './styles/typography.css';
+import './styles/Override.css'; // GLOBAL OVERRIDE
 import App from './App';
 import errorMonitor from './services/errorMonitor';
 

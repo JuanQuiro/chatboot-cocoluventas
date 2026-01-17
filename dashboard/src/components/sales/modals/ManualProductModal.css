@@ -1,0 +1,250 @@
+/* ManualProductModal.css */
+
+.manual-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 5px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary, #4b5563);
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 12px;
+    color: var(--text-tertiary, #9ca3af);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    /* Rounded corners for modern feel */
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: var(--bg-primary, #ffffff);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color, #4f46e5);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-control.has-prefix {
+    padding-left: 30px;
+}
+
+.form-control.error {
+    border-color: #ef4444;
+}
+
+.form-control.error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+    font-size: 0.8rem;
+    color: #ef4444;
+    margin-top: 2px;
+    animation: fadeIn 0.2s ease-in;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #d1d5db);
+    background-color: transparent;
+    color: var(--text-secondary, #374151);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: var(--bg-secondary, #f3f4f6);
+}
+
+.btn-add {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--primary-color, #4f46e5);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-add:hover {
+    background-color: var(--primary-dark, #4338ca);
+    transform: translateY(-1px);
+}
+
+.btn-add:active {
+    transform: translateY(0);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Premium Option Card */
+.option-card {
+    background: var(--bg-secondary, #f9fafb);
+    border: 1px solid var(--border-color, #e5e7eb);
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.option-card:hover {
+    border-color: var(--primary-color, #6366f1);
+    background: #f5f3ff;
+}
+
+.option-card.active {
+    background: #eef2ff;
+    border-color: var(--primary-color, #6366f1);
+    box-shadow: 0 0 0 1px var(--primary-color, #6366f1);
+}
+
+.option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.option-title {
+    font-weight: 600;
+    color: var(--text-primary, #111827);
+    font-size: 0.95rem;
+}
+
+.option-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color, #6366f1);
+}
+
+input:check:hover+.slider {
+    background-color: #4f46e5;
+}
+
+input:checked+.slider:before {
+    transform: translateX(22px);
+}
+
+/* Code Input Animation */
+.code-input-container {
+    padding-left: 2px;
+    animation: slideDown 0.3s ease-out;
+    margin-top: 12px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

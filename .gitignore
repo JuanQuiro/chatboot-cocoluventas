@@ -4,14 +4,35 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Variables de entorno (permitiendo .env para este push)
-# .env
-# .env.local
-# .env.production
+# Variables de entorno
+.env
+.env.local
+.env.production
+.env.development
+.env.test
 
 # Base de datos
 database/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite
+*.sqlite
 *.json.tmp
+
+# Archivos de Despliegue Temporal y Archivos
+_archive/
+deploy-temp/
+deploy-temp*/
+temp/
+tmp/
+*.tmp
+
+# Dashboard Build
+dashboard/build/
+dashboard/node_modules/
+dashboard/.env
+dashboard/.env.*
 
 # Catálogos y archivos pesados
 catalogo-noviembre/
@@ -20,7 +41,6 @@ public/catalogo*
 ocr-debug/
 presupuiestos/
 *.traineddata
-public/
 
 # Logs
 logs/
@@ -29,30 +49,30 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Sistema operativo
+# Sistema operativo e IDE
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# BuilderBot
+# BuilderBot / WhatsApp Sessions
 bot.qr.png
 .wwebjs_auth/
 .wwebjs_cache/
-
-# Temporal
-tmp/
-temp/
-*.tmp
 bot_principal_sessions/
-primera-prueba-flujo-chatboot/
-segunda-prueba-flujo/
-*.log
+*_sessions/
+auth/
+tokens/
+*.auth.json
+QR-WhatsApp.png
+QR-WhatsApp.html
+public/qr.png
+public/qr-large.png
+public/qr.html
+pairing-code.txt
 
 # Rust builds
 dashoffice-rust/frontend/target/
@@ -61,21 +81,56 @@ dashoffice-rust/crates/*/target/
 *.rmeta
 *.d
 
-# WhatsApp sessions
-bot_principal_sessions/
-*_sessions/
-auth/
-tokens/
-*.auth.json
-
-# QR y archivos temporales de WhatsApp
-QR-WhatsApp.png
-QR-WhatsApp.html
-public/qr.png
-public/qr-large.png
-public/qr.html
-pairing-code.txt
-
-# Pruebas
+# Pruebas y temporales locales
 primera-prueba-flujo-chatboot/
 segunda-prueba-flujo/
+
+# Generated
+/generated/prisma
+
+# ========================================
+# OPTIMIZACIONES ADICIONALES
+# ========================================
+
+# Archivos temporales de sale requests
+last_sale_request.json
+
+# Plantillas y archivos de prueba
+plantilla/
+
+# Deployment scripts temporales
+deployment/
+deploy/
+
+# Cache y compilados
+.cache/
+dist/
+build/
+*.cache
+
+# Archivos grandes de media
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Backups
+*.backup
+*.bak
+*-backup
+backup/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Testing
+.jest/
+__tests__/__snapshots__/
+
+# Documentation builds
+docs/build/
+docs/.vuepress/dist/
+.vercel
+.env*.local

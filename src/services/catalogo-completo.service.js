@@ -26,17 +26,21 @@ class CatalogoCompletoService {
         try {
             const catalogPath = path.join(__dirname, '../../public/catalogo-data/productos.json');
             const indexPath = path.join(__dirname, '../../public/catalogo-data/search_index.json');
-            
+
             if (fs.existsSync(catalogPath)) {
-                const data = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
-                this.productos = data.products || [];
-                this.loaded = true;
-                console.log(`✅ Catálogo cargado: ${this.productos.length} productos`);
+                try {
+                    const data = JSON.parse(fs.readFileSync(catalogPath, 'utf-8'));
+                    this.productos = data.products || [];
+                    this.loaded = true;
+                    console.log(`✅ Catálogo cargado: ${this.productos.length} productos`);
+                } catch (e) { console.error('Error parsing catalog', e); }
             }
-            
+
             if (fs.existsSync(indexPath)) {
-                this.searchIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-                console.log(`✅ Índice de búsqueda cargado`);
+                try {
+                    this.searchIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+                    console.log(`✅ Índice de búsqueda cargado`);
+                } catch (e) { console.error('Error parsing index', e); }
             }
         } catch (error) {
             console.error('❌ Error cargando catálogo:', error);
@@ -56,17 +60,17 @@ class CatalogoCompletoService {
      */
     buscarPorKeyword(keyword) {
         const term = keyword.toLowerCase().trim();
-        
+
         // Buscar en índice primero
         if (this.searchIndex[term]) {
-            const productIds = Array.isArray(this.searchIndex[term]) 
-                ? this.searchIndex[term] 
+            const productIds = Array.isArray(this.searchIndex[term])
+                ? this.searchIndex[term]
                 : [this.searchIndex[term]];
             return productIds.map(id => this.productos.find(p => p.id === id)).filter(Boolean);
         }
-        
+
         // Búsqueda manual
-        return this.productos.filter(p => 
+        return this.productos.filter(p =>
             p.keywords.some(k => k.toLowerCase().includes(term)) ||
             (p.name && p.name.toLowerCase().includes(term)) ||
             (p.detected_keywords && p.detected_keywords.some(k => k.toLowerCase().includes(term)))
@@ -110,7 +114,7 @@ class CatalogoCompletoService {
         const conPrecio = this.productos.filter(p => p.price).length;
         const conKeywords = this.productos.filter(p => p.detected_keywords?.length > 0).length;
         const materiales = {};
-        
+
         this.productos.forEach(p => {
             if (p.material) {
                 materiales[p.material] = (materiales[p.material] || 0) + 1;
@@ -134,11 +138,11 @@ class CatalogoCompletoService {
         if (!producto) return null;
 
         let mensaje = `📄 *Página ${producto.page}*\n\n`;
-        
+
         if (producto.name && producto.name !== `Producto Página ${producto.page}`) {
             mensaje += `💎 *${producto.name}*\n\n`;
         }
-        
+
         // Descripción/Copy profesional
         if (producto.copy || producto.description) {
             const desc = producto.copy || producto.description;
@@ -147,24 +151,24 @@ class CatalogoCompletoService {
                 mensaje += `📝 ${desc}\n\n`;
             }
         }
-        
+
         // PRECIO EN USD o Consultar
         if (producto.price) {
             mensaje += `💵 *Precio: ${producto.price_text}*\n\n`;
         } else {
             mensaje += `💬 *Precio: Consultar disponibilidad*\n\n`;
         }
-        
+
         if (producto.material) {
             const materialText = producto.material.replace('_', ' ').toUpperCase();
             mensaje += `✨ Material: ${materialText}\n\n`;
         }
-        
+
         if (producto.detected_keywords && producto.detected_keywords.length > 0) {
             const keywords = producto.detected_keywords.slice(0, 5).map(k => `#${k}`).join(' ');
             mensaje += `🏷️ ${keywords}\n\n`;
         }
-        
+
         mensaje += `📖 Catálogo página ${producto.page}\n`;
         mensaje += `💬 Escribe "pag${producto.page}" para ver la imagen`;
 
@@ -176,16 +180,16 @@ class CatalogoCompletoService {
      */
     buscarSimilares(producto, limite = 3) {
         if (!producto || !producto.detected_keywords) return [];
-        
+
         const similares = [];
-        
+
         for (const keyword of producto.detected_keywords) {
             const encontrados = this.buscarPorKeyword(keyword)
                 .filter(p => p.id !== producto.id)
                 .slice(0, limite);
             similares.push(...encontrados);
         }
-        
+
         // Eliminar duplicados
         return [...new Map(similares.map(p => [p.id, p])).values()].slice(0, limite);
     }

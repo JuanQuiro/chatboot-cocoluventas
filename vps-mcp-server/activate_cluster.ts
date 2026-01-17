@@ -1,0 +1,36 @@
+import { Client } from "ssh2";
+import dotenv from "dotenv";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, ".env") });
+
+const config = {
+    host: process.env.VPS_HOST,
+    port: parseInt(process.env.VPS_PORT || "22"),
+    username: process.env.VPS_USERNAME,
+    password: process.env.VPS_PASSWORD,
+    readyTimeout: 60000,
+};
+
+console.log("🚀 ACTIVATING MULTI-CORE CLUSTER MODE...");
+
+const conn = new Client();
+conn.on("ready", () => {
+    // We update the PM2 ecosystem to run instances: max
+    // Since we don't have an ecosystem.config.js file managing this usually (we used direct start)
+    // We will delete and restart with parameters.
+    const cmd = `
+pm2 delete cocolu-dashoffice
+pm2 start /var/www/cocolu-chatbot/app-integrated.js --name cocolu-dashoffice -i max --no-autorestart
+pm2 save
+pm2 list
+    `;
+    conn.exec(cmd, (err, stream) => {
+        if (err) throw err;
+        stream.on('data', d => console.log(d.toString()));
+        stream.on('close', () => conn.end());
+    });
+}).connect(config);

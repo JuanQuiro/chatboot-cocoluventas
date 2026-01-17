@@ -188,18 +188,14 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
+    // ALWAYS use light theme, ignore system preferences
     const [currentTheme, setCurrentTheme] = useState('light');
 
-    // Cargar tema guardado al iniciar
+    // Force light theme on mount
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme && THEMES[savedTheme]) {
-            setCurrentTheme(savedTheme);
-        } else {
-            // Detectar preferencia del sistema
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            setCurrentTheme(prefersDark ? 'dark' : 'light');
-        }
+        // Always force light theme, ignore saved preferences and system settings
+        setCurrentTheme('light');
+        localStorage.setItem('theme', 'light');
     }, []);
 
     // Aplicar tema cuando cambie

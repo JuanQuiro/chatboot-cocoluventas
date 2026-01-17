@@ -12,23 +12,23 @@ class ErrorMonitor {
             localStorage.removeItem('dashoffice_warnings');
             localStorage.removeItem('dashoffice_logs');
         }
-        
+
         // Arrays para almacenar errores, warnings y logs
         this.errors = this.loadFromStorage('dashoffice_errors') || [];
         this.warnings = this.loadFromStorage('dashoffice_warnings') || [];
         this.logs = this.loadFromStorage('dashoffice_logs') || [];
-        
+
         this.isInitialized = false;
         this.maxErrors = 100; // Límite de errores a guardar más historia
         this.maxLogs = 500;
         this.isInitialized = false;
-        
+
         // Cola para envío a backend
         this.backendQueue = [];
         this.batchSize = 20;
         this.flushInterval = 5000; // 5 segundos
         this.isOnline = navigator.onLine;
-        
+
         // Listeners de conectividad
         window.addEventListener('online', () => {
             this.isOnline = true;
@@ -37,7 +37,7 @@ class ErrorMonitor {
         window.addEventListener('offline', () => {
             this.isOnline = false;
         });
-        
+
         // Auto-flush cada 5 segundos
         setInterval(() => this.flushToBackend(), this.flushInterval);
     }
@@ -213,27 +213,27 @@ class ErrorMonitor {
      */
     setupNetworkMonitor() {
         const originalFetch = window.fetch;
-        
+
         window.fetch = async (...args) => {
             const startTime = performance.now();
             const url = args[0];
-            
+
             try {
                 const response = await originalFetch(...args);
                 const duration = performance.now() - startTime;
-                
+
                 // Alertar si la llamada tardó más de 3 segundos
                 if (duration > 3000) {
                     console.warn(`⚠️ [PERFORMANCE] Llamada lenta: ${url} (${Math.round(duration)}ms)`);
                 }
-                
+
                 // Si hay error HTTP (pero NO logs batch sin token)
                 if (!response.ok) {
                     // Ignorar errores de /api/logs/batch cuando no hay token
                     if (url.includes('/api/logs/batch') && !localStorage.getItem('token')) {
                         return response;
                     }
-                    
+
                     const errorData = {
                         type: 'NETWORK_ERROR',
                         message: `HTTP ${response.status}: ${url}`,
@@ -241,22 +241,22 @@ class ErrorMonitor {
                         url: url,
                         timestamp: new Date().toISOString()
                     };
-                    
+
                     this.logError(errorData);
                     console.error('🔴 [NETWORK ERROR]', errorData);
                 }
-                
+
                 return response;
             } catch (error) {
                 // Ignorar COMPLETAMENTE errores de API cuando no hay token
                 const noToken = !localStorage.getItem('token');
                 const isApiCall = url.includes('/api/');
-                
+
                 if (noToken && isApiCall) {
                     // No registrar nada, solo lanzar el error
                     throw error;
                 }
-                
+
                 const errorData = {
                     type: 'NETWORK_EXCEPTION',
                     message: `Fetch exception: ${url}`,
@@ -264,10 +264,10 @@ class ErrorMonitor {
                     url: url,
                     timestamp: new Date().toISOString()
                 };
-                
+
                 this.logError(errorData);
                 // NO loguear en consola para evitar spam
-                
+
                 throw error;
             }
         };
@@ -284,7 +284,7 @@ class ErrorMonitor {
                     for (const entry of list.getEntries()) {
                         if (entry.duration > 1000) {
                             console.warn(`⚠️ [PERFORMANCE] Operación lenta detectada: ${entry.name} (${entry.duration}ms)`);
-                            
+
                             this.logWarning({
                                 type: 'PERFORMANCE',
                                 message: `Operación lenta: ${entry.name}`,
@@ -313,15 +313,15 @@ class ErrorMonitor {
             timestamp: new Date().toISOString(),
             type: 'LOG'
         };
-        
+
         this.logs.push(logEntry);
-        
+
         if (this.logs.length > this.maxLogs) {
             this.logs.shift();
         }
-        
+
         this.saveToStorage('dashoffice_logs', this.logs);
-        
+
         // Enviar a backend de forma asíncrona
         this.sendToBackend({
             log_type: 'INFO',
@@ -337,7 +337,7 @@ class ErrorMonitor {
      */
     logError(errorData) {
         this.errors.push(errorData);
-        
+
         // Mantener solo los últimos N errores
         if (this.errors.length > this.maxErrors) {
             this.errors.shift();
@@ -345,7 +345,7 @@ class ErrorMonitor {
 
         // Guardar en localStorage
         this.saveToStorage('dashoffice_errors', this.errors);
-        
+
         // Enviar a backend
         this.sendToBackend({
             log_type: errorData.type === 'CRITICAL' ? 'CRITICAL' : 'ERROR',
@@ -362,14 +362,14 @@ class ErrorMonitor {
      */
     logWarning(warningData) {
         this.warnings.push(warningData);
-        
+
         if (this.warnings.length > this.maxErrors) {
             this.warnings.shift();
         }
-        
+
         // Guardar en localStorage
         this.saveToStorage('dashoffice_warnings', this.warnings);
-        
+
         // Enviar a backend
         this.sendToBackend({
             log_type: 'WARNING',
@@ -381,52 +381,12 @@ class ErrorMonitor {
     }
 
     /**
-     * Mostrar alerta visual de error
+     * Mostrar alerta visual de error (DESHABILITADO - usar toasts en su lugar)
      */
     showErrorAlert(title, message) {
-        // Solo en desarrollo
-        if (process.env.NODE_ENV !== 'development') return;
-
-        const alertDiv = document.createElement('div');
-        alertDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #fee2e2;
-            border: 2px solid #dc2626;
-            border-radius: 8px;
-            padding: 16px;
-            max-width: 400px;
-            z-index: 99999;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease-out;
-        `;
-
-        alertDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <div style="font-weight: bold; color: #991b1b; margin-bottom: 4px;">
-                        🔴 ${title}
-                    </div>
-                    <div style="color: #7f1d1d; font-size: 13px;">
-                        ${message.substring(0, 200)}
-                    </div>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: none; border: none; cursor: pointer; font-size: 20px; color: #991b1b;">
-                    ×
-                </button>
-            </div>
-        `;
-
-        document.body.appendChild(alertDiv);
-
-        // Auto-remover después de 5 segundos
-        setTimeout(() => {
-            if (alertDiv.parentElement) {
-                alertDiv.remove();
-            }
-        }, 5000);
+        // NO mostrar alertas bloqueantes
+        // Los errores se manejan silenciosamente o con toasts discretos
+        console.log(`[ErrorMonitor] ${title}: ${message}`);
     }
 
     /**
@@ -471,7 +431,7 @@ class ErrorMonitor {
     sendToBackend(logData) {
         // Agregar contexto del usuario si existe
         const user = this.getCurrentUser();
-        
+
         const enrichedLog = {
             ...logData,
             user_id: user?.id,
@@ -483,7 +443,7 @@ class ErrorMonitor {
 
         // Agregar a la cola
         this.backendQueue.push(enrichedLog);
-        
+
         // Guardar cola en localStorage por si se cierra el navegador
         this.saveToStorage('dashoffice_backend_queue', this.backendQueue);
 
@@ -499,19 +459,27 @@ class ErrorMonitor {
     async flushToBackend() {
         if (this.backendQueue.length === 0 || !this.isOnline) return;
 
-        const logsToSend = [...this.backendQueue];
+        // Truncar logs antes de enviar para evitar HTTP 413
+        const logsToSend = [...this.backendQueue].map(log => ({
+            ...log,
+            message: this.truncateString(log.message, 500),
+            stack_trace: this.truncateString(log.stack_trace, 1000),
+            data: this.truncateData(log.data)
+        }));
+
         this.backendQueue = [];
         this.saveToStorage('dashoffice_backend_queue', []);
 
         try {
-            const token = localStorage.getItem('token');
-            
+            const token = localStorage.getItem('cocolu_token') || localStorage.getItem('token');
+
             // Solo enviar si hay usuario logueado
             if (!token) {
                 return; // Silenciosamente no enviar si no hay token
             }
 
-            const response = await fetch('http://localhost:3009/api/logs/batch', {
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3009/api';
+            const response = await fetch(`${apiUrl}/logs/batch`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -525,7 +493,7 @@ class ErrorMonitor {
             }
 
             console.log(`[ErrorMonitor] ✅ ${logsToSend.length} logs enviados a BD`);
-            
+
         } catch (error) {
             // Silenciosamente guardar para reintentar, sin mostrar error
             this.backendQueue.push(...logsToSend);
@@ -538,13 +506,13 @@ class ErrorMonitor {
      */
     async processBackendQueue() {
         console.log('[ErrorMonitor] Procesando cola de backend...');
-        
+
         // Cargar cola guardada
         const savedQueue = this.loadFromStorage('dashoffice_backend_queue') || [];
         if (savedQueue.length > 0) {
             this.backendQueue.push(...savedQueue);
         }
-        
+
         await this.flushToBackend();
     }
 
@@ -557,6 +525,34 @@ class ErrorMonitor {
             return userStr ? JSON.parse(userStr) : null;
         } catch (error) {
             return null;
+        }
+    }
+
+    /**
+     * Truncar string a máximo de caracteres
+     */
+    truncateString(str, maxLength) {
+        if (!str || typeof str !== 'string') return str;
+        if (str.length <= maxLength) return str;
+        return str.substring(0, maxLength) + '... [truncated]';
+    }
+
+    /**
+     * Truncar objetos grandes para evitar payloads enormes
+     */
+    truncateData(data) {
+        try {
+            const str = JSON.stringify(data);
+            if (str.length > 5000) {
+                return {
+                    _truncated: true,
+                    preview: str.substring(0, 5000) + '...',
+                    originalSize: str.length
+                };
+            }
+            return data;
+        } catch (error) {
+            return { _error: 'Failed to serialize data' };
         }
     }
 }

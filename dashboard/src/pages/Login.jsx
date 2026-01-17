@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -6,30 +6,64 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, user } = useAuth();
+
+    // Verificar autenticación solo una vez al montar
+    useEffect(() => {
+        const token = localStorage.getItem('cocolu_token');
+        if (token && user) {
+            console.log('✅ Ya autenticado al cargar, redirigiendo...', user);
+            setSuccess('Ya estás autenticado. Redirigiendo...');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        }
+    }, []); // Solo al montar, NO dependencies
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
         setLoading(true);
 
-        const result = await login(email, password);
+        console.log('🔑 Intentando login con:', email);
 
-        if (result.success) {
-            navigate('/');
-        } else {
-            setError(result.error || 'Error al iniciar sesión');
+        try {
+            const result = await login(email, password);
+
+            console.log('📊 Resultado del login:', result);
+
+            if (result.success) {
+                setSuccess('✅ Login exitoso! Redirigiendo a dashboard...');
+                console.log('✅ Login exitoso, usuario:', result.user);
+
+                // Redirigir después de mostrar mensaje
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            } else {
+                const errorMsg = result.error || 'Credenciales inválidas. Intenta de nuevo.';
+                setError(errorMsg);
+                console.error('❌ Login fallido:', errorMsg);
+            }
+        } catch (err) {
+            const errorMsg = err.message || 'Error de conexión. Intenta de nuevo.';
+            setError(errorMsg);
+            console.error('❌ Excepción en login:', err);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const quickLogin = (demoEmail) => {
         setEmail(demoEmail);
-        setPassword('demo123');
+        // Las claves en la DB son 'admin123' y 'test123' (según setup-auth.js)
+        const password = demoEmail.includes('admin') ? 'admin123' : 'test123';
+        setPassword(password);
     };
 
     return (
@@ -41,7 +75,7 @@ function Login() {
                 <div className="absolute inset-0" style={{
                     backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%), radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.3), transparent 50%)',
                 }}></div>
-                
+
                 {/* Content */}
                 <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
                     {/* Logo & Title */}
@@ -138,12 +172,12 @@ function Login() {
                     </div>
 
                     {/* Login Card */}
-                    <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 lg:p-10 border border-gray-200">
+                    <div className="bg-white backdrop-blur-lg rounded-3xl shadow-2xl p-8 lg:p-10 border border-gray-200" style={{ backgroundColor: '#ffffff' }}>
                         <div className="mb-8">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            <h2 className="text-3xl font-bold mb-2" style={{ color: '#111827', fontWeight: 'bold' }}>
                                 Bienvenido 👋
                             </h2>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600" style={{ color: '#4b5563' }}>
                                 Ingresa tus credenciales para continuar
                             </p>
                         </div>
@@ -156,6 +190,16 @@ function Login() {
                                     <div className="flex-1">
                                         <p className="font-semibold">Error de autenticación</p>
                                         <p className="text-sm">{error}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg flex items-start gap-3">
+                                    <span className="text-xl">✅</span>
+                                    <div className="flex-1">
+                                        <p className="font-semibold">Éxito</p>
+                                        <p className="text-sm">{success}</p>
                                     </div>
                                 </div>
                             )}
@@ -251,7 +295,7 @@ function Login() {
                                 </button>
                             </div>
                             <p className="text-xs text-gray-500 mt-3 text-center">
-                                💡 Cualquier contraseña funciona en modo desarrollo
+                                🔐 Usa las credenciales reales del sistema
                             </p>
                         </div>
                     </div>

@@ -1,0 +1,401 @@
+/* ============================================ */
+/* DARK THEME OVERRIDE - MAXIMUM COVERAGE */
+/* ============================================ */
+
+/* Universal dark background for ALL elements */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Force dark backgrounds on common containers */
+div[class*="card"],
+div[class*="Card"],
+div[class*="container"],
+div[class*="Container"],
+div[class*="box"],
+div[class*="Box"],
+div[class*="panel"],
+div[class*="Panel"],
+div[class*="section"],
+div[class*="Section"],
+div[class*="wrapper"],
+div[class*="Wrapper"] {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+
+/* Specific overrides for known problematic elements */
+.message-card,
+.stats-card,
+.info-card,
+.qr-card,
+.connection-card,
+.config-card,
+.setup-card,
+.webhook-card,
+.token-card,
+.credential-card {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}
+
+/* Tables - comprehensive coverage */
+table,
+.table,
+.data-table,
+.table-container,
+thead,
+tbody,
+tr,
+th,
+td {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+
+thead,
+th {
+    background: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+tbody tr:hover {
+    background: #334155 !important;
+}
+
+/* All text elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+label,
+a,
+.text,
+.label,
+.title,
+.subtitle,
+.heading,
+.description {
+    color: #f1f5f9 !important;
+}
+
+/* Secondary text */
+.text-secondary,
+.text-muted,
+.subtitle,
+small,
+.hint,
+.helper-text {
+    color: #94a3b8 !important;
+}
+
+/* Input fields - all types */
+input,
+textarea,
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+.input,
+.form-control,
+.form-input {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #60a5fa !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #64748b !important;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background: #1e293b !important;
+    color: #64748b !important;
+    opacity: 0.6 !important;
+}
+
+/* Buttons */
+button,
+.button,
+.btn {
+    border: 1px solid #334155 !important;
+}
+
+.btn-primary,
+button[class*="primary"] {
+    background: #60a5fa !important;
+    color: white !important;
+    border-color: #60a5fa !important;
+}
+
+.btn-secondary,
+button[class*="secondary"] {
+    background: #334155 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+.btn-outline,
+button[class*="outline"] {
+    background: transparent !important;
+    color: #60a5fa !important;
+    border-color: #60a5fa !important;
+}
+
+/* Status badges */
+.badge,
+.status-badge,
+.tag {
+    font-weight: 600 !important;
+}
+
+.badge.success,
+.status-badge.success {
+    background: #166534 !important;
+    color: #bbf7d0 !important;
+}
+
+.badge.error,
+.status-badge.error {
+    background: #991b1b !important;
+    color: #fecaca !important;
+}
+
+.badge.warning,
+.status-badge.warning {
+    background: #92400e !important;
+    color: #fef3c7 !important;
+}
+
+.badge.info,
+.status-badge.info {
+    background: #075985 !important;
+    color: #bae6fd !important;
+}
+
+/* Alert boxes */
+.alert,
+.notification,
+.message-box {
+    border: 1px solid #334155 !important;
+}
+
+.alert-error,
+.alert-danger {
+    background: #7f1d1d !important;
+    color: #fecaca !important;
+    border-color: #991b1b !important;
+}
+
+.alert-success {
+    background: #14532d !important;
+    color: #bbf7d0 !important;
+    border-color: #166534 !important;
+}
+
+.alert-warning {
+    background: #78350f !important;
+    color: #fef3c7 !important;
+    border-color: #92400e !important;
+}
+
+.alert-info {
+    background: #0c4a6e !important;
+    color: #bae6fd !important;
+    border-color: #075985 !important;
+}
+
+/* Code blocks */
+code,
+pre,
+.code-block {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+}
+
+/* Modals and overlays */
+.modal,
+.modal-content,
+.overlay,
+.popup {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid #334155 !important;
+}
+
+.modal-footer {
+    border-top: 1px solid #334155 !important;
+}
+
+/* Dropdowns */
+.dropdown,
+.dropdown-menu,
+.select-menu {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}
+
+.dropdown-item:hover,
+.select-option:hover {
+    background: #334155 !important;
+}
+
+/* Lists */
+ul,
+ol,
+li {
+    color: #f1f5f9 !important;
+}
+
+.list-item:hover {
+    background: #334155 !important;
+}
+
+/* Dividers */
+hr,
+.divider {
+    border-color: #334155 !important;
+}
+
+/* Specific page fixes */
+
+/* Messages page */
+.messages-container,
+.message-list,
+.message-item {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Connection page */
+.qr-container,
+.qr-wrapper,
+.connection-status {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Settings page */
+.settings-section,
+.config-section,
+.form-section {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Meta setup page */
+.webhook-section,
+.token-section,
+.api-section {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Override any white backgrounds */
+[style*="background: white"],
+[style*="background: #fff"],
+[style*="background: #ffffff"],
+[style*="background-color: white"],
+[style*="background-color: #fff"],
+[style*="background-color: #ffffff"] {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Override any black text on white */
+[style*="color: black"],
+[style*="color: #000"],
+[style*="color: #000000"] {
+    color: #f1f5f9 !important;
+}
+
+/* Ensure readability */
+.text-center {
+    color: #f1f5f9 !important;
+}
+
+/* Links */
+a {
+    color: #60a5fa !important;
+}
+
+a:hover {
+    color: #93c5fd !important;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: #0f172a !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155 !important;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569 !important;
+}
+
+/* Ensure icons remain visible */
+svg,
+i,
+.icon {
+    color: inherit !important;
+    fill: currentColor !important;
+}
+
+/* Loading states */
+.loading,
+.spinner,
+.skeleton {
+    background: #334155 !important;
+}
+
+/* Empty states */
+.empty-state,
+.no-data {
+    color: #94a3b8 !important;
+}
+
+/* Tooltips */
+.tooltip,
+.popover {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}

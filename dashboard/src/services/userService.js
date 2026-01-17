@@ -14,8 +14,8 @@ class UserService {
             const response = await apiClient.get('/users', { params: filters });
             return {
                 success: true,
-                users: response.data.users || response.data,
-                total: response.data.total,
+                users: response.users || [],
+                total: response.total || 0,
             };
         } catch (error) {
             return {
@@ -33,7 +33,7 @@ class UserService {
             const response = await apiClient.get(`/users/${userId}`);
             return {
                 success: true,
-                user: response.data,
+                user: response.user || response,
             };
         } catch (error) {
             return {
@@ -51,7 +51,7 @@ class UserService {
             const response = await apiClient.post('/users', userData);
             return {
                 success: true,
-                user: response.data,
+                user: response.user || response,
             };
         } catch (error) {
             return {
@@ -69,7 +69,7 @@ class UserService {
             const response = await apiClient.put(`/users/${userId}`, userData);
             return {
                 success: true,
-                user: response.data,
+                user: response.user || response,
             };
         } catch (error) {
             return {
@@ -181,7 +181,7 @@ class UserService {
             const response = await apiClient.get('/users/roles');
             return {
                 success: true,
-                roles: response.data.roles || response.data,
+                roles: response.roles || response,
             };
         } catch (error) {
             // Si falla, devolver roles por defecto

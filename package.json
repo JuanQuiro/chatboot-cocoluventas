@@ -3,6 +3,10 @@
   "version": "5.0.0",
   "description": "DashOffice - Sistema Central Empresarial con Multi-Bot WhatsApp - Ember Drago",
   "main": "app-integrated.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20.x"
+  },
   "scripts": {
     "start": "node iniciar-bot-profesional.js",
     "rs:build": "cargo build --manifest-path src-rs-performance/Cargo.toml --release",
@@ -34,6 +38,7 @@
     "dashboard:install": "cd dashboard && npm install",
     "install:all": "npm install && npm run dashboard:install",
     "build:all": "npm run dashboard:build",
+    "build": "CI=false npm run dashboard:install && CI=false npm run dashboard:build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -66,26 +71,34 @@
     "@whiskeysockets/baileys": "^6.7.21",
     "@wppconnect-team/wppconnect": "^1.37.6",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
     "chalk": "^5.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "envalid": "^8.1.1",
     "exceljs": "^4.4.0",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "inquirer": "^8.2.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "ora": "^8.0.1",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.3",
     "puppeteer": "^24.29.1",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "sharp": "^0.34.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "tesseract.js": "^6.0.1",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.2.1",
@@ -110,10 +123,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
-  },
-  "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=9.0.0"
   },
   "optionalDependencies": {
     "compression": "^1.7.4",

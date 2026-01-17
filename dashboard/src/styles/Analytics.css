@@ -1,0 +1,25 @@
+.analytics-page { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+.analytics-page.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 1rem; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.metric-card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 1rem; }
+.metric-icon { width: 56px; height: 56px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; }
+.metric-icon.messages { background: #dbeafe; color: #1e40af; }
+.metric-icon.users { background: #d1fae5; color: #065f46; }
+.metric-icon.rate { background: #fef3c7; color: #92400e; }
+.metric-icon.time { background: #e0e7ff; color: #4338ca; }
+.metric-label { font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem; }
+.metric-value { font-size: 2rem; font-weight: 700; }
+.chart-section { background: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem; }
+.chart-section h2 { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+.workload-table-container { overflow-x: auto; }
+.workload-table { width: 100%; border-collapse: collapse; }
+.workload-table thead { background: #f9fafb; }
+.workload-table th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.875rem; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
+.workload-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #f3f4f6; }
+.workload-table tbody tr:hover { background: #f9fafb; }
+.seller-name { font-weight: 600; }
+.text-center { text-align: center; }
+.load-bar-container { position: relative; width: 100%; height: 24px; background: #f3f4f6; border-radius: 12px; overflow: hidden; }
+.load-bar { height: 100%; border-radius: 12px; transition: width 0.3s, background-color 0.3s; }
+.load-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; font-weight: 600; color: #1f2937; }
+.empty-chart { padding: 3rem; text-align: center; color: #9ca3af; }

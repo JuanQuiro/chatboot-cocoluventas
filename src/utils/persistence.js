@@ -32,10 +32,10 @@ class PersistenceService {
      */
     async save(key, data) {
         await this.init();
-        
+
         const filePath = path.join(this.basePath, `${key}.json`);
-        const dataToSave = typeof data === 'string' 
-            ? data 
+        const dataToSave = typeof data === 'string'
+            ? data
             : JSON.stringify(data, this.replacer, 2);
 
         try {
@@ -53,12 +53,18 @@ class PersistenceService {
      */
     async load(key, defaultValue = null) {
         await this.init();
-        
+
         const filePath = path.join(this.basePath, `${key}.json`);
 
         try {
             const data = await fs.readFile(filePath, 'utf8');
-            return JSON.parse(data, this.reviver);
+            if (!data) return defaultValue;
+            try {
+                return JSON.parse(data, this.reviver);
+            } catch (e) {
+                console.warn(`⚠️ Error parsing persisted file ${key}:`, e.message);
+                return defaultValue;
+            }
         } catch (error) {
             if (error.code === 'ENOENT') {
                 console.log(`ℹ️  Archivo ${key} no existe, usando valor por defecto`);
@@ -74,9 +80,9 @@ class PersistenceService {
      */
     async exists(key) {
         await this.init();
-        
+
         const filePath = path.join(this.basePath, `${key}.json`);
-        
+
         try {
             await fs.access(filePath);
             return true;
@@ -90,9 +96,9 @@ class PersistenceService {
      */
     async delete(key) {
         await this.init();
-        
+
         const filePath = path.join(this.basePath, `${key}.json`);
-        
+
         try {
             await fs.unlink(filePath);
             console.log(`🗑️  Datos eliminados: ${key}`);
@@ -108,7 +114,7 @@ class PersistenceService {
      */
     async listKeys() {
         await this.init();
-        
+
         try {
             const files = await fs.readdir(this.basePath);
             return files
@@ -125,11 +131,11 @@ class PersistenceService {
      */
     async backup(backupName = `backup_${Date.now()}`) {
         const backupPath = path.join(this.basePath, 'backups', backupName);
-        
+
         try {
             await fs.mkdir(path.join(this.basePath, 'backups'), { recursive: true });
             const keys = await this.listKeys();
-            
+
             for (const key of keys) {
                 const data = await this.load(key);
                 const backupFile = path.join(backupPath, `${key}.json`);
@@ -140,7 +146,7 @@ class PersistenceService {
                     'utf8'
                 );
             }
-            
+
             console.log(`📦 Backup creado: ${backupName}`);
             return backupName;
         } catch (error) {

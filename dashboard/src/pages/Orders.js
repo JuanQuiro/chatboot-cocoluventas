@@ -7,7 +7,7 @@ const Orders = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3009/api/orders');
+      const response = await fetch('/api/orders');
       const data = await response.json();
       if (data.success) {
         setOrders(data.data);
