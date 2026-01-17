@@ -1,0 +1,122 @@
+[
+  {
+    "id": 49,
+    "total_usd": 114,
+    "fecha_pedido": "2026-01-12T22:50:01.847Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 48,
+    "total_usd": 500,
+    "fecha_pedido": "2026-01-12T15:21:37.016Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 47,
+    "total_usd": 700,
+    "fecha_pedido": "2026-01-12T13:58:33.301Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 46,
+    "total_usd": 7500,
+    "fecha_pedido": "2026-01-12T03:01:59.834Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 45,
+    "total_usd": 7500,
+    "fecha_pedido": "2026-01-08T23:19:21.991Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 44,
+    "total_usd": 264,
+    "fecha_pedido": "2026-01-07T17:58:33.389Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 43,
+    "total_usd": 132,
+    "fecha_pedido": "2026-01-07T17:53:00.696Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 42,
+    "total_usd": 132,
+    "fecha_pedido": "2026-01-07T17:52:28.552Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 41,
+    "total_usd": 250,
+    "fecha_pedido": "2026-01-07T17:42:57.135Z",
+    "estado_entrega": "entregado"
+  },
+  {
+    "id": 40,
+    "total_usd": 100,
+    "fecha_pedido": "2026-01-07T17:41:45.670Z",
+    "estado_entrega": "entregado"
+  },
+  {
+    "id": 39,
+    "total_usd": 144,
+    "fecha_pedido": "2025-12-30T01:26:18.621Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 38,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-30T01:24:56.789Z",
+    "estado_entrega": "pago confirmado"
+  },
+  {
+    "id": 37,
+    "total_usd": 120,
+    "fecha_pedido": "2025-12-29T22:02:41.609Z",
+    "estado_entrega": "empaquetado"
+  },
+  {
+    "id": 36,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-29T21:19:05.682Z",
+    "estado_entrega": "vectorizado"
+  },
+  {
+    "id": 35,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-29T21:18:52.268Z",
+    "estado_entrega": "en proceso"
+  },
+  {
+    "id": 34,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-29T21:04:09.988Z",
+    "estado_entrega": "vectorizado"
+  },
+  {
+    "id": 33,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-28T08:40:46.621Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 32,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-28T08:40:44.414Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 31,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-28T08:40:42.188Z",
+    "estado_entrega": "pendiente"
+  },
+  {
+    "id": 30,
+    "total_usd": 500,
+    "fecha_pedido": "2025-12-28T08:35:11.766Z",
+    "estado_entrega": "pendiente"
+  }
+]

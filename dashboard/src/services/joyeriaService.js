@@ -27,10 +27,10 @@ export const joyeriaService = {
     // ========== CLIENTES MEJORADOS (CON APELLIDO) ==========
     buscarClientes: async (query) => {
         if (!query || query.length < 2) return { success: true, data: [] };
-        const response = await axios.get(`${API_URL}/clients-improved/search`, {
+        const response = await axios.get(`${API_URL}/clients/search`, {
             params: { q: query }
         });
-        return responsedata;
+        return response.data.data || [];
     },
 
     crearClienteMejorado: async (clienteData) => {
@@ -38,7 +38,7 @@ export const joyeriaService = {
         if (!clienteData.apellido) {
             throw new Error('El apellido es obligatorio');
         }
-        const response = await axios.post(`${API_URL}/clients-improved`, clienteData);
+        const response = await axios.post(`${API_URL}/clients`, clienteData);
         return response.data;
     },
 

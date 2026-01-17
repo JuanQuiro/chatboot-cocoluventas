@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
 .lista-pedidos-page {
     padding: 0;
 }
@@ -75,6 +77,31 @@
     gap: 8px;
 }
 
+
+
+/* Priority Row Styles */
+.row-urgent {
+    background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent) !important;
+    border-left: 3px solid #ef4444 !important;
+}
+
+.row-high {
+    background: linear-gradient(to right, rgba(249, 115, 22, 0.05), transparent) !important;
+    border-left: 3px solid #f97316 !important;
+}
+
+.row-completed {
+    opacity: 0.6;
+    background-color: #f9fafb !important;
+}
+
+/* Ensure table cells don't block the border */
+.data-table tr.row-urgent td:first-child,
+.data-table tr.row-high td:first-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .stat-label {
     font-size: 13px;
     color: var(--color-textSecondary);
@@ -97,39 +124,83 @@
 
 .order-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     justify-content: center;
+    flex-wrap: nowrap;
 }
 
 .btn-action {
     width: 32px;
     height: 32px;
-    border: none;
+    border: 1px solid transparent;
     background: transparent;
     cursor: pointer;
-    font-size: 16px;
-    border-radius: 6px;
-    transition: all 0.2s;
+    border-radius: 8px;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #64748b;
+    /* Default slate-500 */
 }
 
+/* Hover Effects */
 .btn-action:hover {
-    transform: scale(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.btn-view:hover {
-    background: rgba(59, 130, 246, 0.1);
+/* Specific Action Colors on Hover/Active */
+.btn-action.assignment {
+    color: #8b5cf6;
 }
 
-.btn-edit:hover {
-    background: rgba(245, 158, 11, 0.1);
+/* Purple default? or just on hover? Let's make it subtle default, bold hover */
+.btn-action.assignment:hover {
+    background: #f3e8ff;
+    color: #7c3aed;
+    border-color: #e9d5ff;
 }
 
-.btn-delete:hover {
-    background: rgba(239, 68, 68, 0.1);
+.btn-action.calendar {
+    color: #3b82f6;
+}
+
+.btn-action.calendar:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #dbeafe;
+}
+
+.btn-action.edit {
+    color: #f59e0b;
+}
+
+.btn-action.edit:hover {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fcd34d;
+}
+
+.btn-action.view {
+    color: #64748b;
+}
+
+.btn-action.view:hover {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
+.btn-action.delete {
+    color: #ef4444;
+}
+
+.btn-action.delete:hover {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
 }
 
 .status-select {
@@ -246,22 +317,27 @@
 }
 
 .delivery-date.overdue {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background: #ef4444;
+    /* Solid Red */
+    color: white;
+    border: 1px solid #dc2626;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 .delivery-date.today {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
+    background: #f97316;
+    /* Solid Orange/Red */
+    color: white;
+    border: 1px solid #ea580c;
     font-weight: 600;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
 }
 
 .delivery-date.tomorrow {
-    background: #fef3c7;
-    color: #d97706;
-    border: 1px solid #fde68a;
+    background: #fff7ed;
+    color: #ea580c;
+    border: 1px solid #fdba74;
     font-weight: 600;
 }
 

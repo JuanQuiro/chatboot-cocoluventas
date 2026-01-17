@@ -83,25 +83,53 @@ class FinanceService {
     getIncomeSummary(startDate, endDate) {
         const db = this._getDb();
 
-        // 1. Orders Income
+        // 1. Orders Income (DEBUGGING)
+        console.log(`[Finance] Calculating income for ${startDate} to ${endDate}`);
+
         const orders = db.prepare(`
             SELECT SUM(total_usd) as total 
             FROM pedidos 
-            WHERE date(created_at) BETWEEN date(?) AND date(?)
+            WHERE date(fecha_pedido) BETWEEN date(?) AND date(?)
             AND estado_entrega != 'anulado'
         `).get(startDate, endDate);
+
+        console.log('[Finance] Orders result:', orders);
 
         // 2. Misc Income
         const misc = db.prepare(`
             SELECT SUM(monto_usd) as total 
             FROM ingresos_varios 
-            WHERE date(fecha) BETWEEN date(?) AND date(?)
+            WHERE date(created_at) BETWEEN date(?) AND date(?)
         `).get(startDate, endDate);
 
+        // 3. Get Breakdown (for Ingresos Page table)
+        const breakdownMisc = db.prepare(`
+            SELECT 
+                id,
+                created_at as date,
+                descripcion as description,
+                categoria as category,
+                monto_usd as amount,
+                notas as notes
+            FROM ingresos_varios 
+            WHERE date(created_at) BETWEEN date(?) AND date(?)
+            ORDER BY created_at DESC
+        `).all(startDate, endDate);
+
         return {
+            ingresos_pedidos: orders.total || 0,
+            ingresos_varios: misc.total || 0,
+            // Keep english keys for potential different consumers
             orders: orders.total || 0,
             misc: misc.total || 0,
-            total: (orders.total || 0) + (misc.total || 0)
+            total: (orders.total || 0) + (misc.total || 0),
+            // Legacy/Ingresos Page aliases
+            totalOrders: orders.total || 0,
+            totalMisc: misc.total || 0,
+            grandTotal: (orders.total || 0) + (misc.total || 0),
+            breakdown: {
+                misc: breakdownMisc
+            }
         };
     }
 

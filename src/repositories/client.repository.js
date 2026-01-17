@@ -168,14 +168,16 @@ class ClientRepository {
     getTopClients(limit = 10) {
         const sql = `
             SELECT 
-                c.*,
+                MAX(c.id) as id, 
+                c.nombre, 
+                c.apellido,
                 COALESCE(SUM(p.total_usd), 0) as total_spent,
                 MAX(p.fecha_pedido) as last_purchase,
                 COUNT(p.id) as purchase_count
             FROM clientes c
-            LEFT JOIN pedidos p ON c.id = p.cliente_id AND p.estado_entrega != 'anulado'
-            WHERE c.activo = 1
-            GROUP BY c.id
+            JOIN pedidos p ON c.id = p.cliente_id 
+            WHERE c.activo = 1 AND p.estado_entrega != 'anulado'
+            GROUP BY c.nombre, c.apellido
             ORDER BY total_spent DESC
             LIMIT ?
         `;

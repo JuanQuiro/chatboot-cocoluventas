@@ -33,6 +33,7 @@ const CuentasPorCobrar = () => {
     try {
       const response = await accountsService.getAccountsStats();
       if (response.success && response.data) {
+        console.log('✅ Stats received from backend:', response.data);
         setStats(response.data);
       } else {
         setStats(response);
@@ -127,26 +128,17 @@ const CuentasPorCobrar = () => {
     }
   };
 
-  // Calculate aging buckets
+  // Calculate aging buckets (Now using real data from backend)
   const calculateAgingBuckets = () => {
-    if (!accounts.length) return { current: 0, days30: 0, days60: 0, days90: 0, over90: 0 };
+    // If no stats loaded yet, return 0
+    if (!stats) return { current: 0, days30: 0, days60: 0, days90: 0, over90: 0 };
 
-    const today = new Date();
-    const buckets = { current: 0, days30: 0, days60: 0, days90: 0, over90: 0 };
-
-    accounts.forEach(account => {
-      // Assuming oldest order date or some aging ref
-      const amount = account.balance || 0;
-      // For simplicity, use random aging - in production get from backend
-      const daysOld = Math.floor(Math.random() * 120);
-
-      if (daysOld <= 30) buckets.current += amount;
-      else if (daysOld <= 60) buckets.days30 += amount;
-      else if (daysOld <= 90) buckets.days60 += amount;
-      else buckets.over90 += amount;
-    });
-
-    return buckets;
+    return {
+      current: parseFloat(stats.bucket_0_30 || 0),
+      days30: parseFloat(stats.bucket_31_60 || 0),
+      days60: parseFloat(stats.bucket_61_90 || 0),
+      over90: parseFloat(stats.bucket_90_plus || 0)
+    };
   };
 
   const handleExport = async () => {

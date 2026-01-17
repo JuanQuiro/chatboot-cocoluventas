@@ -12,32 +12,20 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🔍 REVISANDO LOGS PM2...");
+console.log("🔍 CHECKING DETAILED LOGS...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-pm2 flush cocolu-dashoffice
-
-echo "=== HACIENDO LOGIN REQUEST ==="
-curl -s -X POST http://127.0.0.1:3009/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@cocolu.com","password":"password123"}' WAIT
-
-sleep 2
-
-echo ""
-echo "=== ÚLTIMOS ERRORES PM2 ==="
-pm2 logs cocolu-dashoffice --err --lines 30 --nostream 2>&1 | tail -30
+pm2 logs cocolu-dashoffice --err --lines 50 --nostream
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on("data", (d: Buffer) => console.log(d.toString()));
-        stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
-        stream.on("close", () => {
-            console.log("\n✅ Logs obtenidos");
-            conn.end();
-        });
+        stream.on('data', (d: any) => console.log(d.toString()));
+        stream.on('close', () => conn.end());
     });
 }).connect(config);

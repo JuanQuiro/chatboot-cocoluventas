@@ -8,6 +8,8 @@ import productRepository from '../repositories/product.repository.js';
 import clientsService from './clients.service.js';
 import manufacturersService from './manufacturers.service.js';
 import commissionsService from './commissions.service.js';
+import logisticsService from './logistics.service.js';
+import variantRepository from '../repositories/variant.repository.js';
 import ExcelJS from 'exceljs';
 
 import { formatPaginatedResponse } from '../utils/pagination.js';
@@ -17,93 +19,85 @@ class OrdersService {
     /**
      * Create new order
      */
-    async createOrder(orderData) {
-        try {
-            // Validate required fields
-            if (!orderData.cliente_nombre || !orderData.cliente_apellido) {
-                throw new Error('Nombre y apellido del cliente son requeridos');
-            }
+    /**
+     * Create new order with ATOMIC TRANSACTION
+     * Ensures Order + Details + Stock Updates happen as one unit.
+     */
+    async createOrder(data) {
+        // ---------------------------------------------------------
+        // 1. PRE-TRANSACTION: Async Operations (Assignments & Calculations)
+        // ---------------------------------------------------------
 
-            if (!orderData.productos || orderData.productos.length === 0) {
-                throw new Error('El pedido debe tener al menos un producto');
+        // A. Auto-assign Manufacturer
+        if (!data.fabricante_id) {
+            const assignedManufacturer = await manufacturersService.assignNextManufacturer();
+            if (assignedManufacturer) {
+                data.fabricante_id = assignedManufacturer.id;
+                data.assignment_source_manufacturer = 'auto'; // ⚡ Marked as Auto
+                console.log(`🤖 Auto-assigned Manufacturer: ${assignedManufacturer.nombre}`);
             }
+        } else {
+            data.assignment_source_manufacturer = 'manual'; // 🔵 Marked as Manual
+        }
 
-            // Get or create client if cedula is provided
-            if (orderData.cliente_cedula) {
-                const client = await clientsService.getOrCreateByCedula({
-                    cedula: orderData.cliente_cedula,
-                    nombre: orderData.cliente_nombre,
-                    apellido: orderData.cliente_apellido,
-                    telefono: orderData.cliente_telefono,
-                    email: orderData.cliente_email,
-                    direccion: orderData.cliente_direccion
-                });
-                orderData.cliente_id = client.id;
-            }
+        // B. Calculate Commission & Auto-Assign Seller Mark
+        if (data.vendedor_id) {
+            // Default source if missing
+            data.assignment_source_seller = data.assignment_source_seller || 'manual';
+            const commission = await commissionsService.calculateOrderCommission(data, data.vendedor_id);
+            data.monto_comision = commission;
+        }
 
-            // Validate stock for each product
-            for (const producto of orderData.productos) {
-                if (producto.producto_id) {
-                    const productInDb = productRepository.getById(producto.producto_id);
-                    if (productInDb && productInDb.stock_actual < producto.cantidad) {
-                        throw new Error(`Stock insuficiente para ${productInDb.nombre}. Disponible: ${productInDb.stock_actual}, Solicitado: ${producto.cantidad}`);
+        data.estado_entrega = data.estado_entrega || 'pendiente';
+
+        // ---------------------------------------------------------
+        // 2. TRANSACTION: Atomic Database Operations (Sync Only)
+        // ---------------------------------------------------------
+        const db = orderRepository.db;
+        const runTransaction = db.transaction((orderData) => {
+            // A. Logistics & Stock Checks (Sync)
+            let orderMaxLeadTime = 0;
+
+            for (const item of orderData.productos) {
+                if (item.is_variant) {
+                    const stockPlan = logisticsService.findStockSources(item.producto_id, item.cantidad);
+                    if (!stockPlan.fully_stocked) {
+                        const variant = variantRepository.getById(item.producto_id);
+                        // Fallback check
+                        if (variant && variant.stock_actual < item.cantidad) {
+                            throw new Error(`Stock Insuficiente (Global) para ${variant.nombre_variante}. Faltan ${stockPlan.missing} unidades.`);
+                        }
+                    }
+                    if (stockPlan.max_lead_time > orderMaxLeadTime) {
+                        orderMaxLeadTime = stockPlan.max_lead_time;
+                    }
+                } else {
+                    // Check legacy stock if needed (sync)
+                    const product = productRepository.getById(item.producto_id);
+                    if (product && product.stock_actual < item.cantidad) {
+                        throw new Error(`Stock insuficiente para ${product.nombre}. Disponible: ${product.stock_actual}`);
                     }
                 }
             }
 
-            // ---------------------------------------------------------
-            // COCOLU PRO LOGIC: Auto-Assignment & Commissions
-            // ---------------------------------------------------------
+            // Update Est. Delivery (Sync calculation)
+            orderData.fecha_entrega_estimada = logisticsService.calculateDeliveryDate(orderMaxLeadTime);
+            console.log(`🚚 Estimated Delivery: ${orderData.fecha_entrega_estimada} (${orderMaxLeadTime} days lead time)`);
 
-            // 1. Auto-assign Manufacturer
-            if (!orderData.fabricante_id) {
-                const assignedManufacturer = await manufacturersService.assignNextManufacturer();
-                if (assignedManufacturer) {
-                    orderData.fabricante_id = assignedManufacturer.id;
-                    console.log(`🤖 Auto-assigned Manufacturer: ${assignedManufacturer.nombre}`);
-                }
-            }
-
-            // 2. Calculate Commission (if seller exists)
-            if (orderData.vendedor_id) {
-                const commission = commissionsService.calculateOrderCommission(
-                    orderData.total_usd || 0,
-                    orderData.vendedor_id
-                );
-                orderData.monto_comision = commission;
-            }
-
-            // 3. Set Initial Status
-            orderData.estado_entrega = orderData.estado_entrega || 'pendiente';
-
-            // ---------------------------------------------------------
-
-            // Create order
+            // B. DB INSERT (Order + Details)
+            // Repository 'create' handles both order and details insertion
             const newOrder = orderRepository.create(orderData);
 
-            // Decrement stock for products
-            for (const producto of orderData.productos) {
-                if (producto.producto_id) {
-                    try {
-                        productRepository.decrementStock(producto.producto_id, producto.cantidad);
-
-                        // Register stock movement
-                        this.registerStockMovement(
-                            producto.producto_id,
-                            'venta',
-                            producto.cantidad,
-                            newOrder.id
-                        );
-                    } catch (error) {
-                        console.warn(`⚠️ No se pudo actualizar stock para producto ${producto.producto_id}:`, error.message);
-                    }
-                }
-            }
-
-            console.log(`✅ Pedido creado: #${newOrder.id} - ${newOrder.cliente_nombre} ${newOrder.cliente_apellido}`);
             return newOrder;
+        });
+
+        // Execute Transaction
+        try {
+            const result = runTransaction(data); // Sync execution inside wrapper
+            console.log(`✅ Transaction Success: Order #${result.id} created.`);
+            return result;
         } catch (error) {
-            console.error('Error creating order:', error);
+            console.error('❌ Transaction Failed (Rolled Back):', error.message);
             throw error;
         }
     }
@@ -209,7 +203,7 @@ class OrdersService {
             }
 
             const cancelled = orderRepository.cancel(orderId, motivo);
-            console.log(`✅ Pedido anulado: #${orderId}`);
+            console.log(`✅ Pedido anulado: #${orderId} `);
             return cancelled;
         } catch (error) {
             console.error('Error cancelling order:', error);
@@ -223,7 +217,7 @@ class OrdersService {
     async deleteOrder(orderId) {
         try {
             const result = orderRepository.delete(orderId);
-            console.log(`🗑️ Pedido ELIMINADO: #${orderId}`);
+            console.log(`🗑️ Pedido ELIMINADO: #${orderId} `);
             return result;
         } catch (error) {
             console.error('Error deleting order:', error);
@@ -237,7 +231,7 @@ class OrdersService {
     async addPayment(paymentData) {
         try {
             const paymentId = orderRepository.addPayment(paymentData);
-            console.log(`✅ Abono registrado: #${paymentId} para pedido #${paymentData.pedido_id}`);
+            console.log(`✅ Abono registrado: #${paymentId} para pedido #${paymentData.pedido_id} `);
 
             // Check if order is fully paid
             const order = orderRepository.getById(paymentData.pedido_id);
@@ -337,7 +331,7 @@ class OrdersService {
                     worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
                     worksheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6366F1' } };
 
-                    worksheet.addRow([`Generado: ${new Date().toLocaleString()}`]);
+                    worksheet.addRow([`Generado: ${new Date().toLocaleString()} `]);
                     worksheet.mergeCells('A2:G2');
                     worksheet.getCell('A2').alignment = { horizontal: 'center' };
                     worksheet.getCell('A2').font = { italic: true, color: { argb: 'FF555555' } };
@@ -369,7 +363,7 @@ class OrdersService {
                     orders.forEach((o, index) => {
                         try {
                             const dateStr = o.fecha_pedido ? new Date(o.fecha_pedido) : new Date();
-                            const clientStr = `${o.cliente_nombre || ''} ${o.cliente_apellido || ''}`.trim();
+                            const clientStr = `${o.cliente_nombre || ''} ${o.cliente_apellido || ''} `.trim();
                             const row = worksheet.addRow([
                                 o.id,
                                 dateStr,
@@ -397,7 +391,7 @@ class OrdersService {
                                 cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
                             });
                         } catch (rowError) {
-                            console.error(`[EXPORT] Error processing row ${index} (ID: ${o?.id}):`, rowError);
+                            console.error(`[EXPORT] Error processing row ${index} (ID: ${o?.id}): `, rowError);
                         }
                     });
 
@@ -438,7 +432,7 @@ class OrdersService {
                     worksheet.addRow({
                         id: o.id,
                         fecha_pedido: dateStr,
-                        cliente_nombre: `${o.cliente_nombre} ${o.cliente_apellido}`,
+                        cliente_nombre: `${o.cliente_nombre} ${o.cliente_apellido} `,
                         total_usd: o.total_usd,
                         estado_entrega: o.estado_entrega
                     });
@@ -448,7 +442,7 @@ class OrdersService {
                 let md = '| ID | Fecha | Cliente | Total | Estado |\n';
                 md += '| --- | --- | --- | --- | --- |\n';
                 orders.forEach(o => {
-                    const client = `${o.cliente_nombre || ''} ${o.cliente_apellido || ''}`.trim();
+                    const client = `${o.cliente_nombre || ''} ${o.cliente_apellido || ''} `.trim();
                     const date = new Date(o.fecha_pedido).toLocaleDateString();
                     md += `| ${o.id} | ${date} | ${client} | $${o.total_usd} | ${o.estado_entrega} |\n`;
                 });
@@ -464,7 +458,7 @@ class OrdersService {
                 const totalRevenue = orders.reduce((sum, o) => sum + (o.total_usd || 0), 0);
 
                 const htmlContent = `
-                <html>
+    < html >
                 <head>
                     <style>
                         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #333; background: #fff; }
@@ -547,7 +541,7 @@ class OrdersService {
                         Generado automáticamente por Cocolu Dashboard el ${new Date().toLocaleString()}
                     </div>
                 </body>
-                </html>`;
+                </html > `;
 
                 const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
                 const page = await browser.newPage();
@@ -571,6 +565,9 @@ class OrdersService {
     /**
      * Register stock movement
      */
+    /**
+     * Register stock movement (Legacy Products)
+     */
     registerStockMovement(productoId, tipoMovimiento, cantidad, pedidoId = null) {
         try {
             const product = productRepository.getById(productoId);
@@ -578,15 +575,20 @@ class OrdersService {
 
             const db = productRepository.db;
             const stmt = db.prepare(`
-                INSERT INTO movimientos_stock (
-                    producto_id, tipo_movimiento, cantidad,
-                    stock_anterior, stock_nuevo, pedido_id
-                ) VALUES (?, ?, ?, ?, ?, ?)
-            `);
+                INSERT INTO movimientos_stock(
+        producto_id, tipo_movimiento, cantidad,
+        stock_anterior, stock_nuevo, pedido_id
+    ) VALUES(?, ?, ?, ?, ?, ?)
+        `);
 
             const stockAnterior = tipoMovimiento === 'venta'
                 ? product.stock_actual + cantidad
                 : product.stock_actual - cantidad;
+
+            // Correction: If 'venta', we just subtracted stock, so previous was current + qty
+            // Wait, productRepository.getById called AFTER decrement? Yes.
+            // So product.stock_actual is the NEW stock.
+            // Previous stock = product.stock_actual + cantidad (for sale)
 
             stmt.run(
                 productoId,
@@ -598,6 +600,47 @@ class OrdersService {
             );
         } catch (error) {
             console.error('Error registering stock movement:', error);
+        }
+    }
+
+    // This block was added based on the instruction to modify the 'detalles_pedido' insert statement.
+    /**
+     * Register stock movement(Variants)
+        */
+    registerVariantStockMovement(varianteId, tipoMovimiento, cantidad, pedidoId = null) {
+        try {
+            const variant = variantRepository.getById(varianteId);
+            if (!variant) return;
+
+            const db = variantRepository._getDb(); // Access via getter or property if available
+            // Note: variantRepository uses _getDb internally. We can use databaseService.getDatabase() directly or expose db.
+            // Let's assume orderRepository has access to db or use same instance.
+            // Actually variantRepository.db is public if we initialized it? No, it's lazy.
+            // Let's use orderRepository.db which is likely same instance better-sqlite3
+
+            const stmt = db.prepare(`
+                INSERT INTO movimientos_stock_variantes(
+            variante_id, tipo_movimiento, cantidad,
+            stock_anterior, stock_nuevo, pedido_id
+        ) VALUES(?, ?, ?, ?, ?, ?)
+            `);
+
+            // Logic: we call this AFTER decrement
+            // So variant.stock_actual is the NEW stock
+            const stockAnterior = tipoMovimiento === 'venta'
+                ? variant.stock_actual + cantidad
+                : variant.stock_actual - cantidad;
+
+            stmt.run(
+                varianteId,
+                tipoMovimiento,
+                cantidad,
+                stockAnterior,
+                variant.stock_actual,
+                pedidoId
+            );
+        } catch (error) {
+            console.error('Error registering variant stock movement:', error);
         }
     }
 
@@ -634,7 +677,7 @@ class OrdersService {
 
                 metodo_pago: 'pendiente', // Reset payment
                 estado_entrega: 'pendiente', // Reset status
-                comentarios_generales: `Copia de pedido #${originalOrder.id}. ${originalOrder.comentarios_generales || ''}`
+                comentarios_generales: `Copia de pedido #${originalOrder.id}. ${originalOrder.comentarios_generales || ''} `
             };
 
             // 2. Create new order
@@ -651,14 +694,14 @@ class OrdersService {
     async getStats() {
         try {
             const stmt = orderRepository.db.prepare(`
-                SELECT 
-                    COUNT(*) as total_orders,
-                    SUM(CAST(total_usd AS REAL)) as total_revenue,
-                    SUM(CASE WHEN LOWER(estado_entrega) = 'pendiente' THEN 1 ELSE 0 END) as pending_orders,
-                    SUM(CASE WHEN LOWER(estado_entrega) IN ('completado', 'entregado') THEN 1 ELSE 0 END) as completed_orders
+SELECT
+COUNT(*) as total_orders,
+    SUM(CAST(total_usd AS REAL)) as total_revenue,
+    SUM(CASE WHEN LOWER(estado_entrega) = 'pendiente' THEN 1 ELSE 0 END) as pending_orders,
+    SUM(CASE WHEN LOWER(estado_entrega) IN('completado', 'entregado') THEN 1 ELSE 0 END) as completed_orders
                 FROM pedidos
                 WHERE estado_entrega != 'anulado'
-            `);
+    `);
             const result = stmt.get();
 
             // Calculate daily, weekly (Sat-Fri) and monthly
@@ -687,7 +730,7 @@ class OrdersService {
                 SELECT count(*) as count, sum(CAST(total_usd AS REAL)) as total 
                 FROM pedidos 
                 WHERE date(fecha_pedido) >= ? AND date(fecha_pedido) <= ? AND estado_entrega != 'anulado'
-            `);
+    `);
             const weekly = weeklyStmt.get(saturdayStr, fridayStr);
 
             // Monthly stats
@@ -731,9 +774,9 @@ class OrdersService {
                 if (period === 'day') {
                     key = date.toISOString().split('T')[0]; // YYYY-MM-DD
                 } else if (period === 'month') {
-                    key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+                    key = `${date.getFullYear()} -${String(date.getMonth() + 1).padStart(2, '0')} `; // YYYY-MM
                 } else {
-                    key = `${date.getFullYear()}`;
+                    key = `${date.getFullYear()} `;
                 }
 
                 if (!grouped[key]) {

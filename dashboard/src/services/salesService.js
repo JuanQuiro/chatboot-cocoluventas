@@ -89,6 +89,7 @@ export const ordersService = {
         // Filters now include page/limit
         const response = await axios.get(`${API_URL}/orders`, { params: filters });
         // Return full response { success, data, meta }
+        console.log('📦 API GET /orders response:', response.data);
         return response.data;
     },
 

@@ -83,16 +83,11 @@ const CrearVenta = () => {
 
                             <ProductSection
                                 barcodeScanner={barcodeScanner}
-                                productSearch={sale.productSearch.productSearch}
-                                setProductSearch={sale.productSearch.setProductSearch}
-                                productResults={sale.productSearch.productResults}
                                 onAddProduct={sale.handleAddProduct}
                                 onShowManualProduct={(initialName) => {
                                     sale.setManualInitialName(initialName || '');
                                     sale.openModal('manualProduct');
                                 }}
-                                isSearching={sale.productSearch.searching}
-                                clearSearch={sale.productSearch.clearSearch}
                             />
                         </div>
 
@@ -110,6 +105,10 @@ const CrearVenta = () => {
                                 <ConfigSection
                                     calculations={sale.calculations}
                                     exchangeRate={sale.exchangeRate}
+                                    sellerId={sale.sellerId}
+                                    setSellerId={sale.setSellerId}
+                                    manufacturerId={sale.manufacturerId}
+                                    setManufacturerId={sale.setManufacturerId}
                                 />
 
                                 <PaymentSection

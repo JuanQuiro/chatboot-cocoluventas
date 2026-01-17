@@ -1,12 +1,9 @@
 import React from 'react';
-import ProductSearch from '../ProductSearch';
+import ProductSearchVariants from '../ProductSearchVariants'; // New component
 import AnimatedCard from '../../common/AnimatedCard';
 
 const ProductSection = ({
     barcodeScanner,
-    productSearch,
-    setProductSearch,
-    productResults,
     onAddProduct,
     onShowManualProduct
 }) => {
@@ -30,7 +27,7 @@ const ProductSection = ({
                         alignItems: 'center',
                         gap: '10px'
                     }}>
-                        📦 Productos
+                        📦 Productos (Calidad & Origen)
                     </h2>
                     <button
                         type="button"
@@ -56,9 +53,7 @@ const ProductSection = ({
                     </button>
                 </div>
 
-                <ProductSearch
-                    products={productResults}
-                    onSearch={setProductSearch}
+                <ProductSearchVariants
                     onSelectProduct={onAddProduct}
                     onCreateManual={onShowManualProduct}
                 />

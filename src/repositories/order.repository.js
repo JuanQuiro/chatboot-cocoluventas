@@ -205,17 +205,17 @@ class OrderRepository {
             const insertData = {
                 cliente_id: data.cliente_id || null,
                 cliente_cedula: data.cliente_cedula || null,
-                cliente_nombre: data.cliente_nombre,
-                cliente_apellido: data.cliente_apellido,
+                cliente_nombre: data.cliente_nombre || 'Cliente Sin Nombre',
+                cliente_apellido: data.cliente_apellido || '',
                 cliente_telefono: data.cliente_telefono || null,
                 cliente_email: data.cliente_email || null,
                 cliente_direccion: data.cliente_direccion || null,
 
-                subtotal_usd: data.subtotal || data.subtotal_usd || 0, // Handle alias
+                subtotal_usd: data.subtotal || data.subtotal_usd || 0,
                 monto_descuento_usd: data.monto_descuento_usd || data.descuento_total || 0,
                 monto_iva_usd: data.monto_iva_usd || data.impuesto_total || 0,
                 monto_delivery_usd: data.monto_delivery_usd || 0,
-                total_usd: data.total_usd,
+                total_usd: data.total_usd || 0,
 
                 aplica_iva: data.aplica_iva ? 1 : 0,
                 metodo_pago: data.metodo_pago || 'efectivo',
@@ -244,7 +244,11 @@ class OrderRepository {
                 estado_entrega: data.estado_entrega || 'pendiente',
                 comentarios_generales: data.comentarios_generales || null,
                 comentarios_descuento: data.comentarios_descuento || null,
-                vendedor_id: data.vendedor_id || null
+                vendedor_id: data.vendedor_id || null,
+
+                // New columns
+                delivery_notes: data.delivery_notes || null,
+                priority: data.priority || 'normal'
             };
 
             // Insert order using Named Parameters (@param) keys match the object properties
@@ -261,7 +265,8 @@ class OrderRepository {
                     metodo_pago_mixto_usd, metodo_pago_mixto_ves,
                     referencia_mixto_usd, referencia_mixto_ves,
                     tasa_bcv, estado_entrega, comentarios_generales,
-                    comentarios_descuento, vendedor_id
+                    comentarios_descuento, vendedor_id,
+                    delivery_notes, priority
                 ) VALUES (
                     @cliente_id, @cliente_cedula, @cliente_nombre, @cliente_apellido,
                     @cliente_telefono, @cliente_email, @cliente_direccion,
@@ -274,26 +279,37 @@ class OrderRepository {
                     @metodo_pago_mixto_usd, @metodo_pago_mixto_ves,
                     @referencia_mixto_usd, @referencia_mixto_ves,
                     @tasa_bcv, @estado_entrega, @comentarios_generales,
-                    @comentarios_descuento, @vendedor_id
+                    @comentarios_descuento, @vendedor_id,
+                    @delivery_notes, @priority
                 )
             `);
 
             const orderResult = orderStmt.run(insertData);
             const orderId = orderResult.lastInsertRowid;
 
-            // Insert order details
-            if (data.productos && data.productos.length > 0) {
+            // Insert order details (Unless skipped by Service which handles complex transactions)
+            if (!data.skipDetails && data.productos && data.productos.length > 0) {
+                // Updated for Deep Hardening (006)
                 const detailStmt = this.db.prepare(`
                     INSERT INTO detalles_pedido (
-                        pedido_id, producto_id, cantidad, 
+                        pedido_id, producto_id, variante_id, cantidad, 
                         precio_unitario_usd, nombre_producto, sku_producto
-                    ) VALUES (?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 `);
 
                 for (const producto of data.productos) {
+                    const isVariant = producto.is_variant === true;
+                    // Strict ID separation: 
+                    // Variants -> variante_id = id, producto_id = NULL
+                    // Legacy -> producto_id = id, variante_id = NULL
+                    // Note: 'producto.producto_id' or 'producto.id' depending on upstream naming. 
+                    // Service uses 'producto.producto_id' generally. Let's support both.
+                    const itemId = producto.producto_id || producto.id;
+
                     detailStmt.run(
                         orderId,
-                        producto.producto_id || null,
+                        isVariant ? null : itemId,
+                        isVariant ? itemId : null,
                         producto.cantidad,
                         producto.precio_unitario || producto.precio_unitario_usd,
                         producto.nombre || producto.nombre_producto,
@@ -347,14 +363,23 @@ class OrderRepository {
                 }
             });
 
+            if (sets.length === 0) {
+                console.warn('⚠️ No fields to update for order:', id, data);
+                return this.getById(id);
+            }
+
             values.push(id);
 
-            const stmt = this.db.prepare(`UPDATE pedidos SET ${sets.join(', ')} WHERE id = ?`);
+            const sql = `UPDATE pedidos SET ${sets.join(', ')} WHERE id = ?`;
+            // console.log('📝 Executing update:', sql, values); // Debug log
+
+            const stmt = this.db.prepare(sql);
             stmt.run(...values);
 
             return this.getById(id);
         } catch (error) {
             console.error('Error in OrderRepository.update:', error);
+            console.error('Data passed:', data);
             throw error;
         }
     }

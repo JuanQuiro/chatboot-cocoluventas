@@ -1,14 +1,14 @@
 {
-  "cliente_id": 1,
-  "cliente_nombre": "alberto",
-  "cliente_apellido": "quiroz",
-  "cliente_cedula": "30391154",
-  "cliente_telefono": "04244374545",
-  "cliente_email": "",
-  "cliente_direccion": "",
+  "cliente_id": 11,
+  "cliente_nombre": "Maria",
+  "cliente_apellido": "Peredes",
+  "cliente_cedula": "15123456",
+  "cliente_telefono": "04243334455",
+  "cliente_email": "mariaparedes@gmail.com",
+  "cliente_direccion": "Dirección pendiente",
   "productos": [
     {
-      "cantidad": 15,
+      "cantidad": 1,
       "precio_unitario": 500,
       "nombre": "Producto Sin Nombre",
       "codigo": "PROD-undefined",
@@ -16,10 +16,10 @@
       "nombre_manual": null
     }
   ],
-  "total_usd": 7500,
-  "subtotal": 7500,
+  "total_usd": 580,
+  "subtotal": 500,
   "descuento_total": 0,
-  "impuesto_total": 0,
+  "impuesto_total": true,
   "es_pago_mixto": false,
   "monto_mixto_usd": 0,
   "monto_mixto_ves": 0,
@@ -27,5 +27,7 @@
   "monto_recibido_ves": 0,
   "tasa_cambio": 0,
   "fabricante_id": 1,
-  "estado_entrega": "pendiente"
+  "assignment_source_manufacturer": "auto",
+  "estado_entrega": "pendiente",
+  "fecha_entrega_estimada": "2026-01-13"
 }

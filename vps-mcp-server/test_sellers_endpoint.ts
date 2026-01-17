@@ -1,8 +1,7 @@
 import { Client } from "ssh2";
 import dotenv from "dotenv";
-import { join } from "path";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,36 +12,33 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
+    readyTimeout: 90000,
 };
 
-console.log(`Testing Sellers Endpoint on ${config.host}...`);
+console.log("🧪 TESTING SELLERS ENDPOINT...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-        TOKEN=\$(curl -s -X POST http://127.0.0.1:3009/api/login -H "Content-Type: application/json" -d '{"username":"admin@cocolu.com","password":"password123"}' | grep -o '"token":"[^"]*' | cut -d'"' -f4)
-        
-        echo "Token: \${TOKEN:0:40}..."
-        echo ""
-        echo "=== TESTING /api/sellers ==="
-        curl -v http://127.0.0.1:3009/api/sellers -H "Authorization: Bearer \$TOKEN" 2>&1 | head -60
-        
-        echo ""
-        echo ""
-        echo "=== CHECKING DATABASE ==="
-        sqlite3 /var/www/cocolu-chatbot/data/cocolu.db "SELECT * FROM sellers LIMIT 2;"
+echo "=== TEST 1: GET /api/sellers ==="
+curl -s http://localhost:3009/api/sellers | jq '.'
+
+echo ""
+echo "=== TEST 2: GET /api/sellers/1 ==="
+curl -s http://localhost:3009/api/sellers/1 | jq '.'
+
+echo ""
+echo "=== TEST 3: GET /api/sellers?status=online ==="
+curl -s 'http://localhost:3009/api/sellers?status=online' | jq '.data | length'
+
+echo ""
+echo "=== TEST 4: GET /api/sellers/stats ==="
+curl -s http://localhost:3009/api/sellers/stats | jq '.'
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on("close", (code: any) => {
-            console.log("\n✅ Sellers endpoint test complete");
-            conn.end();
-        }).on("data", (data: any) => {
-            console.log(data.toString());
-        }).stderr.on("data", (data: any) => {
-            console.error("STDERR:", data.toString());
-        });
+        stream.on('data', d => console.log(d.toString()));
+        stream.on('close', () => conn.end());
     });
-}).on("error", (err) => {
-    console.error("Connection Failed:", err);
 }).connect(config);
