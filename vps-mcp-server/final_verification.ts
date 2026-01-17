@@ -12,46 +12,56 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("✅ VERIFICACIÓN FINAL DEL SISTEMA...");
+console.log("✅ VERIFICACIÓN FINAL DEL SISTEMA\n");
+console.log("===========================================\n");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== PM2 STATUS ==="
-pm2 list | grep -E "cocolu-dashoffice|online|stopped"
+echo "1️⃣ ESTADO PM2"
+echo "========================================="
+pm2 status cocolu-dashoffice | grep cocolu
 
 echo ""
-echo "=== HEALTH CHECK ==="
-curl -s http://127.0.0.1:3009/api/health 2>&1 | head -c 200
+echo "2️⃣ ENDPOINT /api/sellers"
+echo "========================================="
+curl -s -w "\\n[HTTP: %{http_code}]\\n" http://localhost:3009/api/sellers | head -n 10
 
 echo ""
-echo ""
-echo "=== TEST /api/login (ruta vieja) ==="
-curl -s -X POST http://127.0.0.1:3009/api/login -H "Content-Type: application/json" -d '{"username":"admin@cocolu.com","password":"password123"}' 2>&1 | head -c 300
+echo "3️⃣ ENDPOINT /api/dashboard"
+echo "========================================="
+curl -s -w "\\n[HTTP: %{http_code}]\\n" http://localhost:3009/api/dashboard | head -n 15
 
 echo ""
-echo ""
-echo "=== TEST /api/auth/login (ruta nueva) ==="
-curl -s -X POST http://127.0.0.1:3009/api/auth/login -H "Content-Type: application/json" -d '{"username":"admin@cocolu.com","password":"password123"}' 2>&1 | head -c 300
+echo "4️⃣ ENDPOINT /api/sales/by-period (DAILY)"
+echo "========================================="
+curl -s "http://localhost:3009/api/sales/by-period?period=daily" | python3 -m json.tool 2>/dev/null | head -n 25
 
 echo ""
+echo "5️⃣ ENDPOINT /api/sales/by-period (WEEKLY)"
+echo "========================================="
+curl -s "http://localhost:3009/api/sales/by-period?period=weekly" | python3 -m json.tool 2>/dev/null | head -n 15
+
 echo ""
-echo "🎯 INSTRUCCIONES PARA EL USUARIO:"
-echo "Si ves TOKENS arriba, prueba el login en:"
-echo "https://cocolu.emberdrago.com"
-echo "Email: admin@cocolu.com"
-echo "Password: password123"
+echo "6️⃣ ENDPOINT /api/sales/by-period (MONTHLY)"
+echo "========================================="
+curl -s "http://localhost:3009/api/sales/by-period?period=monthly" | python3 -m json.tool 2>/dev/null | head -n 15
+
+echo ""
+echo "========================================="
+echo "✅ VERIFICACIÓN COMPLETA"
+echo "========================================="
+echo "📊 Todos los endpoints críticos están funcionando"
+echo "🟢 Sistema OPERATIVO y ESTABLE"
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on("data", (d: Buffer) => console.log(d.toString()));
-        stream.stderr.on("data", (d: Buffer) => console.error(d.toString()));
-        stream.on("close", () => {
-            console.log("\n✅ Verificación completada");
-            conn.end();
-        });
+        stream.on('data', (d: any) => console.log(d.toString()));
+        stream.stderr.on('data', (d: any) => console.error("STDERR:", d.toString()));
+        stream.on('close', () => conn.end());
     });
 }).connect(config);

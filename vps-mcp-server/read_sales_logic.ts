@@ -12,20 +12,21 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🔍 READING SALES LOGIC...");
+console.log("src/api/enhanced-routes.js...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-grep -C 20 "/api/sales" /var/www/cocolu-chatbot/src/api/enhanced-routes.js
-grep -C 20 "/api/orders" /var/www/cocolu-chatbot/src/api/enhanced-routes.js
+# Read lines around the route definition (approx 290-350)
+sed -n '290,350p' /var/www/cocolu-chatbot/src/api/enhanced-routes.js
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
+        stream.on('data', (d: any) => console.log(d.toString()));
         stream.on('close', () => conn.end());
     });
 }).connect(config);

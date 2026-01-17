@@ -2,7 +2,7 @@
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3009/api';
 
 const getHeaders = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('cocolu_token');
     return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`

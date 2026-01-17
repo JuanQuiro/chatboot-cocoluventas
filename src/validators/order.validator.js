@@ -50,7 +50,12 @@ export const updateOrderSchema = z.object({
     total_usd: z.number().positive().optional(),
     aplica_iva: z.boolean().optional(),
     estado_entrega: z.string().optional(),
-    comentarios_generales: z.string().optional()
+    comentarios_generales: z.string().optional(),
+    fecha_entrega: z.string().optional(),
+    delivery_notes: z.string().optional(),
+    priority: z.enum(['normal', 'high', 'urgent']).optional(),
+    fabricante_id: z.number().int().positive().optional(),
+    vendedor_id: z.number().int().positive().optional()
 });
 
 export const orderIdSchema = z.object({

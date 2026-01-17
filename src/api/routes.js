@@ -22,6 +22,9 @@ import simpleUsersRouter from './simple-users.routes.js';
 import { messageLog, globalState } from '../core/global-state.js';
 import sellerController from '../controllers/seller.controller.js';
 import { setupEnhancedRoutes } from './enhanced-routes.js';
+import providersRouter from './providers.routes.js';
+import variantsRouter from './variants.routes.js';
+import { setupAccountsReceivableRoutes } from './accounts-receivable.routes.js';
 
 /**
  * Configurar rutas de la API
@@ -439,6 +442,12 @@ export const setupRoutes = (app) => {
     });
 
     // ============================================
+    // SISTEMA DE VARIANTES Y PROVEEDORES
+    // ============================================
+    app.use('/api/providers', providersRouter);
+    app.use('/api/variants', variantsRouter);
+
+    // ============================================
     // SOPORTE
     // ============================================
 
@@ -762,6 +771,11 @@ export const setupRoutes = (app) => {
     // ============================================
     // WEBSOCKET (información en tiempo real)
     // ============================================
+
+    // ============================================
+    // CUENTAS POR COBRAR
+    // ============================================
+    setupAccountsReceivableRoutes(app);
 
     // ============================================
     // RUTAS MEJORADAS (Enhanced)

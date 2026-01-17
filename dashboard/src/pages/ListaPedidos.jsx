@@ -6,7 +6,8 @@ import SearchInput from '../components/common/SearchInput';
 import ExportModal from '../components/common/ExportModal';
 import QuickEditModal from '../components/orders/QuickEditModal';
 import DeliveryDateModal from '../components/orders/DeliveryDateModal';
-import { Download, Eye, Trash2, Pencil, Calendar } from 'lucide-react';
+import AssignmentModal from '../components/orders/AssignmentModal';
+import { Download, Eye, Trash2, Pencil, Calendar, Briefcase } from 'lucide-react';
 import Pagination from '../components/common/Pagination';
 import './ListaPedidos.css';
 
@@ -34,6 +35,10 @@ const ListaPedidos = () => {
     // Delivery Date State
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [deliveryEditOrder, setDeliveryEditOrder] = useState(null);
+
+    // Assignment Modal State
+    const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+    const [assignmentEditOrder, setAssignmentEditOrder] = useState(null);
 
     useEffect(() => {
         loadOrders();
@@ -76,11 +81,45 @@ const ListaPedidos = () => {
                 ordersData = Array.isArray(response) ? response : [];
             }
 
-            // Sort by delivery date (closest first, then by order date)
+            // Sort Logic: STRICT Date Priority
+            // 1. Status 'entregado' (Delivered) always at bottom
+            // 2. Date: Ascending check (Closest date is #1 importance)
+            // 3. Tie-Breakers (Same Date):
+            //    - Urgent Label
+            //    - High Value (>$1000)
             ordersData.sort((a, b) => {
-                const dateA = a.fecha_entrega ? new Date(a.fecha_entrega) : new Date(a.date || a.created_at);
-                const dateB = b.fecha_entrega ? new Date(b.fecha_entrega) : new Date(b.date || b.created_at);
-                return dateA - dateB;
+                // 1. Status Check
+                const statusA = (a.estado_entrega || '').toLowerCase();
+                const statusB = (b.estado_entrega || '').toLowerCase();
+
+                if (statusA === 'entregado' && statusB !== 'entregado') return 1;
+                if (statusA !== 'entregado' && statusB === 'entregado') return -1;
+
+                // 2. Date Check (PRIMARY)
+                // Treat null/missing dates as "far future" so they don't clog the top
+                const dateA = a.fecha_entrega ? new Date(a.fecha_entrega) : new Date(8640000000000000);
+                const dateB = b.fecha_entrega ? new Date(b.fecha_entrega) : new Date(8640000000000000);
+
+                // Set to midnight to compare just the days
+                dateA.setHours(0, 0, 0, 0);
+                dateB.setHours(0, 0, 0, 0);
+
+                const diff = dateA - dateB;
+                if (diff !== 0) return diff; // Closest date purely wins
+
+                // 3. Same Day Tie-Breakers (Smart Logic)
+                const getScore = (order) => {
+                    let score = 0;
+                    const val = parseFloat(order.total_usd || order.total || 0);
+
+                    if (order.priority === 'urgent') score += 10;
+                    if (order.priority === 'high') score += 5;
+                    if (val > 1000) score += 8; // Money creates sub-priority
+
+                    return score;
+                };
+
+                return getScore(b) - getScore(a); // Higher score first within same day
             });
 
             setOrders(ordersData);
@@ -162,7 +201,6 @@ const ListaPedidos = () => {
         }
     };
 
-    // Quick Edit Handlers
     const handleQuickEdit = (order) => {
         setEditingOrder(order);
         setShowQuickEditModal(true);
@@ -170,22 +208,26 @@ const ListaPedidos = () => {
 
     const handleSaveQuickEdit = async (orderId, formData) => {
         try {
-            await ordersService.updateOrder(orderId, {
-                estado_entrega: formData.status,
-                total_usd: formData.total
-            });
-
+            if (formData.status !== orderId.estado_entrega) {
+                await ordersService.updateOrderStatus(orderId, formData.status);
+            }
+            if (parseFloat(formData.total) !== parseFloat(orderId.total_usd)) {
+                await ordersService.updateOrder(orderId, {
+                    total_usd: formData.total
+                });
+            }
             setShowQuickEditModal(false);
             setEditingOrder(null);
-            loadOrders();
-            loadStats();
+            setOrders([]);
+            await loadOrders();
+            await loadStats();
+            console.log('✅ Pedido actualizado y recargado');
         } catch (error) {
             console.error('Error updating order:', error);
-            alert('Error al actualizar el pedido');
+            alert('Error al actualizar el pedido: ' + (error.response?.data?.error || error.message));
         }
     };
 
-    //Delivery Date Handlers
     const handleSetDeliveryDate = (order) => {
         setDeliveryEditOrder(order);
         setShowDeliveryModal(true);
@@ -202,6 +244,63 @@ const ListaPedidos = () => {
             alert('Error al actualizar la fecha de entrega');
         }
     };
+
+    const handleOpenAssignment = (order) => {
+        setAssignmentEditOrder(order);
+        setShowAssignmentModal(true);
+    };
+
+    const handleSaveAssignment = async (orderId, assignmentData) => {
+        try {
+            await ordersService.updateOrder(orderId, assignmentData);
+            setShowAssignmentModal(false);
+            setAssignmentEditOrder(null);
+            loadOrders();
+        } catch (error) {
+            console.error('Error updating assignment:', error);
+            alert('Error al asignar responsables');
+        }
+    };
+
+    const renderActions = (order) => (
+        <div className="order-actions">
+            <button
+                onClick={() => handleOpenAssignment(order)}
+                className="btn-action assignment"
+                title="Asignar Responsables"
+            >
+                <Briefcase size={18} />
+            </button>
+            <button
+                onClick={() => handleSetDeliveryDate(order)}
+                className="btn-action calendar"
+                title="Fecha de Entrega"
+            >
+                <Calendar size={18} />
+            </button>
+            <button
+                onClick={() => handleQuickEdit(order)}
+                className="btn-action edit"
+                title="Edición Rápida"
+            >
+                <Pencil size={18} />
+            </button>
+            <button
+                onClick={() => navigate(`/editar-pedido/${order.id}`)}
+                className="btn-action view"
+                title="Ver/Detalles"
+            >
+                <Eye size={18} />
+            </button>
+            <button
+                onClick={() => handleDelete(order.id)}
+                className="btn-action delete"
+                title="Eliminar"
+            >
+                <Trash2 size={18} />
+            </button>
+        </div>
+    );
 
     const columns = [
         { key: 'id', label: 'ID', sortable: true },
@@ -226,19 +325,16 @@ const ListaPedidos = () => {
             sortable: true,
             render: (value, row) => {
                 if (!value) return <span style={{ color: '#9ca3af' }}>Sin fecha</span>;
-
                 const deliveryDate = new Date(value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const daysUntil = Math.ceil((deliveryDate - today) / (1000 * 60 * 60 * 24));
-
                 let className = '';
                 let icon = '📅';
                 if (daysUntil < 0) { className = 'overdue'; icon = '⚠️'; }
                 else if (daysUntil === 0) { className = 'today'; icon = '🔴'; }
                 else if (daysUntil === 1) { className = 'tomorrow'; icon = '🟠'; }
                 else if (daysUntil <= 3) { className = 'soon'; icon = '🟡'; }
-
                 return (
                     <span className={`delivery-date ${className}`}>
                         {icon} {deliveryDate.toLocaleDateString()}
@@ -247,21 +343,21 @@ const ListaPedidos = () => {
             }
         },
         {
-            key: 'fabricante_nombre', // Assuming backend join/population or need to check
+            key: 'fabricante_nombre',
             label: 'Fabricante',
             render: (value, row) => row.manufacturer?.name || row.fabricante_nombre || 'No asignado'
         },
         {
-            key: 'total_usd', // V2 uses total_usd
+            key: 'total_usd',
             label: 'Total (USD)',
             sortable: true,
             render: (value, row) => `$${parseFloat(row.total_usd || row.total || 0).toFixed(2)}`
         },
         {
-            key: 'estado_entrega', // V2 field
+            key: 'status',
             label: 'Estado',
-            render: (value) => {
-                const status = value || 'pendiente';
+            render: (value, row) => {
+                const status = value || row.estado_entrega || 'pendiente';
                 return (
                     <span className={`status-badge status-${status.toLowerCase().replace(' ', '-')}`}>
                         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -271,38 +367,36 @@ const ListaPedidos = () => {
         }
     ];
 
-    const renderActions = (order) => (
-        <div className="table-actions">
-            <button
-                onClick={() => handleSetDeliveryDate(order)}
-                className="btn-icon calendar"
-                title="Fecha de Entrega"
-            >
-                <Calendar size={18} />
-            </button>
-            <button
-                onClick={() => handleQuickEdit(order)}
-                className="btn-icon edit"
-                title="Edición Rápida"
-            >
-                <Pencil size={18} />
-            </button>
-            <button
-                onClick={() => navigate(`/editar-pedido/${order.id}`)}
-                className="btn-icon"
-                title="Ver/Detalles"
-            >
-                <Eye size={18} />
-            </button>
-            <button
-                onClick={() => handleDelete(order.id)}
-                className="btn-icon delete"
-                title="Eliminar"
-            >
-                <Trash2 size={18} />
-            </button>
-        </div>
-    );
+    const getRowClassName = (row) => {
+        if (!row) return '';
+        if (row.estado_entrega === 'entregado') return 'row-completed';
+
+        // Dynamic Business Logic: Date Proximity overrides static priority
+        let dateUrgency = 'normal';
+        if (row.fecha_entrega) {
+            const deliveryDate = new Date(row.fecha_entrega);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const daysUntil = Math.ceil((deliveryDate - today) / (1000 * 60 * 60 * 24));
+
+            if (daysUntil < 0) dateUrgency = 'overdue'; // Vencido -> Super Urgente
+            else if (daysUntil === 0) dateUrgency = 'today'; // Hoy -> Urgente
+            else if (daysUntil === 1) dateUrgency = 'tomorrow'; // Mañana -> Alta
+        }
+
+        // 1. Critical: Overdue or Urgent Label
+        if (dateUrgency === 'overdue' || dateUrgency === 'today' || row.priority === 'urgent') {
+            return 'row-urgent';
+        }
+
+        // 2. High: High Value (>$1000), Tomorrow or High Label
+        const val = parseFloat(row.total_usd || row.total || 0);
+        if (dateUrgency === 'tomorrow' || row.priority === 'high' || val > 1000) {
+            return 'row-high';
+        }
+
+        return '';
+    };
 
     return (
         <div className="lista-pedidos-page">
@@ -344,7 +438,6 @@ const ListaPedidos = () => {
                         <option value="entregado">Entregado</option>
                     </select>
 
-                    {/* Manufacturer Filter */}
                     <select
                         value={manufacturerFilter}
                         onChange={(e) => setManufacturerFilter(e.target.value)}
@@ -412,8 +505,9 @@ const ListaPedidos = () => {
                 data={orders}
                 loading={loading}
                 actions={renderActions}
-                pagination={true}
+                pagination={false}
                 pageSize={15}
+                rowClassName={getRowClassName}
             />
 
             {meta && (
@@ -446,6 +540,13 @@ const ListaPedidos = () => {
                 onClose={() => setShowDeliveryModal(false)}
                 order={deliveryEditOrder}
                 onSave={handleSaveDeliveryDate}
+            />
+
+            <AssignmentModal
+                isOpen={showAssignmentModal}
+                onClose={() => setShowAssignmentModal(false)}
+                order={assignmentEditOrder}
+                onSave={handleSaveAssignment}
             />
         </div>
     );

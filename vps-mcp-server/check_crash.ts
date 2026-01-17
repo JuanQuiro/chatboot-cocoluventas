@@ -15,17 +15,35 @@ const config = {
     readyTimeout: 90000,
 };
 
-console.log("🔍 CHECKING PM2 LOGS for CRASH...");
+console.log("🔍 VERIFICANDO CRASH...\n");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-pm2 logs cocolu-dashoffice --lines 50 --nostream
+echo "PM2 Status:"
+pm2 status | grep cocolu
+
+echo ""
+echo "Últimos logs ERROR:"
+pm2 logs cocolu-dashoffice --err --lines 40 --nostream
+
+echo ""
+echo "Último logs OUT:"
+pm2 logs cocolu-dashoffice --out --lines 20 --nostream
+
+echo ""
+echo "Puerto 3009 listening?"
+ss -tlnp | grep 3009 || echo "NO HAY PROCESO EN 3009"
+
+echo ""
+echo "app-integrated.js primeras líneas:"
+head -n 20 /var/www/cocolu-chatbot/app-integrated.js
     `;
 
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
+        stream.on('data', (d: any) => console.log(d.toString()));
+        stream.stderr.on('data', (d: any) => console.error("STDERR:", d.toString()));
         stream.on('close', () => conn.end());
     });
 }).connect(config);

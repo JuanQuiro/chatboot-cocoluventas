@@ -33,7 +33,11 @@ const Ingresos = () => {
     const [limit, setLimit] = useState(15);
     const [meta, setMeta] = useState(null);
 
-    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    const [dateRange, setDateRange] = useState({
+        // Default to Previous Month Start
+        start: new Date(new Date().setMonth(new Date().getMonth() - 1, 1)).toISOString().split('T')[0],
+        end: new Date().toISOString().split('T')[0]
+    });
 
     useEffect(() => {
         loadIncomes();

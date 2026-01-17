@@ -33,10 +33,15 @@ export const clientsService = {
         if (!query || query.length < 2) {
             return { success: true, data: [] };
         }
-        const response = await axios.get(`${API_URL}/clients-improved/search`, {
-            params: { q: query }
-        });
-        return response.data; // Returns { success, data } con nombre_completo
+        try {
+            const response = await axios.get(`${API_URL}/clients/search`, {
+                params: { q: query }
+            });
+            return response.data.data || [];
+        } catch (error) {
+            console.error('Error searching clients:', error);
+            throw error;
+        }
     },
 
     // Crear cliente con apellido obligatorio
@@ -44,8 +49,13 @@ export const clientsService = {
         if (!clienteData.apellido) {
             throw new Error('El apellido es obligatorio');
         }
-        const response = await axios.post(`${API_URL}/clients-improved`, clienteData);
-        return response.data;
+        try {
+            const response = await axios.post(`${API_URL}/clients`, clienteData);
+            return response.data;
+        } catch (error) {
+            console.error('Error creating client:', error);
+            throw error;
+        }
     },
 
     // Get client by ID
@@ -85,11 +95,10 @@ export const clientsService = {
     },
 
     // Quick create (minimal fields)
+    // DEPRECATED: Use createClientMejorado instead
     quickCreate: async (minimalData) => {
-        // Fix: Use standard /clients endpoint as /quick does not exist
-        const response = await axios.post(`${API_URL}/clients`, minimalData);
-        // Unwrap response data.data if the backend wraps it
-        return response.data.data || response.data;
+        console.warn('⚠️ quickCreate is deprecated, use createClientMejorado instead');
+        return clientsService.createClientMejorado(minimalData);
     },
 
     // Statistics

@@ -12,24 +12,20 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
-    readyTimeout: 60000,
+    readyTimeout: 90000,
 };
 
-console.log("🔍 BUSCANDO RUTAS DE VENTAS/SALES...");
+console.log("🔍 FINDING SALES ROUTE...");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-echo "=== FILES IN API ==="
-ls -l /var/www/cocolu-chatbot/src/api/
-
-echo "=== SEARCH CONTENT ==="
-grep -r "/api/sales" /var/www/cocolu-chatbot/src/api/
-grep -r "/api/orders" /var/www/cocolu-chatbot/src/api/
+grep -rn "/sales" /var/www/cocolu-chatbot/src/api/
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on('data', d => console.log(d.toString()));
+        stream.on('data', (d: any) => console.log(d.toString()));
         stream.on('close', () => conn.end());
     });
 }).connect(config);

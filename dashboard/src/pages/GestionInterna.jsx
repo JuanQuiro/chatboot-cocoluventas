@@ -6,7 +6,8 @@ import { financeService } from '../services/financeService';
 
 export default function GestionInterna() {
     const [dateRange, setDateRange] = useState({
-        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+        // Default to Previous Month Start to ensure data from e.g. Dec 2025 shows up in Jan 2026
+        start: new Date(new Date().setMonth(new Date().getMonth() - 1, 1)).toISOString().split('T')[0],
         end: new Date().toISOString().split('T')[0]
     });
 
@@ -23,6 +24,7 @@ export default function GestionInterna() {
     });
 
     const income = incomeData?.data || {};
+    console.log('GestionInterna Debug:', { incomeData, income });
     const expenses = expensesData?.data || [];
 
     const totalIncome = (income.ingresos_pedidos || 0) + (income.ingresos_varios || 0);

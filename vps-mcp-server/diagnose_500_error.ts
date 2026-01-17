@@ -1,8 +1,7 @@
 import { Client } from "ssh2";
 import dotenv from "dotenv";
-import { join } from "path";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,41 +12,48 @@ const config = {
     port: parseInt(process.env.VPS_PORT || "22"),
     username: process.env.VPS_USERNAME,
     password: process.env.VPS_PASSWORD,
+    readyTimeout: 90000,
 };
 
-console.log(`🔍 DIAGNÓSTICO DEL ERROR 500...`);
+console.log("🔍 VERIFICANDO ERROR 500 DEL BACKEND...\n");
 
 const conn = new Client();
 conn.on("ready", () => {
     const cmd = `
-        cd /var/www/cocolu-chatbot
-        
-        echo "=== PM2 STATUS ==="
-        pm2 list | grep cocolu
-        
-        echo ""
-        echo "=== ÚLTIMOS 50 LOGS DE ERROR ==="
-        pm2 logs cocolu-dashoffice --err --lines 50 --nostream 2>&1 | tail -50
-        
-        echo ""
-        echo "=== VERIFICAR ARCHIVOS SUBIDOS ==="
-        ls -la src/api/installments.routes.js src/api/accounts-receivable.routes.js 2>/dev/null || echo "Archivos NO existen"
-        
-        echo ""
-        echo "=== PROBAR ENDPOINT DIRECTO DESDE SERVIDOR ==="
-        curl -v http://127.0.0.1:3009/api/installments/stats 2>&1 | grep -E "HTTP|Content|error|Error"
+echo "========================================="
+echo "1. PM2 STATUS"
+echo "========================================="
+pm2 status
+
+echo ""
+echo "========================================="
+echo "2. ÚLTIMOS LOGS DE ERROR"
+echo "========================================="
+pm2 logs cocolu-dashoffice --lines 50 --nostream --err
+
+echo ""
+echo "========================================="
+echo "3. VERIFICAR SCHEMA DE CLIENTES"
+echo "========================================="
+sqlite3 /var/www/cocolu-chatbot/data/cocolu.db "PRAGMA table_info(clientes);" | grep -E "(id|nombre|apellido|telefono|email)"
+
+echo ""
+echo "========================================="
+echo "4. TEST ENDPOINT CLIENTS"
+echo "========================================="
+curl -s -w "\\nHTTP_CODE:%{http_code}\\n" http://localhost:3009/api/clients | head -n 10
+
+echo ""
+echo "========================================="
+echo "5. TEST ENDPOINT CLIENTS-IMPROVED"
+echo "========================================="
+curl -s -w "\\nHTTP_CODE:%{http_code}\\n" http://localhost:3009/api/clients-improved/search?q=test | head -n 10
     `;
+
     conn.exec(cmd, (err, stream) => {
         if (err) throw err;
-        stream.on("close", (code: any) => {
-            console.log("\n✅ Diagnóstico completo");
-            conn.end();
-        }).on("data", (data: any) => {
-            console.log(data.toString());
-        }).stderr.on("data", (data: any) => {
-            console.error("STDERR:", data.toString());
-        });
+        stream.on('data', (d: any) => console.log(d.toString()));
+        stream.stderr.on('data', (d: any) => console.error("STDERR:", d.toString()));
+        stream.on('close', () => conn.end());
     });
-}).on("error", (err) => {
-    console.error("Connection Failed:", err);
 }).connect(config);

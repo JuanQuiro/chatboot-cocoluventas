@@ -4,6 +4,7 @@ import { salesService, ordersService } from '../services/salesService';
 import { inventoryService } from '../services/inventoryService';
 import bcvService from '../services/bcvService';
 import { useToast } from '../components/common/Toast';
+import { useAuth } from '../contexts/AuthContext';
 
 // Sub-hooks
 import useClientSearch from './useClientSearch';
@@ -14,6 +15,7 @@ import useDraftManagement from './useDraftManagement';
 import useStockValidation from './useStockValidation';
 import useInstallmentSystem from './useInstallmentSystem';
 import useClientValidation from './useClientValidation';
+import axios from '../services/api';
 import useMixedPayment from './useMixedPayment';
 
 /**
@@ -22,6 +24,7 @@ import useMixedPayment from './useMixedPayment';
  */
 const useSaleController = () => {
     const toast = useToast();
+    const { user } = useAuth();
 
     // === BUSINESS HOOKS ===
     const clientSearch = useClientSearch();
@@ -41,6 +44,17 @@ const useSaleController = () => {
     const [exchangeRate, setExchangeRate] = useState(0);
     const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Assignment State
+    const [sellerId, setSellerId] = useState('');
+    const [manufacturerId, setManufacturerId] = useState('');
+
+    // Auto-assign seller
+    useEffect(() => {
+        if (user?.id && !sellerId) {
+            setSellerId(user.id);
+        }
+    }, [user, sellerId]);
 
     // === MODALS ===
     const [modals, setModals] = useState({
@@ -98,10 +112,14 @@ const useSaleController = () => {
         discountType: calculations.discountType,
         discountValue: calculations.discountValue,
         notes,
-        installmentConfig: installmentSystem.installmentConfig
+        installmentConfig: installmentSystem.installmentConfig,
+        // Assignments
+        sellerId,
+        manufacturerId
     }), [
         clientSearch.client, cart.cart, paymentType, paymentMethod,
-        mixedPaymentUSD, mixedPaymentVES, calculations, notes, installmentSystem.installmentConfig
+        mixedPaymentUSD, mixedPaymentVES, calculations, notes, installmentSystem.installmentConfig,
+        sellerId, manufacturerId
     ]);
 
     const hasContent = Boolean(
@@ -118,11 +136,15 @@ const useSaleController = () => {
         setMixedPaymentUSD,
         setMixedPaymentVES,
         calculations,
-        setNotes
+        setNotes,
+        // Assignments setters for restoration if needed (useDraftManagement handles simple state updates?)
+        // Assuming useDraftManagement doesn't restore custom state unless passed setter
+        // But for now, assignments depend on user session mainly
     });
 
     // === HANDLERS ===
     const handleQuickStockAdd = useCallback(async (product, qtyToAdd) => {
+        // TODO: Update logic for variants in future
         const newStock = (product.stock || 0) + qtyToAdd;
         await inventoryService.updateProduct(product.id, { ...product, stock: newStock });
         stockValidation.clearCache();
@@ -133,12 +155,17 @@ const useSaleController = () => {
 
     const handleAddProduct = useCallback(async (product) => {
         // Normalize product properties (inventory service returns name/price/code, cart expects nombre/precio_venta/codigo)
+        // Also supports new Quality Variants (nombre_variante, precio_venta_usd, sku_variante)
         const normalizedProduct = {
             ...product,
-            nombre: product.nombre || product.name,
-            precio_venta: product.precio_venta || product.price,
-            codigo: product.codigo || product.code,
-            quantity: product.quantity || 1
+            nombre: product.nombre_variante || product.nombre || product.name,
+            precio_venta: product.precio_venta_usd || product.precio_venta || product.price || 0,
+            codigo: product.sku_variante || product.codigo || product.code || `PROD-${product.id}`,
+            quantity: product.quantity || 1,
+            // Keep variant specific for UI
+            isVariant: !!product.producto_base_id,
+            nivel_calidad: product.nivel_calidad,
+            proveedor_pais: product.proveedor_pais
         };
 
         const qtyToAdd = normalizedProduct.quantity || 1;
@@ -267,7 +294,8 @@ const useSaleController = () => {
                     nombre: item.nombre,
                     codigo: item.codigo || item.sku || `PROD-${item.id}`,
                     cantidad: item.quantity || 1,
-                    precio_unitario: item.precio_venta || item.price || 0
+                    precio_unitario: item.precio_venta || item.price || 0,
+                    is_variant: !!item.isVariant // Flag for backend
                 })),
                 subtotal: cart.calculateSubtotal(),
                 total_usd: calculations.calculateTotal(),
@@ -281,7 +309,10 @@ const useSaleController = () => {
                 iva: calculations.hasIVA,
                 descuento: calculations.hasDiscount,
                 descuento_tipo: calculations.discountType,
-                descuento_valor: calculations.discountValue
+                descuento_valor: calculations.discountValue,
+                // Assignments
+                vendedor_id: sellerId,
+                fabricante_id: manufacturerId || null
             };
 
             // Add installment plan if applicable
@@ -320,7 +351,8 @@ const useSaleController = () => {
     }, [
         clientSearch.client, cart, paymentType, paymentMethod, notes,
         calculations, exchangeRate, installmentSystem, mixedPaymentUSD,
-        mixedPaymentVES, toast, clearDraft
+        mixedPaymentVES, toast, clearDraft,
+        sellerId, manufacturerId
     ]);
 
     const resetForm = useCallback(() => {
@@ -337,6 +369,7 @@ const useSaleController = () => {
         setMixedPaymentVES(0);
         setNotes('');
         installmentSystem.disableInstallments();
+        // Assignments depend on user, don't reset unless user changes
     }, [clientSearch, cart, calculations, installmentSystem]);
 
     // === RETURN ===
@@ -364,6 +397,12 @@ const useSaleController = () => {
         notes,
         setNotes,
         loading,
+
+        // Assignments
+        sellerId,
+        setSellerId,
+        manufacturerId,
+        setManufacturerId,
 
         // Modals
         modals,

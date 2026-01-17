@@ -781,7 +781,10 @@ export function setupEnhancedRoutes(app) {
             items: o.detalles_pedido || [],
             total: o.total_usd,
             status: o.estado_entrega,
-            paymentMethod: o.metodo_pago
+            paymentMethod: o.metodo_pago,
+            fecha_entrega: o.fecha_entrega,
+            delivery_notes: o.delivery_notes,
+            priority: o.priority
         }));
 
         res.json({
@@ -831,10 +834,25 @@ export function setupEnhancedRoutes(app) {
         validateParams(orderIdSchema),
         asyncHandler(async (req, res) => {
             const { status, notes } = req.body;
+
             // Validate status
-            const validStatus = ['pendiente', 'confirmado', 'en_camino', 'entregado', 'cancelado', 'en proceso', 'completado'];
+            const validStatus = [
+                'pendiente',
+                'pago confirmado',
+                'confirmado',
+                'apartado',
+                'vectorizado',
+                'en proceso',
+                'empaquetado',
+                'listo',
+                'entregado',
+                'cancelado',
+                'completado',
+                'en_camino'
+            ];
+
             if (status && !validStatus.includes(status)) {
-                return res.status(400).json({ success: false, error: 'Estado inválido' });
+                return res.status(400).json({ success: false, error: `Estado inválido: ${status}` });
             }
 
             const updated = await ordersService.updateOrderStatus(req.validated.id, status, notes);
@@ -1100,11 +1118,14 @@ export function setupEnhancedRoutes(app) {
     }));
 
     // Income Summary
+    // Income Summary (MOVED TO finance.routes.js)
+    /*
     app.get('/api/finance/income/summary', asyncHandler(async (req, res) => {
         const { start, end } = req.query;
         const summary = await paymentsService.getIncomeSummary(start, end);
         res.json({ success: true, data: summary });
     }));
+    */
 
     // --- Expenses Routes ---
     app.get('/api/finance/expenses', asyncHandler(async (req, res) => {
@@ -1158,7 +1179,12 @@ export function setupEnhancedRoutes(app) {
                 totalReceivable: result.data.total_por_cobrar,
                 overdueTotal: result.data.monto_vencido,
                 overdueCount: result.data.cuotas_vencidas,
-                upcomingTotal: result.data.monto_proximo
+                upcomingTotal: result.data.monto_proximo,
+                // Aging Buckets
+                bucket_0_30: result.data.bucket_0_30,
+                bucket_31_60: result.data.bucket_31_60,
+                bucket_61_90: result.data.bucket_61_90,
+                bucket_90_plus: result.data.bucket_90_plus
             }
         });
     }));

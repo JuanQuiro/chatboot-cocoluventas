@@ -282,10 +282,10 @@ class ProductRepository {
     getTopSelling(limit = 10) {
         try {
             const stmt = this.db.prepare(`
-                SELECT p.nombre as name, p.sku as code, SUM(dp.cantidad) as quantitySold, SUM(dp.cantidad * dp.precio_unitario_usd) as revenue
+                SELECT p.nombre as name, MAX(p.sku) as code, SUM(dp.cantidad) as quantitySold, SUM(dp.cantidad * dp.precio_unitario_usd) as revenue
                 FROM detalles_pedido dp
                 JOIN productos p ON dp.producto_id = p.id
-                GROUP BY p.id
+                GROUP BY p.nombre
                 ORDER BY quantitySold DESC
                 LIMIT ?
             `);

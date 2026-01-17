@@ -8,7 +8,8 @@ const DataTable = ({
     onRowClick,
     actions,
     pagination = true,
-    pageSize = 10
+    pageSize = 10,
+    rowClassName
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortColumn, setSortColumn] = useState(null);
@@ -92,7 +93,7 @@ const DataTable = ({
                                 <tr
                                     key={row.id || index}
                                     onClick={() => onRowClick && onRowClick(row)}
-                                    className={onRowClick ? 'clickable' : ''}
+                                    className={`${onRowClick ? 'clickable' : ''} ${typeof rowClassName === 'function' ? rowClassName(row) : rowClassName || ''}`}
                                 >
                                     {columns.map((column) => (
                                         <td key={column.key}>

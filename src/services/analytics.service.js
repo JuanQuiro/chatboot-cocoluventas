@@ -109,6 +109,36 @@ class AnalyticsService {
     trackMessage(userId) {
         this.activeUsers.add(userId);
     }
+
+    /**
+     * Obtener Distribución de Ventas por Calidad (Premium/Luxury/Standard)
+     * Basado en SKU match para evitar conflictos de ID legacy
+     */
+    getQualitySales() {
+        try {
+            const db = this._getDb();
+            // Join details -> variants by SKU
+            const stmt = db.prepare(`
+                SELECT 
+                    pv.nivel_calidad,
+                    p.pais as origen,
+                    COUNT(*) as cantidad_items,
+                    SUM(dp.precio_unitario_usd * dp.cantidad) as total_usd
+                FROM detalles_pedido dp
+                JOIN productos_variantes pv ON dp.sku_producto = pv.sku_variante
+                JOIN proveedores p ON pv.proveedor_id = p.id
+                JOIN pedidos ped ON dp.pedido_id = ped.id
+                WHERE ped.estado_entrega != 'anulado'
+                GROUP BY pv.nivel_calidad, p.pais
+                ORDER BY total_usd DESC
+            `);
+            const results = stmt.all();
+            return results;
+        } catch (error) {
+            console.error('Error getting quality sales stats:', error);
+            return [];
+        }
+    }
 }
 
 export default new AnalyticsService();

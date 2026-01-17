@@ -124,7 +124,33 @@ class InstallmentRepository {
                 SUM(CASE WHEN estado = 'vencida' THEN 1 ELSE 0 END) as cuotas_vencidas,
                 SUM(CASE WHEN estado = 'vencida' THEN monto_cuota ELSE 0 END) as monto_vencido,
                 SUM(CASE WHEN estado = 'pagada' THEN 1 ELSE 0 END) as cuotas_pagadas,
-                SUM(CASE WHEN estado IN ('pendiente', 'vencida', 'parcial') THEN (monto_cuota - COALESCE(monto_pagado, 0)) ELSE 0 END) as total_por_cobrar
+                SUM(CASE WHEN estado IN ('pendiente', 'vencida', 'parcial') THEN (monto_cuota - COALESCE(monto_pagado, 0)) ELSE 0 END) as total_por_cobrar,
+                
+                -- Aging Buckets (Real Data)
+                SUM(CASE 
+                    WHEN estado IN ('pendiente', 'vencida', 'parcial') AND (julianday('now') - julianday(fecha_vencimiento)) <= 30 
+                    THEN (monto_cuota - COALESCE(monto_pagado, 0)) 
+                    ELSE 0 
+                END) as bucket_0_30,
+                
+                SUM(CASE 
+                    WHEN estado IN ('pendiente', 'vencida', 'parcial') AND (julianday('now') - julianday(fecha_vencimiento)) > 30 AND (julianday('now') - julianday(fecha_vencimiento)) <= 60
+                    THEN (monto_cuota - COALESCE(monto_pagado, 0)) 
+                    ELSE 0 
+                END) as bucket_31_60,
+                
+                SUM(CASE 
+                    WHEN estado IN ('pendiente', 'vencida', 'parcial') AND (julianday('now') - julianday(fecha_vencimiento)) > 60 AND (julianday('now') - julianday(fecha_vencimiento)) <= 90
+                    THEN (monto_cuota - COALESCE(monto_pagado, 0)) 
+                    ELSE 0 
+                END) as bucket_61_90,
+                
+                SUM(CASE 
+                    WHEN estado IN ('pendiente', 'vencida', 'parcial') AND (julianday('now') - julianday(fecha_vencimiento)) > 90
+                    THEN (monto_cuota - COALESCE(monto_pagado, 0)) 
+                    ELSE 0 
+                END) as bucket_90_plus
+
             FROM installments
         `;
 

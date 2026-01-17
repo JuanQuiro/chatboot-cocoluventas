@@ -1,1 +1,0 @@
-SubscriberBuilder<DefaultFields, Format, tracing::level_filters::LevelFilter, Arc<dyn std::io::Write + Send + Sync>>
